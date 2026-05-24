@@ -29,18 +29,11 @@ jobs:
             tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
             desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
 
-            # strip frontmatter (between the two --- lines) then convert
             body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown --to html)
 
-            # escape & in values so sed doesn't misinterpret them
-            title_esc=$(printf '%s\n' "$title" | sed 's/[&/\]/\\&/g')
-            tag_esc=$(printf '%s\n' "$tag"   | sed 's/[&/\]/\\&/g')
-            desc_esc=$(printf '%s\n' "$desc" | sed 's/[&/\]/\\&/g')
-
-            # use a temp file for the body to avoid shell escaping issues
             echo "$body" > /tmp/post_body.html
 
-            python3 - "$title_esc" "$tag_esc" "$desc_esc" "posts/${name}.html" << 'PYEOF'
+            python3 - "$title" "$tag" "$desc" "posts/${name}.html" << 'PYEOF'
           import sys, pathlib
 
           title, tag, desc, outpath = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
@@ -59,7 +52,7 @@ jobs:
 
           done
 
-      - name: Generate scrolls.html (post index)
+      - name: Generate scrolls.html
         run: |
           python3 << 'PYEOF'
           import pathlib, re
@@ -143,3 +136,8 @@ jobs:
           git add posts/*.html scrolls.html
           git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls index"
           git push
+
+  # Chain into the deploy workflow after build succeeds
+  deploy:
+    needs: build
+    uses: ./.github/workflows/static.yml
