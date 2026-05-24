@@ -4,566 +4,480 @@
   const randI = (a, b) => Math.floor(rand(a, b));
   const wait  = ms => new Promise(r => setTimeout(r, ms));
 
-  // ── Canvas pixel art setup ──
-  // Draw at 320x60 logical pixels, scale up 4x = 1280x240 display
-  // This gives chunky SNES-style pixels
-  const SCALE = 4;
-  const W = 320;
-  const H = 60;
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 1440 260');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.classList.add('landscape');
 
-  const canvas = document.createElement('canvas');
-  canvas.width  = W * SCALE;
-  canvas.height = H * SCALE;
-  canvas.style.cssText = [
-    'position:fixed',
-    'bottom:0',
-    'left:0',
-    'width:100%',
-    'height:auto',
-    'max-height:240px',
-    'image-rendering:pixelated',
-    'image-rendering:crisp-edges',
-    '-ms-interpolation-mode:nearest-neighbor',
-    'z-index:2',
-    'pointer-events:none',
-  ].join(';');
-  document.body.appendChild(canvas);
-
-  const ctx = canvas.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
-
-  // ── Pixel helpers ──
-  function rect(x, y, w, h, c) {
-    ctx.fillStyle = c;
-    ctx.fillRect(Math.round(x)*SCALE, Math.round(y)*SCALE, Math.round(w)*SCALE, Math.round(h)*SCALE);
-  }
-  function dot(x, y, c) { rect(x, y, 1, 1, c); }
-  function hline(x, y, w, c) { rect(x, y, w, 1, c); }
-  function vline(x, y, h, c) { rect(x, y, 1, h, c); }
-
-  // lerp two hex colors
-  function lerpColor(c1, c2, t) {
-    const h = s => parseInt(s, 16);
-    const r1=h(c1.slice(1,3)),g1=h(c1.slice(3,5)),b1=h(c1.slice(5,7));
-    const r2=h(c2.slice(1,3)),g2=h(c2.slice(3,5)),b2=h(c2.slice(5,7));
-    return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;
+  function archWin(x, y, w, h, archH) {
+    const r = w / 2;
+    const archY = y + archH;
+    return `M${x},${y+h} L${x},${archY} Q${x},${y} ${x+r},${y} Q${x+w},${y} ${x+w},${archY} L${x+w},${y+h} Z`;
   }
 
-  // ── Palette ──
-  const C = {
-    sky:     '#0a1220',
-    mtn_dk:  '#0c1828',
-    mtn_md:  '#0f2035',
-    ground:  '#060c10',
-    dirt:    '#07101a',
-    wall_dk: '#091420',
-    wall_md: '#0c1c2c',
-    wall_lt: '#102438',
-    roof_dk: '#081628',
-    roof_md: '#0c2040',
-    roof_lt: '#112850',
-    win_on:  '#ffd84d',
-    win_dim: '#c4922a',
-    win_off: '#091420',
-    win_frm: '#1a3050',
-    door:    '#04080f',
-    tree_1:  '#061008',
-    tree_2:  '#091808',
-    tree_3:  '#0d200e',
-    tree_4:  '#102614',
-    tree_5:  '#142e18',
-    lamp:    '#ffd84d',
-    shadow:  '#020507',
-    black:   '#020406',
-  };
+  svg.innerHTML = `
+<defs>
+  <linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#0d141c" stop-opacity="0"/>
+    <stop offset="55%"  stop-color="#080f18" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#050b12" stop-opacity="1"/>
+  </linearGradient>
+  <filter id="glow">
+    <feGaussianBlur stdDeviation="3" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="lampglow">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <!-- clip for shadow figure to stay inside window -->
+  <clipPath id="shadow-clip">
+    <path d="${archWin(655,184,14,20,8)}"/>
+  </clipPath>
+</defs>
 
-  // ── Window state ──
-  // Each window: { x, y, w, h, b (brightness 0-1), base }
-  // Positioned to sit ON the building walls
-  const wins = {
-    // Left cottage
-    wL1a: {x:7,  y:40, w:3, h:4, b:1, base:1},
-    wL1b: {x:12, y:40, w:3, h:4, b:1, base:1},
-    // Left inn
-    wL2a: {x:25, y:30, w:3, h:5, b:1, base:1},
-    wL2b: {x:30, y:30, w:3, h:5, b:1, base:1},
-    wL2c: {x:25, y:37, w:3, h:4, b:.7, base:.7},
-    wL2d: {x:30, y:37, w:3, h:4, b:.7, base:.7},
-    // Left small house
-    wL3a: {x:45, y:42, w:3, h:4, b:.8, base:.8},
-    wL3b: {x:50, y:42, w:3, h:4, b:.6, base:.6},
-    // Centre left house
-    wC1a: {x:104,y:35, w:3, h:5, b:1,  base:1},
-    wC1b: {x:109,y:35, w:3, h:5, b:1,  base:1},
-    // Tower rose window
-    wCr:  {x:121,y:22, w:5, h:5, b:1,  base:1},
-    // Tower upper windows
-    wC2a: {x:119,y:30, w:3, h:5, b:1,  base:1},
-    wC2b: {x:124,y:30, w:3, h:5, b:1,  base:1},
-    // Tower shadow window
-    wCs:  {x:119,y:37, w:3, h:5, b:.8, base:.8},
-    wC2c: {x:124,y:37, w:3, h:5, b:.8, base:.8},
-    // Tavern
-    wC3a: {x:138,y:35, w:3, h:5, b:1,  base:1},
-    wC3b: {x:143,y:35, w:3, h:5, b:1,  base:1},
-    // Right chapel
-    wR1a: {x:232,y:38, w:3, h:4, b:.8, base:.8},
-    wR1b: {x:237,y:38, w:3, h:4, b:.7, base:.7},
-    // Right manor
-    wR2a: {x:250,y:28, w:3, h:5, b:1,  base:1},
-    wR2b: {x:255,y:28, w:3, h:5, b:1,  base:1},
-    wR2c: {x:260,y:28, w:3, h:5, b:1,  base:1},
-    wR2d: {x:250,y:36, w:3, h:4, b:.7, base:.7},
-    wR2e: {x:260,y:36, w:3, h:4, b:.7, base:.7},
-    // Right house
-    wR3a: {x:277,y:38, w:3, h:4, b:.8, base:.8},
-    wR3b: {x:282,y:38, w:3, h:4, b:.6, base:.6},
-  };
+<rect x="0" y="0" width="1440" height="260" fill="url(#gnd)"/>
 
-  // Lanterns
-  const lamps = [
-    {x:78,  y:50, b:1},
-    {x:163, y:50, b:1},
-    {x:200, y:50, b:1},
+<!-- distant mountains -->
+<polygon points="0,185 50,148 110,165 180,128 250,150 330,112 410,135 490,102 575,125 660,95 745,118 830,88 915,112 1000,82 1085,108 1165,80 1250,104 1335,82 1440,98 1440,260 0,260" fill="#0b1824" opacity="0.9"/>
+
+<!-- mid hills -->
+<ellipse cx="160"  cy="230" rx="240" ry="52" fill="#08101c"/>
+<ellipse cx="720"  cy="234" rx="320" ry="50" fill="#08101c"/>
+<ellipse cx="1280" cy="230" rx="280" ry="52" fill="#08101c"/>
+
+<!-- ground -->
+<rect x="0" y="238" width="1440" height="22" fill="#050b12"/>
+
+<!-- ═══ LEFT CLUSTER ═══ -->
+<!-- cottage L1 -->
+<rect x="32" y="188" width="42" height="55" fill="#091420"/>
+<polygon points="26,190 78,190 52,160" fill="#0c1c2e"/>
+<line x1="32" y1="205" x2="74" y2="205" stroke="#0b1828" stroke-width="1" opacity="0.6"/>
+<line x1="32" y1="220" x2="74" y2="220" stroke="#0b1828" stroke-width="1" opacity="0.6"/>
+<path d="${archWin(40,196,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(40,196,10,14,5)}" fill="#ffd84d" opacity="0.20" id="wL1a"/>
+<path d="${archWin(56,196,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(56,196,10,14,5)}" fill="#ffd84d" opacity="0.15" id="wL1b"/>
+<path d="${archWin(45,220,14,23,7)}" fill="#050d18" stroke="#122030" stroke-width="1"/>
+
+<!-- inn L2 -->
+<rect x="82" y="150" width="56" height="93" fill="#091420"/>
+<polygon points="76,152 144,152 110,120" fill="#0c1c2e"/>
+<rect x="82" y="142" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="97" y="142" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="112" y="142" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="127" y="142" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="134" y="118" width="8" height="26" fill="#07101a"/>
+<line x1="82" y1="175" x2="138" y2="175" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<line x1="82" y1="195" x2="138" y2="195" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<line x1="82" y1="215" x2="138" y2="215" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<path d="${archWin(92,158,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(92,158,13,18,7)}" fill="#ffd84d" opacity="0.32" id="wL2a"/>
+<path d="${archWin(113,158,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(113,158,13,18,7)}" fill="#ffd84d" opacity="0.26" id="wL2b"/>
+<path d="${archWin(92,183,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(92,183,13,18,7)}" fill="#ffd84d" opacity="0.18" id="wL2c"/>
+<rect x="96" y="210" width="28" height="6" rx="1" fill="#0d2030" stroke="#1a3048" stroke-width="1"/>
+<path d="${archWin(101,220,18,23,9)}" fill="#050d18" stroke="#122030" stroke-width="1"/>
+
+<!-- small house L3 -->
+<rect x="150" y="195" width="36" height="48" fill="#091420"/>
+<polygon points="144,197 190,197 167,172" fill="#0c1c2e"/>
+<path d="${archWin(158,204,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(158,204,10,14,5)}" fill="#ffd84d" opacity="0.14" id="wL3a"/>
+<path d="${archWin(172,204,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(172,204,10,14,5)}" fill="#ffd84d" opacity="0.12" id="wL3b"/>
+
+<!-- LEFT TREES — organic rounded canopy with wind -->
+<g id="tree-L1">
+  <rect x="212" y="218" width="5" height="26" fill="#07120e"/>
+  <ellipse cx="214" cy="210" rx="12" ry="14" fill="#081a10" id="tL1a"/>
+  <ellipse cx="208" cy="216" rx="9"  ry="10" fill="#091e12" id="tL1b"/>
+  <ellipse cx="220" cy="214" rx="8"  ry="9"  fill="#0a2014" id="tL1c"/>
+</g>
+<g id="tree-L2">
+  <rect x="233" y="220" width="5" height="24" fill="#07120e"/>
+  <ellipse cx="235" cy="212" rx="11" ry="13" fill="#081a10" id="tL2a"/>
+  <ellipse cx="229" cy="218" rx="8"  ry="9"  fill="#091e12" id="tL2b"/>
+  <ellipse cx="241" cy="216" rx="7"  ry="8"  fill="#0a2014" id="tL2c"/>
+</g>
+
+<!-- ═══ CENTRE CLUSTER ═══ -->
+<!-- house C1 -->
+<rect x="588" y="172" width="44" height="71" fill="#091420"/>
+<polygon points="582,174 638,174 610,148" fill="#0c1c2e"/>
+<line x1="588" y1="195" x2="632" y2="195" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<path d="${archWin(597,180,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(597,180,11,16,6)}" fill="#ffd84d" opacity="0.24" id="wC1a"/>
+<path d="${archWin(615,180,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(615,180,11,16,6)}" fill="#ffd84d" opacity="0.20" id="wC1b"/>
+<path d="${archWin(604,202,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(604,202,10,14,5)}" fill="#ffd84d" opacity="0.14" id="wC1c"/>
+<path d="${archWin(600,220,18,23,9)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+
+<!-- wizard tower C2 -->
+<rect x="648" y="125" width="50" height="118" fill="#091420"/>
+<polygon points="641,127 705,127 673,90" fill="#0a1928"/>
+<line x1="673" y1="90" x2="673" y2="75" stroke="#ffd84d" stroke-width="2" opacity="0.4"/>
+<circle cx="673" cy="74" r="3" fill="#ffd84d" opacity="0.5"/>
+<rect x="648" y="117" width="9" height="11" rx="1" fill="#091420"/>
+<rect x="661" y="117" width="9" height="11" rx="1" fill="#091420"/>
+<rect x="674" y="117" width="9" height="11" rx="1" fill="#091420"/>
+<rect x="687" y="117" width="9" height="11" rx="1" fill="#091420"/>
+<line x1="648" y1="152" x2="698" y2="152" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<line x1="648" y1="175" x2="698" y2="175" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<line x1="648" y1="200" x2="698" y2="200" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<circle cx="673" cy="138" r="8" fill="#091420" stroke="#182840" stroke-width="1.5"/>
+<circle cx="673" cy="138" r="8" fill="#ffd84d" opacity="0.28" id="wC2rose"/>
+<line x1="673" y1="130" x2="673" y2="146" stroke="#091420" stroke-width="1.5"/>
+<line x1="665" y1="138" x2="681" y2="138" stroke="#091420" stroke-width="1.5"/>
+<path d="${archWin(655,158,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(655,158,14,20,8)}" fill="#ffd84d" opacity="0.36" id="wC2a"/>
+<path d="${archWin(677,158,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(677,158,14,20,8)}" fill="#ffd84d" opacity="0.30" id="wC2b"/>
+
+<!-- shadow window — background glow, then figure clipped inside -->
+<path d="${archWin(655,184,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(655,184,14,20,8)}" fill="#ffd84d" opacity="0.24" id="shadow-win"/>
+
+<!-- shadow figure CLIPPED inside the window arch -->
+<g clip-path="url(#shadow-clip)" id="shadow-figure" opacity="0">
+  <!-- head -->
+  <ellipse cx="662" cy="188" rx="3.5" ry="3.5" fill="#03070d"/>
+  <!-- neck -->
+  <rect x="660" y="191" width="4" height="2" fill="#03070d"/>
+  <!-- shoulders -->
+  <path d="M656,193 Q662,190 668,193 L668,204 L656,204 Z" fill="#03070d"/>
+  <!-- arms -->
+  <line x1="656" y1="195" x2="653" y2="200" stroke="#03070d" stroke-width="2" stroke-linecap="round"/>
+  <line x1="668" y1="195" x2="671" y2="200" stroke="#03070d" stroke-width="2" stroke-linecap="round"/>
+</g>
+
+<path d="${archWin(677,184,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(677,184,14,20,8)}" fill="#ffd84d" opacity="0.18" id="wC2c"/>
+<path d="${archWin(661,213,20,30,12)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+
+<!-- tavern C3 -->
+<rect x="710" y="168" width="46" height="75" fill="#091420"/>
+<polygon points="704,170 762,170 733,143" fill="#0c1c2e"/>
+<line x1="720" y1="168" x2="720" y2="162" stroke="#0d1e30" stroke-width="1.5"/>
+<rect x="714" y="155" width="26" height="8" rx="1" fill="#0d2030" stroke="#1a3048" stroke-width="1"/>
+<line x1="740" y1="168" x2="740" y2="162" stroke="#0d1e30" stroke-width="1.5"/>
+<path d="${archWin(718,178,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(718,178,11,16,6)}" fill="#ffd84d" opacity="0.26" id="wC3a"/>
+<path d="${archWin(736,178,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(736,178,11,16,6)}" fill="#ffd84d" opacity="0.20" id="wC3b"/>
+<path d="${archWin(725,200,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(725,200,10,14,5)}" fill="#ffd84d" opacity="0.15" id="wC3c"/>
+<path d="${archWin(718,218,22,25,11)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+
+<!-- CENTRE TREES — organic -->
+<g id="tree-C1">
+  <rect x="560" y="220" width="5" height="24" fill="#07120e"/>
+  <ellipse cx="562" cy="211" rx="12" ry="14" fill="#081a10" id="tC1a"/>
+  <ellipse cx="556" cy="218" rx="8"  ry="9"  fill="#091e12" id="tC1b"/>
+  <ellipse cx="568" cy="216" rx="7"  ry="8"  fill="#0a2014" id="tC1c"/>
+</g>
+<g id="tree-C2">
+  <rect x="768" y="220" width="5" height="24" fill="#07120e"/>
+  <ellipse cx="770" cy="211" rx="12" ry="14" fill="#081a10" id="tC2a"/>
+  <ellipse cx="764" cy="217" rx="8"  ry="9"  fill="#091e12" id="tC2b"/>
+  <ellipse cx="776" cy="215" rx="7"  ry="8"  fill="#0a2014" id="tC2c"/>
+</g>
+<g id="tree-C3">
+  <rect x="788" y="222" width="4" height="22" fill="#07120e"/>
+  <ellipse cx="790" cy="213" rx="10" ry="12" fill="#081a10" id="tC3a"/>
+  <ellipse cx="785" cy="219" rx="7"  ry="8"  fill="#091e12" id="tC3b"/>
+</g>
+
+<!-- ═══ RIGHT CLUSTER ═══ -->
+<!-- chapel R1 — NO cross -->
+<rect x="1162" y="168" width="38" height="75" fill="#091420"/>
+<polygon points="1156,170 1206,170 1181,140" fill="#0c1c2e"/>
+<!-- just a finial, no cross -->
+<line x1="1181" y1="135" x2="1181" y2="124" stroke="#ffd84d" stroke-width="1.5" opacity="0.3"/>
+<circle cx="1181" cy="123" r="2" fill="#ffd84d" opacity="0.3"/>
+<circle cx="1181" cy="180" r="7" fill="#091420" stroke="#182840" stroke-width="1.5"/>
+<circle cx="1181" cy="180" r="7" fill="#ffd84d" opacity="0.22" id="wR1rose"/>
+<line x1="1181" y1="173" x2="1181" y2="187" stroke="#091420" stroke-width="1.5"/>
+<line x1="1174" y1="180" x2="1188" y2="180" stroke="#091420" stroke-width="1.5"/>
+<path d="${archWin(1170,193,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1170,193,11,16,6)}" fill="#ffd84d" opacity="0.18" id="wR1a"/>
+<path d="${archWin(1186,193,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1186,193,11,16,6)}" fill="#ffd84d" opacity="0.15" id="wR1b"/>
+<path d="${archWin(1173,213,14,30,9)}" fill="#050d18" stroke="#122030" stroke-width="1"/>
+
+<!-- manor R2 -->
+<rect x="1212" y="140" width="74" height="103" fill="#091420"/>
+<polygon points="1205,142 1292,142 1249,108" fill="#0c1c2e"/>
+<rect x="1212" y="131" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="1227" y="131" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="1242" y="131" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="1257" y="131" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="1272" y="131" width="11" height="13" rx="1" fill="#091420"/>
+<rect x="1218" y="105" width="8" height="28" fill="#07101a"/>
+<rect x="1278" y="105" width="8" height="28" fill="#07101a"/>
+<line x1="1212" y1="165" x2="1286" y2="165" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<line x1="1212" y1="188" x2="1286" y2="188" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<line x1="1212" y1="210" x2="1286" y2="210" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
+<path d="${archWin(1220,148,13,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1220,148,13,20,8)}" fill="#ffd84d" opacity="0.28" id="wR2a"/>
+<path d="${archWin(1242,148,13,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1242,148,13,20,8)}" fill="#ffd84d" opacity="0.24" id="wR2b"/>
+<path d="${archWin(1264,148,13,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1264,148,13,20,8)}" fill="#ffd84d" opacity="0.22" id="wR2c"/>
+<path d="${archWin(1220,175,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1220,175,13,18,7)}" fill="#ffd84d" opacity="0.18" id="wR2d"/>
+<path d="${archWin(1264,175,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1264,175,13,18,7)}" fill="#ffd84d" opacity="0.16" id="wR2e"/>
+<path d="${archWin(1236,200,28,43,16)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+
+<!-- house R3 -->
+<rect x="1300" y="182" width="40" height="61" fill="#091420"/>
+<polygon points="1294,184 1346,184 1320,158" fill="#0c1c2e"/>
+<path d="${archWin(1308,192,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1308,192,11,16,6)}" fill="#ffd84d" opacity="0.18" id="wR3a"/>
+<path d="${archWin(1324,192,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
+<path d="${archWin(1324,192,11,16,6)}" fill="#ffd84d" opacity="0.14" id="wR3b"/>
+
+<!-- RIGHT TREES — organic -->
+<g id="tree-R1">
+  <rect x="1125" y="220" width="5" height="24" fill="#07120e"/>
+  <ellipse cx="1127" cy="211" rx="12" ry="14" fill="#081a10" id="tR1a"/>
+  <ellipse cx="1121" cy="218" rx="8"  ry="9"  fill="#091e12" id="tR1b"/>
+  <ellipse cx="1133" cy="216" rx="7"  ry="8"  fill="#0a2014" id="tR1c"/>
+</g>
+<g id="tree-R2">
+  <rect x="1145" y="222" width="4" height="22" fill="#07120e"/>
+  <ellipse cx="1147" cy="213" rx="10" ry="12" fill="#081a10" id="tR2a"/>
+  <ellipse cx="1142" cy="219" rx="7"  ry="8"  fill="#091e12" id="tR2b"/>
+</g>
+
+<!-- ═══ LANTERN POSTS — round cap, no square ═══ -->
+<rect x="392" y="196" width="3" height="46" fill="#1a2838"/>
+<!-- round lantern housing -->
+<ellipse cx="393" cy="191" rx="7" ry="5" fill="#1a2838"/>
+<circle cx="393" cy="188" r="6" fill="#ffd84d" opacity="0.72" id="lamp1" filter="url(#lampglow)"/>
+<circle cx="393" cy="188" r="16" fill="#ffd84d" opacity="0.07" id="lamp1g"/>
+
+<rect x="862" y="196" width="3" height="46" fill="#1a2838"/>
+<ellipse cx="863" cy="191" rx="7" ry="5" fill="#1a2838"/>
+<circle cx="863" cy="188" r="6" fill="#ffd84d" opacity="0.64" id="lamp2" filter="url(#lampglow)"/>
+<circle cx="863" cy="188" r="16" fill="#ffd84d" opacity="0.06" id="lamp2g"/>
+
+<rect x="1075" y="196" width="3" height="46" fill="#1a2838"/>
+<ellipse cx="1076" cy="191" rx="7" ry="5" fill="#1a2838"/>
+<circle cx="1076" cy="188" r="6" fill="#ffd84d" opacity="0.57" id="lamp3" filter="url(#lampglow)"/>
+<circle cx="1076" cy="188" r="16" fill="#ffd84d" opacity="0.055" id="lamp3g"/>
+
+<!-- ═══ CAT ═══ -->
+<g id="cat" opacity="0" transform="translate(-80,222)">
+  <ellipse cx="20" cy="7" rx="15" ry="7" fill="#0c1c2c"/>
+  <ellipse cx="33" cy="3" rx="7" ry="6" fill="#0c1c2c"/>
+  <polygon points="29,-1 31,-7 34,-1" fill="#0c1c2c"/>
+  <polygon points="33,-1 36,-7 38,-1" fill="#0c1c2c"/>
+  <ellipse cx="35" cy="2" rx="1.5" ry="1" fill="#ffd84d" opacity="0.95"/>
+  <path d="M5,6 Q-6,2 -5,-5" stroke="#0c1c2c" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <rect id="cl1" x="10" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
+  <rect id="cl2" x="17" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
+  <rect id="cl3" x="24" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
+  <rect id="cl4" x="31" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
+</g>
+  `;
+
+  document.body.appendChild(svg);
+
+  // ══════════════════════════════════════
+  // Wind animation for trees
+  // ══════════════════════════════════════
+  const treeGroups = [
+    ['tL1a','tL1b','tL1c'],
+    ['tL2a','tL2b','tL2c'],
+    ['tC1a','tC1b','tC1c'],
+    ['tC2a','tC2b','tC2c'],
+    ['tC3a','tC3b'],
+    ['tR1a','tR1b','tR1c'],
+    ['tR2a','tR2b'],
   ];
 
-  // Cat state
-  const cat = {x:-20, y:52, dir:1, visible:false, frame:0, tick:0, opacity:1};
-
-  // Shadow figure state
-  const shadow = {dx:0, opacity:0};
-
-  // ── DRAW STATIC SCENE ──
-  function drawBg() {
-    // Sky
-    rect(0, 0, W, H, C.sky);
-
-    // Mountains — stepped silhouette
-    const ridge = [
-      0,38, 8,32, 16,35, 26,28, 36,31, 48,24, 60,27,
-      72,20, 84,23, 96,17, 108,20, 120,14, 132,17,
-      144,12, 156,15, 168,10, 180,13, 192,8,  204,11,
-      216,7,  228,10, 240,6,  252,9,  264,5,  276,8,
-      288,4,  300,7,  312,3,  320,6,
-    ];
-    ctx.fillStyle = C.mtn_dk;
-    ctx.beginPath();
-    ctx.moveTo(0, H * SCALE);
-    for (let i = 0; i < ridge.length; i += 2) {
-      ctx.lineTo(ridge[i] * SCALE, ridge[i+1] * SCALE);
-    }
-    ctx.lineTo(W * SCALE, H * SCALE);
-    ctx.closePath();
-    ctx.fill();
-
-    // Second closer hill
-    const hill = [0,48, 40,42, 80,45, 120,40, 160,43, 200,39, 240,42, 280,38, 320,41];
-    ctx.fillStyle = C.mtn_md;
-    ctx.beginPath();
-    ctx.moveTo(0, H * SCALE);
-    for (let i = 0; i < hill.length; i += 2) {
-      ctx.lineTo(hill[i] * SCALE, hill[i+1] * SCALE);
-    }
-    ctx.lineTo(W * SCALE, H * SCALE);
-    ctx.closePath();
-    ctx.fill();
-
-    // Ground
-    rect(0, 55, W, 5, C.dirt);
-    rect(0, 57, W, 3, C.ground);
-  }
-
-  // Draw a pixel-art building wall with stone rows
-  function drawWall(x, y, w, h) {
-    rect(x, y, w, h, C.wall_dk);
-    // stone row highlights every 3px
-    for (let row = y+2; row < y+h; row += 3) {
-      hline(x+1, row, w-2, C.wall_md);
-    }
-    // subtle right edge shadow
-    vline(x+w-1, y, h, C.wall_dk);
-  }
-
-  // Draw pitched roof
-  function drawRoof(cx, y, w, steep) {
-    // steep: how many px tall per px wide
-    const half = Math.floor(w/2);
-    for (let i = 0; i <= half; i++) {
-      hline(cx - half + i, y + (steep ? i : Math.floor(i*0.7)), w - i*2, i===0 ? C.roof_lt : C.roof_dk);
-    }
-  }
-
-  // Draw stepped pyramid roof (for tower)
-  function drawTowerRoof(cx, baseY, steps) {
-    for (let s = 0; s < steps; s++) {
-      const w = (steps - s) * 2;
-      hline(cx - (steps-s) + 1, baseY - s, w, s < 2 ? C.roof_lt : C.roof_dk);
-    }
-  }
-
-  // Draw pixel window with frame
-  function drawWin(x, y, w, h, brightness) {
-    // frame (1px border)
-    rect(x-1, y-1, w+2, h+2, C.win_frm);
-    // glass
-    const color = brightness < 0.05
-      ? C.win_off
-      : lerpColor(C.win_off, C.win_on, brightness);
-    rect(x, y, w, h, color);
-    // window divider cross (for larger windows)
-    if (w >= 3 && h >= 4) {
-      vline(x + Math.floor(w/2), y, h, brightness < 0.05 ? C.wall_md : lerpColor(C.win_on, C.win_frm, 0.6));
-      hline(x, y + Math.floor(h/2), w, brightness < 0.05 ? C.wall_md : lerpColor(C.win_on, C.win_frm, 0.6));
-    }
-  }
-
-  // Draw arched door
-  function drawDoor(x, y, w, h) {
-    rect(x, y, w, h, C.door);
-    // arch top
-    rect(x+1, y-1, w-2, 1, C.door);
-    // frame
-    vline(x-1, y-1, h+1, C.wall_md);
-    vline(x+w, y-1, h+1, C.wall_md);
-  }
-
-  // Draw JRPG pixel tree
-  function drawTree(cx, baseY, tall) {
-    const h = tall ? 18 : 14;
-    // trunk
-    rect(cx, baseY - 4, 2, 4, '#07110a');
-    // shadow base ellipse
-    rect(cx-3, baseY-1, 8, 2, '#050e07');
-    // 4 canopy tiers bottom to top
-    const tiers = [
-      {w:10, c:C.tree_2},
-      {w:8,  c:C.tree_3},
-      {w:6,  c:C.tree_4},
-      {w:4,  c:C.tree_5},
-    ];
-    if (tall) tiers.push({w:2, c:'#182e1c'});
-    tiers.forEach((t, i) => {
-      const ty = baseY - 4 - (i * 4);
-      rect(cx - Math.floor(t.w/2), ty, t.w, 4, t.c);
-      // highlight top-left of each tier
-      dot(cx - Math.floor(t.w/2) + 1, ty, '#142a16');
-      // dark right edge
-      vline(cx + Math.floor(t.w/2) - 1, ty, 4, C.tree_2);
+  // Gentle CSS-based wind sway on each ellipse group
+  treeGroups.forEach((group, gi) => {
+    group.forEach((id, i) => {
+      const el = svg.getElementById(id);
+      if (!el) return;
+      const delay  = (gi * 0.4 + i * 0.15).toFixed(2);
+      const dur    = (3.5 + Math.random() * 2).toFixed(2);
+      const amount = 1.5 + Math.random();
+      // animate using SMIL for SVG elements
+      el.innerHTML = `
+        <animateTransform attributeName="transform" type="translate"
+          values="0,0; ${amount},0; 0,0; -${amount*0.5},0; 0,0"
+          dur="${dur}s" begin="${delay}s" repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1"/>`;
     });
-    // top pixel highlight
-    dot(cx, baseY - 4 - tiers.length*4 + 1, '#1a3820');
-  }
+  });
 
-  // ── SCENE LAYOUT ──
-  function drawBuildings() {
+  // ══════════════════════════════════════
+  // Windows
+  // ══════════════════════════════════════
+  const winData = [
+    { id:'wL1a', base:0.20 }, { id:'wL1b', base:0.15 },
+    { id:'wL2a', base:0.32 }, { id:'wL2b', base:0.26 }, { id:'wL2c', base:0.18 },
+    { id:'wL3a', base:0.14 }, { id:'wL3b', base:0.12 },
+    { id:'wC1a', base:0.24 }, { id:'wC1b', base:0.20 }, { id:'wC1c', base:0.14 },
+    { id:'wC2rose', base:0.28 },
+    { id:'wC2a', base:0.36 }, { id:'wC2b', base:0.30 }, { id:'wC2c', base:0.18 },
+    { id:'wC3a', base:0.26 }, { id:'wC3b', base:0.20 }, { id:'wC3c', base:0.15 },
+    { id:'wR1rose', base:0.22 },
+    { id:'wR1a', base:0.18 }, { id:'wR1b', base:0.15 },
+    { id:'wR2a', base:0.28 }, { id:'wR2b', base:0.24 }, { id:'wR2c', base:0.22 },
+    { id:'wR2d', base:0.18 }, { id:'wR2e', base:0.16 },
+    { id:'wR3a', base:0.18 }, { id:'wR3b', base:0.14 },
+    { id:'shadow-win', base:0.24 },
+  ];
 
-    // ═══ FAR LEFT — cottage ═══
-    drawWall(4, 44, 18, 13);
-    drawRoof(13, 39, 18, false);
-    drawDoor(10, 50, 5, 7);
+  const wins = winData.map(d => ({ el: svg.getElementById(d.id), base: d.base }))
+                      .filter(d => d.el);
 
-    // ═══ LEFT — inn (tall) ═══
-    drawWall(22, 28, 20, 29);
-    drawRoof(32, 22, 22, true);
-    // battlements
-    for (let bx=22; bx<42; bx+=4) rect(bx, 22, 2, 3, C.wall_md);
-    // chimney
-    drawWall(38, 18, 3, 8);
-    drawDoor(28, 44, 7, 13);
-
-    // ═══ LEFT SMALL HOUSE ═══
-    drawWall(43, 42, 14, 15);
-    drawRoof(50, 37, 14, false);
-    drawDoor(47, 50, 5, 7);
-
-    // LEFT TREES
-    drawTree(67, 56, true);
-    drawTree(74, 56, false);
-
-    // ═══ CENTRE LEFT HOUSE ═══
-    drawWall(100, 33, 18, 24);
-    drawRoof(109, 27, 20, false);
-    drawDoor(106, 47, 6, 10);
-
-    // ═══ WIZARD TOWER (tallest, centre) ═══
-    drawWall(115, 20, 20, 37);
-    // stepped pyramid roof
-    drawTowerRoof(125, 20, 8);
-    // spire
-    vline(125, 4, 5, C.lamp);
-    dot(124, 3, C.lamp); dot(126, 3, C.lamp);
-    // battlements
-    for (let bx=115; bx<135; bx+=4) rect(bx, 18, 2, 3, C.wall_md);
-    // rose window (pixel circle)
-    rect(121, 22, 5, 5, C.win_frm);
-    rect(122, 21, 3, 7, C.win_frm);
-    rect(120, 23, 7, 3, C.win_frm);
-    rect(121, 22, 5, 5, C.win_on);
-    vline(123, 22, 5, C.wall_md);
-    hline(121, 24, 5, C.wall_md);
-    // stone rows
-    for (let sy=25; sy<56; sy+=4) hline(115, sy, 20, C.wall_md);
-    drawDoor(120, 47, 8, 10);
-
-    // ═══ TAVERN ═══
-    drawWall(136, 32, 18, 25);
-    drawRoof(145, 26, 20, false);
-    // hanging sign
-    rect(139, 28, 10, 4, '#0d2030');
-    hline(139, 27, 10, C.wall_lt);
-    drawDoor(141, 46, 6, 11);
-
-    // CENTRE TREES
-    drawTree(160, 56, true);
-    drawTree(166, 56, false);
-
-    // ═══ RIGHT — chapel ═══
-    drawWall(228, 36, 16, 21);
-    drawRoof(236, 30, 18, true);
-    // finial
-    vline(236, 25, 5, C.wall_lt);
-    dot(236, 24, C.lamp);
-    // rose window
-    rect(232, 32, 5, 5, C.win_frm);
-    rect(233, 31, 3, 7, C.win_frm);
-    rect(231, 33, 7, 3, C.win_frm);
-    rect(232, 32, 5, 5, C.win_on);
-    vline(234, 32, 5, C.wall_md);
-    hline(232, 34, 5, C.wall_md);
-    drawDoor(233, 46, 6, 11);
-
-    // ═══ RIGHT — manor (wide) ═══
-    drawWall(246, 24, 22, 33);
-    drawRoof(257, 18, 24, false);
-    for (let bx=246; bx<268; bx+=4) rect(bx, 18, 2, 3, C.wall_md);
-    // chimneys
-    drawWall(248, 14, 3, 6);
-    drawWall(263, 14, 3, 6);
-    for (let sy=30; sy<56; sy+=4) hline(246, sy, 22, C.wall_md);
-    drawDoor(252, 44, 9, 13);
-
-    // ═══ RIGHT SMALL HOUSE ═══
-    drawWall(272, 40, 14, 17);
-    drawRoof(279, 34, 16, false);
-    drawDoor(276, 50, 5, 7);
-
-    // RIGHT TREES
-    drawTree(223, 56, false);
-    drawTree(290, 56, true);
-    drawTree(297, 56, false);
-
-    // Lantern posts
-    lamps.forEach(l => {
-      vline(l.x, 50, 7, C.wall_lt);
-      rect(l.x-1, 49, 3, 2, C.wall_md);
-    });
-  }
-
-  // ── DRAW DYNAMIC ELEMENTS ──
-  function drawWindows() {
-    Object.values(wins).forEach(w => {
-      drawWin(w.x, w.y, w.w, w.h, w.b);
-    });
-  }
-
-  function drawLamps() {
-    lamps.forEach(l => {
-      // soft glow
-      ctx.fillStyle = `rgba(255,216,77,${l.b * 0.20})`;
-      ctx.fillRect((l.x-3)*SCALE, (l.y-3)*SCALE, 8*SCALE, 8*SCALE);
-      // lamp dot
-      rect(l.x, l.y, 2, 2, l.b > 0.5 ? C.lamp : '#8a5800');
-    });
-  }
-
-  // Cat pixel art: 12x8 sprite, 4 walk frames
-  function drawCatSprite(x, y, frame, flip) {
-    ctx.save();
-    if (flip) {
-      ctx.translate((x + 6) * SCALE, 0);
-      ctx.scale(-1, 1);
-      ctx.translate(-(x + 6) * SCALE, 0);
+  async function flickerWin(w) {
+    const flickers = randI(1, 4);
+    for (let i = 0; i < flickers; i++) {
+      w.el.setAttribute('opacity', '0');
+      await wait(rand(40, 130));
+      w.el.setAttribute('opacity', w.base);
+      await wait(rand(50, 120));
     }
-    const s = C.shadow;
-    // body
-    rect(x+1, y+2, 7, 4, s);
-    // head
-    rect(x+7, y+1, 5, 4, s);
-    // ears
-    dot(x+7, y,   s);
-    dot(x+11, y,  s);
-    // eye
-    dot(x+10, y+2, C.lamp);
-    // tail
-    rect(x, y+3, 2, 2, s);
-    dot(x, y+2, s);
-    // legs (4 frames)
-    if (frame === 0) {
-      rect(x+2, y+5, 2, 3, s);
-      rect(x+5, y+5, 2, 3, s);
-    } else if (frame === 1) {
-      rect(x+2, y+5, 2, 2, s);
-      rect(x+1, y+6, 2, 2, s);
-      rect(x+5, y+5, 2, 3, s);
-      rect(x+6, y+7, 2, 1, s);
-    } else if (frame === 2) {
-      rect(x+2, y+5, 2, 3, s);
-      rect(x+1, y+7, 2, 1, s);
-      rect(x+5, y+5, 2, 2, s);
-      rect(x+6, y+6, 2, 2, s);
-    } else {
-      rect(x+2, y+5, 2, 2, s);
-      rect(x+3, y+6, 2, 2, s);
-      rect(x+5, y+5, 2, 3, s);
+    w.el.setAttribute('opacity', '0');
+    await wait(rand(8000, 45000));
+    for (let o = 0; o <= 12; o++) {
+      w.el.setAttribute('opacity', (w.base * o / 12).toFixed(3));
+      await wait(80);
     }
-    ctx.restore();
   }
 
-  function drawCat() {
-    if (!cat.visible) return;
-    ctx.save();
-    ctx.globalAlpha = cat.opacity;
-    drawCatSprite(cat.x, cat.y, cat.frame, cat.dir === -1);
-    ctx.restore();
-  }
-
-  // Shadow figure inside tower shadow window (wCs: x:119,y:37,w:3,h:5)
-  function drawShadow() {
-    if (shadow.opacity < 0.02) return;
-    ctx.save();
-    ctx.globalAlpha = shadow.opacity;
-    const wx = wins.wCs.x;
-    const wy = wins.wCs.y;
-    const sx = wx + 1 + shadow.dx; // constrained inside window
-    // head
-    dot(sx,   wy,   C.shadow);
-    dot(sx+1, wy,   C.shadow);
-    // body
-    vline(sx,   wy+1, 3, C.shadow);
-    vline(sx+1, wy+1, 3, C.shadow);
-    // arms
-    dot(sx-1, wy+2, C.shadow);
-    dot(sx+2, wy+2, C.shadow);
-    ctx.restore();
-  }
-
-  // ── MAIN RENDER ──
-  function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBg();
-    drawBuildings();
-    drawWindows();
-    drawLamps();
-    drawShadow();
-    drawCat();
-    requestAnimationFrame(render);
-  }
-  render();
-
-  // ── Window flicker ──
-  const winKeys = Object.keys(wins).filter(k => k !== 'wCs');
-  async function flickerWin(id) {
-    const w = wins[id];
-    for (let i = 0; i < randI(1,4); i++) {
-      w.b = 0; await wait(rand(40,120));
-      w.b = w.base; await wait(rand(50,110));
-    }
-    w.b = 0;
-    await wait(rand(8000, 40000));
-    for (let s=0; s<=10; s++) { w.b = w.base*s/10; await wait(60); }
-  }
   async function windowLoop() {
     while (true) {
-      await wait(rand(4000,12000));
-      flickerWin(winKeys[randI(0, winKeys.length)]);
+      await wait(rand(4000, 14000));
+      const w = wins[randI(0, wins.length)];
+      if (w.el.id === 'shadow-win') continue;
+      flickerWin(w);
     }
   }
   windowLoop();
 
-  // ── Lamp flicker ──
-  async function lampLoop(l) {
-    while (true) {
-      await wait(rand(1500,6000));
-      l.b = rand(0.3, 0.6);
-      await wait(rand(50,160));
-      l.b = 1;
-    }
-  }
-  lamps.forEach(l => lampLoop(l));
+  // ══════════════════════════════════════
+  // Shadow figure — clipped inside window
+  // ══════════════════════════════════════
+  const figure    = svg.getElementById('shadow-figure');
+  const shadowWin = svg.getElementById('shadow-win');
 
-  // ── Cat — walks slowly, hides behind trees ──
-  // Tree hide spots in logical px: left trees ~67, centre trees ~160, right trees ~223,290
-  const hideSpots = [67, 160, 223, 290];
-
-  async function catLoop() {
-    while (true) {
-      await wait(rand(15000, 50000));
-      const goRight = Math.random() > 0.5;
-      cat.dir   = goRight ? 1 : -1;
-      cat.x     = goRight ? -14 : W + 2;
-      cat.frame = 0;
-      cat.tick  = 0;
-      cat.opacity = 1;
-      cat.visible = true;
-
-      // pick hide spot
-      const validSpots = hideSpots.filter(s => goRight ? s > 10 : s < W - 10);
-      const hideX = validSpots[randI(0, validSpots.length)] - 6;
-
-      const speed = rand(0.15, 0.30); // very slow — ~0.2 logical px per frame at 30fps
-      const framePeriod = Math.round(8 / speed); // animate legs relative to speed
-
-      // walk to hide spot
-      let tick = 0;
-      while ((goRight && cat.x < hideX) || (!goRight && cat.x > hideX)) {
-        cat.x += cat.dir * speed;
-        tick++;
-        if (tick % framePeriod === 0) cat.frame = (cat.frame + 1) % 4;
-        await wait(33); // ~30fps
-      }
-
-      // hide
-      cat.visible = false;
-      await wait(rand(3000, 10000));
-
-      // re-emerge
-      cat.visible = true;
-      const exitX = goRight ? W + 14 : -14;
-
-      while ((goRight && cat.x < exitX) || (!goRight && cat.x > exitX)) {
-        cat.x += cat.dir * speed;
-        tick++;
-        if (tick % framePeriod === 0) cat.frame = (cat.frame + 1) % 4;
-        await wait(33);
-      }
-
-      cat.visible = false;
-    }
-  }
-  catLoop();
-
-  // ── Shadow figure ──
   async function shadowLoop() {
     while (true) {
-      await wait(rand(20000, 60000));
-      if (wins.wCs.b < 0.1) continue;
-      shadow.dx = 0;
-      for (let s=0; s<=8; s++) { shadow.opacity = s/8; await wait(80); }
-      const dir = Math.random() > 0.5 ? 1 : -1;
-      for (let i=0; i<randI(4,10); i++) {
-        const next = shadow.dx + dir;
-        if (next >= 0 && next <= 1) shadow.dx = next;
-        await wait(250);
+      await wait(rand(25000, 70000));
+      if (parseFloat(shadowWin.getAttribute('opacity')) < 0.05) continue;
+      figure.setAttribute('opacity', '1');
+      const dir   = Math.random() > 0.5 ? 1 : -1;
+      let   dx    = 0;
+      const steps = randI(10, 22);
+      for (let i = 0; i < steps; i++) {
+        dx += dir * 0.35;
+        figure.setAttribute('transform', `translate(${dx},0)`);
+        await wait(110);
       }
-      await wait(rand(500,2000));
-      for (let s=8; s>=0; s--) { shadow.opacity = s/8; await wait(70); }
-      shadow.dx = 0;
+      await wait(rand(600, 2000));
+      figure.setAttribute('opacity', '0');
+      figure.setAttribute('transform', 'translate(0,0)');
     }
   }
   shadowLoop();
 
-  // ── Fireflies ──
-  for (let i=0; i<18; i++) {
+  // ══════════════════════════════════════
+  // Cat
+  // ══════════════════════════════════════
+  const cat  = svg.getElementById('cat');
+  const legs = ['cl1','cl2','cl3','cl4'].map(id => svg.getElementById(id));
+  let legFrame = 0, legTimer = null;
+
+  function startLegs(ms) {
+    legTimer = setInterval(() => {
+      legFrame = (legFrame + 1) % 4;
+      legs.forEach((l, i) => {
+        const up = (i % 2 === 0) ? legFrame < 2 : legFrame >= 2;
+        l.setAttribute('y',      up ? '11' : '13');
+        l.setAttribute('height', up ? '9'  : '7');
+      });
+    }, ms);
+  }
+  function stopLegs() {
+    clearInterval(legTimer); legTimer = null;
+    legs.forEach(l => { l.setAttribute('y','13'); l.setAttribute('height','7'); });
+  }
+
+  async function catLoop() {
+    while (true) {
+      await wait(rand(18000, 55000));
+      const goRight = Math.random() > 0.5;
+      const startX  = goRight ? -80 : 1500;
+      const endX    = goRight ? rand(350, 1200) : rand(200, 1050);
+      const speed   = rand(0.5, 1.0);
+      const setPos  = x => {
+        if (!goRight) {
+          cat.setAttribute('transform', `translate(${x+40},222) scale(-1,1) translate(-40,0)`);
+        } else {
+          cat.setAttribute('transform', `translate(${x},222)`);
+        }
+      };
+      setPos(startX);
+      cat.setAttribute('opacity', '0');
+      await wait(80);
+      cat.setAttribute('opacity', '0.93');
+      startLegs(110);
+      let x = startX;
+      const dir = goRight ? 1 : -1;
+      while ((goRight && x < endX) || (!goRight && x > endX)) {
+        x += dir * speed;
+        setPos(x);
+        await wait(32);
+      }
+      stopLegs();
+      await wait(rand(1000, 4000));
+      for (let o = 9; o >= 0; o--) {
+        cat.setAttribute('opacity', (o/10).toFixed(1));
+        await wait(55);
+      }
+    }
+  }
+  catLoop();
+
+  // ══════════════════════════════════════
+  // Lanterns
+  // ══════════════════════════════════════
+  const lamps = [
+    { dot: svg.getElementById('lamp1'), glow: svg.getElementById('lamp1g'), base:0.72, baseG:0.07 },
+    { dot: svg.getElementById('lamp2'), glow: svg.getElementById('lamp2g'), base:0.64, baseG:0.06 },
+    { dot: svg.getElementById('lamp3'), glow: svg.getElementById('lamp3g'), base:0.57, baseG:0.055 },
+  ];
+  async function lampFlicker(l) {
+    while (true) {
+      await wait(rand(1500, 6000));
+      const d = rand(0.3, 0.55);
+      l.dot.setAttribute('opacity', d);
+      l.glow.setAttribute('opacity', d * 0.10);
+      await wait(rand(50, 180));
+      l.dot.setAttribute('opacity', l.base);
+      l.glow.setAttribute('opacity', l.baseG);
+    }
+  }
+  lamps.forEach(l => lampFlicker(l));
+
+  // ══════════════════════════════════════
+  // Fireflies
+  // ══════════════════════════════════════
+  for (let i = 0; i < 18; i++) {
     const f = document.createElement('div');
     f.className = 'firefly';
     f.style.cssText = [
@@ -577,7 +491,9 @@
     document.body.appendChild(f);
   }
 
-  // ── Mobile nav ──
+  // ══════════════════════════════════════
+  // Mobile nav
+  // ══════════════════════════════════════
   const toggle = document.querySelector('.nav-toggle');
   const links  = document.querySelector('.nav-links');
   if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
