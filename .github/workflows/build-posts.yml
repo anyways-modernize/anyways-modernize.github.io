@@ -15,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install pandoc
         run: sudo apt-get install -y pandoc
@@ -61,7 +63,8 @@ jobs:
       - name: Generate scrolls.html
         run: |
           python3 << 'PYEOF'
-          import pathlib, re
+          import pathlib, re, subprocess
+          from datetime import date
 
           posts = []
           for f in sorted(pathlib.Path('posts').glob('*.md')):
@@ -69,18 +72,39 @@ jobs:
             def meta(key):
               m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
               return m.group(1).strip() if m else ''
+
+            # get date from git log — no manual date needed
+            result = subprocess.run(
+              ['git', 'log', '-1', '--format=%as', '--', str(f)],
+              capture_output=True, text=True
+            )
+            date_str = result.stdout.strip()
+            try:
+              parsed_date = date.fromisoformat(date_str)
+              display_date = parsed_date.strftime('%B %d, %Y')
+            except ValueError:
+              parsed_date = date.min
+              display_date = ''
+
             posts.append({
-              'title': meta('title'),
-              'tag':   meta('tag'),
-              'desc':  meta('description'),
-              'href':  f'/posts/{f.stem}.html',
+              'title':       meta('title'),
+              'tag':         meta('tag'),
+              'desc':        meta('description'),
+              'parsed_date': parsed_date,
+              'display_date': display_date,
+              'href':        f'/posts/{f.stem}.html',
             })
+
+          # Sort newest first
+          posts.sort(key=lambda p: p['parsed_date'], reverse=True)
 
           cards = ''
           for p in posts:
+            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
             cards += f'''
             <div class="post-card">
               <div class="tag">{p["tag"]}</div>
+              {date_label}
               <h3>{p["title"]}</h3>
               <p>{p["desc"]}</p>
               <a class="read-more" href="{p["href"]}">Read the guide →</a>
