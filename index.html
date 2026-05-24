@@ -2,100 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Anyways Modernize</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} — Anyways Modernize</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/post2.css">
 </head>
 <body>
-
-  <!-- STARS -->
-  <div class="stars">
-    <div class="star" style="top:10%;left:20%;"></div>
-    <div class="star" style="top:30%;left:70%;"></div>
-    <div class="star" style="top:50%;left:40%;"></div>
-    <div class="star" style="top:80%;left:80%;"></div>
-    <div class="star" style="top:60%;left:15%;"></div>
-    <div class="star" style="top:15%;left:85%;"></div>
-  </div>
-
-  <!-- NAV -->
   <nav>
-    <div class="nav-inner">
-      <div class="logo">Anyways Modernize</div>
-      <div class="nav-links">
-        <a href="#">Tavern</a>
-        <a href="#">Workshop</a>
-        <a href="#">Traveler</a>
-        <a href="/scrolls.html">Scrolls</a>
-      </div>
-      <button class="nav-toggle" aria-label="Open menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+    <a href="../index.html">← Return to the Tavern</a>
   </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div>
-      <h1>
-        Cozy Intune Guides<br>
-        After Dark
-      </h1>
-      <p>
-        A peaceful little corner of the internet for endpoint admins,
-        cloud travelers, and curious tech adventurers.
-      </p>
-    </div>
-    <div class="hero-card">
-      <h3>🌙 Tonight's Quest</h3>
-      <p>Discover Intune</p>
-      <div class="terminal">
-        Test&gt;<br><br>
-        Test<br><br>
-        Test ⚡
-      </div>
-    </div>
-  </section>
-
-  <!-- POSTS -->
-  <section class="section">
-    <h2 class="section-title">📜 Latest Scrolls</h2>
-    <!-- POSTS START -->
-      <div class="posts">
-    <div class="post-card">
-      <div class="tag">AUTOPILOT</div>
-      <span class="post-date">May 24, 2026</span>
-      <h3>How to Set Up Autopilot</h3>
-      <p>A cozy walkthrough of Windows Autopilot setup.</p>
-      <a class="read-more" href="/posts/post2.html">Read the guide →</a>
-    </div>
-    <div class="post-card">
-      <div class="tag">Intune</div>
-      <span class="post-date">May 24, 2026</span>
-      <h3>Potato</h3>
-      <p>Potato1</p>
-      <a class="read-more" href="/posts/post-3.html">Read the guide →</a>
-    </div>
-    <div class="post-card">
-      <div class="tag">AUTOPILOT</div>
-      <span class="post-date">May 24, 2026</span>
-      <h3>How to Set Up Autopilot</h3>
-      <p>A cozy walkthrough of Windows Autopilot setup.</p>
-      <a class="read-more" href="/posts/my-post.html">Read the guide →</a>
-    </div>
-      </div>
-      <!-- POSTS END -->
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="pikachu">⚡</div>
-    <p>The Intune Tavern • Built beside a quiet forest route</p>
-  </footer>
-
-  <script src="village.js"></script>
+  <div class="container">
+    <div class="tag">{{TAG}}</div>
+    <h1>{{TITLE}}</h1>
+    <p class="subtitle">{{DESCRIPTION}}</p>
+    {{CONTENT}}
+    <footer>🌙 Written beside lantern light in The Intune Tavern</footer>
+  </div>
+  <script src="../village.js"></script>
 </body>
 </html>
