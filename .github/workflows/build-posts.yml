@@ -64,7 +64,7 @@ jobs:
         run: |
           python3 << 'PYEOF'
           import pathlib, re, subprocess
-          from datetime import date
+          from datetime import datetime, timezone
 
           posts = []
           for f in sorted(pathlib.Path('posts').glob('*.md')):
@@ -73,30 +73,30 @@ jobs:
               m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
               return m.group(1).strip() if m else ''
 
-            # get date from git log — no manual date needed
+            # get full timestamp from git log
             result = subprocess.run(
-              ['git', 'log', '-1', '--format=%as', '--', str(f)],
+              ['git', 'log', '-1', '--format=%aI', '--', str(f)],
               capture_output=True, text=True
             )
-            date_str = result.stdout.strip()
+            timestamp_str = result.stdout.strip()
             try:
-              parsed_date = date.fromisoformat(date_str)
-              display_date = parsed_date.strftime('%B %d, %Y')
+              parsed_dt = datetime.fromisoformat(timestamp_str)
+              display_date = parsed_dt.strftime('%B %d, %Y')
             except ValueError:
-              parsed_date = date.min
+              parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
               display_date = ''
 
             posts.append({
-              'title':       meta('title'),
-              'tag':         meta('tag'),
-              'desc':        meta('description'),
-              'parsed_date': parsed_date,
+              'title':        meta('title'),
+              'tag':          meta('tag'),
+              'desc':         meta('description'),
+              'parsed_dt':    parsed_dt,
               'display_date': display_date,
-              'href':        f'/posts/{f.stem}.html',
+              'href':         f'/posts/{f.stem}.html',
             })
 
-          # Sort newest first
-          posts.sort(key=lambda p: p['parsed_date'], reverse=True)
+          # Sort newest first by full datetime
+          posts.sort(key=lambda p: p['parsed_dt'], reverse=True)
 
           cards = ''
           for p in posts:
