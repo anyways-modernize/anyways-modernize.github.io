@@ -16,6 +16,10 @@ Here's how to get started with Autopilot...
 
 Some text here.
 
+::: note
+⚡ Potato2
+:::
+
 ```powershell
 Get-AutopilotDevice
 ```
