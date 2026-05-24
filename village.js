@@ -531,12 +531,18 @@
     document.body.appendChild(f);
   }
 
-  // ══════════════════════════════════════
-  // Mobile nav
-  // ══════════════════════════════════════
-  const toggle = document.querySelector('.nav-toggle');
-  const links  = document.querySelector('.nav-links');
-  if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
+  // ── Load shared nav ──
+  const navEl = document.getElementById('nav-inner');
+  if (navEl) {
+    fetch('/nav.html')
+      .then(r => r.text())
+      .then(html => {
+        navEl.innerHTML = html;
+        const toggle = document.querySelector('.nav-toggle');
+        const links  = document.querySelector('.nav-links');
+        if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
+      });
+  }
 
   
 
