@@ -80,7 +80,7 @@
 <path d="${archWin(113,158,13,18,7)}" fill="#ffd84d" opacity="0.26" id="wL2b"/>
 <path d="${archWin(92,183,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(92,183,13,18,7)}" fill="#ffd84d" opacity="0.18" id="wL2c"/>
-<rect x="96" y="210" width="28" height="6" rx="1" fill="#0d2030" stroke="#1a3048" stroke-width="1"/>
+
 <path d="${archWin(101,220,18,23,9)}" fill="#050d18" stroke="#122030" stroke-width="1"/>
 
 <!-- small house L3 -->
@@ -91,18 +91,29 @@
 <path d="${archWin(172,204,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(172,204,10,14,5)}" fill="#ffd84d" opacity="0.12" id="wL3b"/>
 
-<!-- LEFT TREES — organic rounded canopy with wind -->
+<!-- LEFT TREES — layered JRPG style -->
 <g id="tree-L1">
-  <rect x="212" y="218" width="5" height="26" fill="#07120e"/>
-  <ellipse cx="214" cy="210" rx="12" ry="14" fill="#081a10" id="tL1a"/>
-  <ellipse cx="208" cy="216" rx="9"  ry="10" fill="#091e12" id="tL1b"/>
-  <ellipse cx="220" cy="214" rx="8"  ry="9"  fill="#0a2014" id="tL1c"/>
+  <rect x="213" y="214" width="5" height="28" fill="#060e09"/>
+  <!-- shadow base -->
+  <ellipse cx="215" cy="218" rx="13" ry="8" fill="#050d08" opacity="0.5"/>
+  <!-- main canopy layers bottom to top -->
+  <ellipse cx="215" cy="214" rx="14" ry="10" fill="#071510" id="tL1e"/>
+  <ellipse cx="211" cy="209" rx="11" ry="9"  fill="#091c12" id="tL1d"/>
+  <ellipse cx="218" cy="207" rx="10" ry="8"  fill="#0a2014" id="tL1c"/>
+  <ellipse cx="213" cy="202" rx="9"  ry="8"  fill="#0c2618" id="tL1b"/>
+  <ellipse cx="216" cy="198" rx="7"  ry="6"  fill="#0e2e1c" id="tL1a"/>
+  <!-- highlight -->
+  <ellipse cx="218" cy="197" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
 </g>
 <g id="tree-L2">
-  <rect x="233" y="220" width="5" height="24" fill="#07120e"/>
-  <ellipse cx="235" cy="212" rx="11" ry="13" fill="#081a10" id="tL2a"/>
-  <ellipse cx="229" cy="218" rx="8"  ry="9"  fill="#091e12" id="tL2b"/>
-  <ellipse cx="241" cy="216" rx="7"  ry="8"  fill="#0a2014" id="tL2c"/>
+  <rect x="234" y="217" width="4" height="25" fill="#060e09"/>
+  <ellipse cx="236" cy="221" rx="11" ry="7" fill="#050d08" opacity="0.5"/>
+  <ellipse cx="236" cy="217" rx="12" ry="9"  fill="#071510" id="tL2e"/>
+  <ellipse cx="232" cy="212" rx="10" ry="8"  fill="#091c12" id="tL2d"/>
+  <ellipse cx="239" cy="210" rx="9"  ry="7"  fill="#0a2014" id="tL2c"/>
+  <ellipse cx="234" cy="205" rx="8"  ry="7"  fill="#0c2618" id="tL2b"/>
+  <ellipse cx="237" cy="201" rx="6"  ry="5"  fill="#0e2e1c" id="tL2a"/>
+  <ellipse cx="239" cy="200" rx="3"  ry="2.5" fill="#132e18" opacity="0.6"/>
 </g>
 
 <!-- ═══ CENTRE CLUSTER ═══ -->
@@ -158,7 +169,7 @@
 
 <path d="${archWin(677,184,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(677,184,14,20,8)}" fill="#ffd84d" opacity="0.18" id="wC2c"/>
-<path d="${archWin(661,213,20,30,12)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+<path d="${archWin(664,213,18,27,10)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
 
 <!-- tavern C3 -->
 <rect x="710" y="168" width="46" height="75" fill="#091420"/>
@@ -174,23 +185,35 @@
 <path d="${archWin(725,200,10,14,5)}" fill="#ffd84d" opacity="0.15" id="wC3c"/>
 <path d="${archWin(718,218,22,25,11)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
 
-<!-- CENTRE TREES — organic -->
+<!-- CENTRE TREES — layered JRPG style -->
 <g id="tree-C1">
-  <rect x="560" y="220" width="5" height="24" fill="#07120e"/>
-  <ellipse cx="562" cy="211" rx="12" ry="14" fill="#081a10" id="tC1a"/>
-  <ellipse cx="556" cy="218" rx="8"  ry="9"  fill="#091e12" id="tC1b"/>
-  <ellipse cx="568" cy="216" rx="7"  ry="8"  fill="#0a2014" id="tC1c"/>
+  <rect x="561" y="216" width="5" height="26" fill="#060e09"/>
+  <ellipse cx="563" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
+  <ellipse cx="563" cy="216" rx="13" ry="9"  fill="#071510" id="tC1e"/>
+  <ellipse cx="559" cy="211" rx="11" ry="8"  fill="#091c12" id="tC1d"/>
+  <ellipse cx="566" cy="209" rx="10" ry="8"  fill="#0a2014" id="tC1c"/>
+  <ellipse cx="561" cy="204" rx="9"  ry="7"  fill="#0c2618" id="tC1b"/>
+  <ellipse cx="564" cy="200" rx="7"  ry="6"  fill="#0e2e1c" id="tC1a"/>
+  <ellipse cx="566" cy="199" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
 </g>
 <g id="tree-C2">
-  <rect x="768" y="220" width="5" height="24" fill="#07120e"/>
-  <ellipse cx="770" cy="211" rx="12" ry="14" fill="#081a10" id="tC2a"/>
-  <ellipse cx="764" cy="217" rx="8"  ry="9"  fill="#091e12" id="tC2b"/>
-  <ellipse cx="776" cy="215" rx="7"  ry="8"  fill="#0a2014" id="tC2c"/>
+  <rect x="769" y="216" width="5" height="26" fill="#060e09"/>
+  <ellipse cx="771" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
+  <ellipse cx="771" cy="216" rx="13" ry="9"  fill="#071510" id="tC2e"/>
+  <ellipse cx="767" cy="211" rx="11" ry="8"  fill="#091c12" id="tC2d"/>
+  <ellipse cx="774" cy="209" rx="10" ry="8"  fill="#0a2014" id="tC2c"/>
+  <ellipse cx="769" cy="204" rx="9"  ry="7"  fill="#0c2618" id="tC2b"/>
+  <ellipse cx="772" cy="200" rx="7"  ry="6"  fill="#0e2e1c" id="tC2a"/>
+  <ellipse cx="774" cy="199" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
 </g>
 <g id="tree-C3">
-  <rect x="788" y="222" width="4" height="22" fill="#07120e"/>
-  <ellipse cx="790" cy="213" rx="10" ry="12" fill="#081a10" id="tC3a"/>
-  <ellipse cx="785" cy="219" rx="7"  ry="8"  fill="#091e12" id="tC3b"/>
+  <rect x="789" y="219" width="4" height="23" fill="#060e09"/>
+  <ellipse cx="791" cy="222" rx="10" ry="6" fill="#050d08" opacity="0.5"/>
+  <ellipse cx="791" cy="219" rx="11" ry="8"  fill="#071510" id="tC3e"/>
+  <ellipse cx="787" cy="214" rx="9"  ry="7"  fill="#091c12" id="tC3d"/>
+  <ellipse cx="793" cy="212" rx="8"  ry="7"  fill="#0a2014" id="tC3c"/>
+  <ellipse cx="789" cy="208" rx="7"  ry="6"  fill="#0c2618" id="tC3b"/>
+  <ellipse cx="792" cy="205" rx="5"  ry="4"  fill="#0e2e1c" id="tC3a"/>
 </g>
 
 <!-- ═══ RIGHT CLUSTER ═══ -->
@@ -233,7 +256,7 @@
 <path d="${archWin(1220,175,13,18,7)}" fill="#ffd84d" opacity="0.18" id="wR2d"/>
 <path d="${archWin(1264,175,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(1264,175,13,18,7)}" fill="#ffd84d" opacity="0.16" id="wR2e"/>
-<path d="${archWin(1236,200,28,43,16)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+<path d="${archWin(1238,205,22,36,12)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
 
 <!-- house R3 -->
 <rect x="1300" y="182" width="40" height="61" fill="#091420"/>
@@ -243,17 +266,25 @@
 <path d="${archWin(1324,192,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(1324,192,11,16,6)}" fill="#ffd84d" opacity="0.14" id="wR3b"/>
 
-<!-- RIGHT TREES — organic -->
+<!-- RIGHT TREES — layered JRPG style -->
 <g id="tree-R1">
-  <rect x="1125" y="220" width="5" height="24" fill="#07120e"/>
-  <ellipse cx="1127" cy="211" rx="12" ry="14" fill="#081a10" id="tR1a"/>
-  <ellipse cx="1121" cy="218" rx="8"  ry="9"  fill="#091e12" id="tR1b"/>
-  <ellipse cx="1133" cy="216" rx="7"  ry="8"  fill="#0a2014" id="tR1c"/>
+  <rect x="1126" y="216" width="5" height="26" fill="#060e09"/>
+  <ellipse cx="1128" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
+  <ellipse cx="1128" cy="216" rx="13" ry="9"  fill="#071510" id="tR1e"/>
+  <ellipse cx="1124" cy="211" rx="11" ry="8"  fill="#091c12" id="tR1d"/>
+  <ellipse cx="1131" cy="209" rx="10" ry="8"  fill="#0a2014" id="tR1c"/>
+  <ellipse cx="1126" cy="204" rx="9"  ry="7"  fill="#0c2618" id="tR1b"/>
+  <ellipse cx="1129" cy="200" rx="7"  ry="6"  fill="#0e2e1c" id="tR1a"/>
+  <ellipse cx="1131" cy="199" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
 </g>
 <g id="tree-R2">
-  <rect x="1145" y="222" width="4" height="22" fill="#07120e"/>
-  <ellipse cx="1147" cy="213" rx="10" ry="12" fill="#081a10" id="tR2a"/>
-  <ellipse cx="1142" cy="219" rx="7"  ry="8"  fill="#091e12" id="tR2b"/>
+  <rect x="1146" y="219" width="4" height="23" fill="#060e09"/>
+  <ellipse cx="1148" cy="222" rx="10" ry="6" fill="#050d08" opacity="0.5"/>
+  <ellipse cx="1148" cy="219" rx="11" ry="8"  fill="#071510" id="tR2e"/>
+  <ellipse cx="1144" cy="214" rx="9"  ry="7"  fill="#091c12" id="tR2d"/>
+  <ellipse cx="1150" cy="212" rx="8"  ry="7"  fill="#0a2014" id="tR2c"/>
+  <ellipse cx="1146" cy="208" rx="7"  ry="6"  fill="#0c2618" id="tR2b"/>
+  <ellipse cx="1149" cy="205" rx="5"  ry="4"  fill="#0e2e1c" id="tR2a"/>
 </g>
 
 <!-- ═══ LANTERN POSTS — round cap, no square ═══ -->
@@ -294,13 +325,13 @@
   // Wind animation for trees
   // ══════════════════════════════════════
   const treeGroups = [
-    ['tL1a','tL1b','tL1c'],
-    ['tL2a','tL2b','tL2c'],
-    ['tC1a','tC1b','tC1c'],
-    ['tC2a','tC2b','tC2c'],
-    ['tC3a','tC3b'],
-    ['tR1a','tR1b','tR1c'],
-    ['tR2a','tR2b'],
+    ['tL1a','tL1b','tL1c','tL1d','tL1e'],
+    ['tL2a','tL2b','tL2c','tL2d','tL2e'],
+    ['tC1a','tC1b','tC1c','tC1d','tC1e'],
+    ['tC2a','tC2b','tC2c','tC2d','tC2e'],
+    ['tC3a','tC3b','tC3c','tC3d','tC3e'],
+    ['tR1a','tR1b','tR1c','tR1d','tR1e'],
+    ['tR2a','tR2b','tR2c','tR2d','tR2e'],
   ];
 
   // Gentle CSS-based wind sway on each ellipse group
@@ -379,17 +410,26 @@
     while (true) {
       await wait(rand(25000, 70000));
       if (parseFloat(shadowWin.getAttribute('opacity')) < 0.05) continue;
-      figure.setAttribute('opacity', '1');
+      // slow fade in
+      for (let o = 0; o <= 10; o++) {
+        figure.setAttribute('opacity', (o / 10).toFixed(1));
+        await wait(80);
+      }
+      // drift slowly across window
       const dir   = Math.random() > 0.5 ? 1 : -1;
       let   dx    = 0;
-      const steps = randI(10, 22);
+      const steps = randI(12, 25);
       for (let i = 0; i < steps; i++) {
-        dx += dir * 0.35;
+        dx += dir * 0.3;
         figure.setAttribute('transform', `translate(${dx},0)`);
-        await wait(110);
+        await wait(120);
       }
-      await wait(rand(600, 2000));
-      figure.setAttribute('opacity', '0');
+      // pause then slow fade out
+      await wait(rand(800, 2500));
+      for (let o = 10; o >= 0; o--) {
+        figure.setAttribute('opacity', (o / 10).toFixed(1));
+        await wait(70);
+      }
       figure.setAttribute('transform', 'translate(0,0)');
     }
   }
