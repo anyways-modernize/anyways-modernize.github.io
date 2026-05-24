@@ -1,541 +1,606 @@
-(function () {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  const rand  = (a, b) => Math.random() * (b - a) + a;
-  const randI = (a, b) => Math.floor(rand(a, b));
-  const wait  = ms => new Promise(r => setTimeout(r, ms));
+<title>Medieval JRPG Village</title>
 
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 1440 260');
-  svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.classList.add('landscape');
-
-  function archWin(x, y, w, h, archH) {
-    const r = w / 2;
-    const archY = y + archH;
-    return `M${x},${y+h} L${x},${archY} Q${x},${y} ${x+r},${y} Q${x+w},${y} ${x+w},${archY} L${x+w},${y+h} Z`;
+<style>
+  html, body {
+    margin: 0;
+    overflow: hidden;
+    background: #0f1724;
+    height: 100%;
   }
 
-  svg.innerHTML = `
-<defs>
-  <linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%"   stop-color="#0d141c" stop-opacity="0"/>
-    <stop offset="55%"  stop-color="#080f18" stop-opacity="0.9"/>
-    <stop offset="100%" stop-color="#050b12" stop-opacity="1"/>
-  </linearGradient>
-  <filter id="glow">
-    <feGaussianBlur stdDeviation="3" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <filter id="lampglow">
-    <feGaussianBlur stdDeviation="5" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <!-- clip for shadow figure to stay inside window -->
-  <clipPath id="shadow-clip">
-    <path d="${archWin(655,184,14,20,8)}"/>
-  </clipPath>
-</defs>
+  canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background: #0f1724;
+  }
+</style>
+</head>
+<body>
 
-<rect x="0" y="0" width="1440" height="260" fill="url(#gnd)"/>
+<canvas id="scene"></canvas>
 
-<!-- distant mountains -->
-<polygon points="0,185 50,148 110,165 180,128 250,150 330,112 410,135 490,102 575,125 660,95 745,118 830,88 915,112 1000,82 1085,108 1165,80 1250,104 1335,82 1440,98 1440,260 0,260" fill="#0b1824" opacity="0.9"/>
+<script>
+(() => {
 
-<!-- mid hills -->
-<ellipse cx="160"  cy="230" rx="240" ry="52" fill="#08101c"/>
-<ellipse cx="720"  cy="234" rx="320" ry="50" fill="#08101c"/>
-<ellipse cx="1280" cy="230" rx="280" ry="52" fill="#08101c"/>
+const SCALE = 4;
+const W = 320;
+const H = 90;
 
-<!-- ground -->
-<rect x="0" y="238" width="1440" height="22" fill="#050b12"/>
+const canvas = document.getElementById("scene");
+canvas.width = W * SCALE;
+canvas.height = H * SCALE;
 
-<!-- ═══ LEFT CLUSTER ═══ -->
-<!-- cottage L1 -->
-<rect x="32" y="188" width="42" height="55" fill="#091420"/>
-<polygon points="26,190 78,190 52,160" fill="#0c1c2e"/>
-<line x1="32" y1="205" x2="74" y2="205" stroke="#0b1828" stroke-width="1" opacity="0.6"/>
-<line x1="32" y1="220" x2="74" y2="220" stroke="#0b1828" stroke-width="1" opacity="0.6"/>
-<path d="${archWin(40,196,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(40,196,10,14,5)}" fill="#ffd84d" opacity="0.20" id="wL1a"/>
-<path d="${archWin(56,196,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(56,196,10,14,5)}" fill="#ffd84d" opacity="0.15" id="wL1b"/>
-<path d="${archWin(45,220,14,23,7)}" fill="#050d18" stroke="#122030" stroke-width="1"/>
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 
-<!-- inn L2 -->
-<rect x="82" y="150" width="56" height="93" fill="#091420"/>
-<polygon points="76,152 144,152 110,120" fill="#0c1c2e"/>
-<rect x="82" y="142" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="97" y="142" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="112" y="142" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="127" y="142" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="134" y="118" width="8" height="26" fill="#07101a"/>
-<line x1="82" y1="175" x2="138" y2="175" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<line x1="82" y1="195" x2="138" y2="195" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<line x1="82" y1="215" x2="138" y2="215" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<path d="${archWin(92,158,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(92,158,13,18,7)}" fill="#ffd84d" opacity="0.32" id="wL2a"/>
-<path d="${archWin(113,158,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(113,158,13,18,7)}" fill="#ffd84d" opacity="0.26" id="wL2b"/>
-<path d="${archWin(92,183,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(92,183,13,18,7)}" fill="#ffd84d" opacity="0.18" id="wL2c"/>
+const rand = (a,b)=>Math.random()*(b-a)+a;
+const randI = (a,b)=>Math.floor(rand(a,b));
 
-<path d="${archWin(101,220,18,23,9)}" fill="#050d18" stroke="#122030" stroke-width="1"/>
+/* =========================================================
+   PALETTE
+========================================================= */
 
-<!-- small house L3 -->
-<rect x="150" y="195" width="36" height="48" fill="#091420"/>
-<polygon points="144,197 190,197 167,172" fill="#0c1c2e"/>
-<path d="${archWin(158,204,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(158,204,10,14,5)}" fill="#ffd84d" opacity="0.14" id="wL3a"/>
-<path d="${archWin(172,204,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(172,204,10,14,5)}" fill="#ffd84d" opacity="0.12" id="wL3b"/>
+const C = {
+  sky_top: '#18243a',
+  sky_bottom: '#2a3b56',
 
-<!-- LEFT TREES — layered JRPG style -->
-<g id="tree-L1">
-  <rect x="213" y="214" width="5" height="28" fill="#060e09"/>
-  <!-- shadow base -->
-  <ellipse cx="215" cy="218" rx="13" ry="8" fill="#050d08" opacity="0.5"/>
-  <!-- main canopy layers bottom to top -->
-  <ellipse cx="215" cy="214" rx="14" ry="10" fill="#071510" id="tL1e"/>
-  <ellipse cx="211" cy="209" rx="11" ry="9"  fill="#091c12" id="tL1d"/>
-  <ellipse cx="218" cy="207" rx="10" ry="8"  fill="#0a2014" id="tL1c"/>
-  <ellipse cx="213" cy="202" rx="9"  ry="8"  fill="#0c2618" id="tL1b"/>
-  <ellipse cx="216" cy="198" rx="7"  ry="6"  fill="#0e2e1c" id="tL1a"/>
-  <!-- highlight -->
-  <ellipse cx="218" cy="197" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
-</g>
-<g id="tree-L2">
-  <rect x="234" y="217" width="4" height="25" fill="#060e09"/>
-  <ellipse cx="236" cy="221" rx="11" ry="7" fill="#050d08" opacity="0.5"/>
-  <ellipse cx="236" cy="217" rx="12" ry="9"  fill="#071510" id="tL2e"/>
-  <ellipse cx="232" cy="212" rx="10" ry="8"  fill="#091c12" id="tL2d"/>
-  <ellipse cx="239" cy="210" rx="9"  ry="7"  fill="#0a2014" id="tL2c"/>
-  <ellipse cx="234" cy="205" rx="8"  ry="7"  fill="#0c2618" id="tL2b"/>
-  <ellipse cx="237" cy="201" rx="6"  ry="5"  fill="#0e2e1c" id="tL2a"/>
-  <ellipse cx="239" cy="200" rx="3"  ry="2.5" fill="#132e18" opacity="0.6"/>
-</g>
+  moon: '#d9d2b6',
 
-<!-- ═══ CENTRE CLUSTER ═══ -->
-<!-- house C1 -->
-<rect x="588" y="172" width="44" height="71" fill="#091420"/>
-<polygon points="582,174 638,174 610,148" fill="#0c1c2e"/>
-<line x1="588" y1="195" x2="632" y2="195" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<path d="${archWin(597,180,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(597,180,11,16,6)}" fill="#ffd84d" opacity="0.24" id="wC1a"/>
-<path d="${archWin(615,180,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(615,180,11,16,6)}" fill="#ffd84d" opacity="0.20" id="wC1b"/>
-<path d="${archWin(604,202,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(604,202,10,14,5)}" fill="#ffd84d" opacity="0.14" id="wC1c"/>
-<path d="${archWin(600,220,18,23,9)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+  mtn_far: '#1b2738',
+  mtn_mid: '#24364d',
 
-<!-- wizard tower C2 -->
-<rect x="648" y="125" width="50" height="118" fill="#091420"/>
-<polygon points="641,127 705,127 673,90" fill="#0a1928"/>
-<line x1="673" y1="90" x2="673" y2="75" stroke="#ffd84d" stroke-width="2" opacity="0.4"/>
-<circle cx="673" cy="74" r="3" fill="#ffd84d" opacity="0.5"/>
-<rect x="648" y="117" width="9" height="11" rx="1" fill="#091420"/>
-<rect x="661" y="117" width="9" height="11" rx="1" fill="#091420"/>
-<rect x="674" y="117" width="9" height="11" rx="1" fill="#091420"/>
-<rect x="687" y="117" width="9" height="11" rx="1" fill="#091420"/>
-<line x1="648" y1="152" x2="698" y2="152" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<line x1="648" y1="175" x2="698" y2="175" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<line x1="648" y1="200" x2="698" y2="200" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<circle cx="673" cy="138" r="8" fill="#091420" stroke="#182840" stroke-width="1.5"/>
-<circle cx="673" cy="138" r="8" fill="#ffd84d" opacity="0.28" id="wC2rose"/>
-<line x1="673" y1="130" x2="673" y2="146" stroke="#091420" stroke-width="1.5"/>
-<line x1="665" y1="138" x2="681" y2="138" stroke="#091420" stroke-width="1.5"/>
-<path d="${archWin(655,158,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(655,158,14,20,8)}" fill="#ffd84d" opacity="0.36" id="wC2a"/>
-<path d="${archWin(677,158,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(677,158,14,20,8)}" fill="#ffd84d" opacity="0.30" id="wC2b"/>
+  ground: '#1b241c',
+  dirt: '#2a3328',
 
-<!-- shadow window — background glow, then figure clipped inside -->
-<path d="${archWin(655,184,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(655,184,14,20,8)}" fill="#ffd84d" opacity="0.24" id="shadow-win"/>
+  wall_dk: '#3a4456',
+  wall_md: '#55627a',
+  wall_lt: '#73839b',
 
-<!-- shadow figure CLIPPED inside the window arch -->
-<g clip-path="url(#shadow-clip)" id="shadow-figure" opacity="0">
-  <!-- head -->
-  <ellipse cx="662" cy="188" rx="3.5" ry="3.5" fill="#03070d"/>
-  <!-- neck -->
-  <rect x="660" y="191" width="4" height="2" fill="#03070d"/>
-  <!-- shoulders -->
-  <path d="M656,193 Q662,190 668,193 L668,204 L656,204 Z" fill="#03070d"/>
-  <!-- arms -->
-  <line x1="656" y1="195" x2="653" y2="200" stroke="#03070d" stroke-width="2" stroke-linecap="round"/>
-  <line x1="668" y1="195" x2="671" y2="200" stroke="#03070d" stroke-width="2" stroke-linecap="round"/>
-</g>
+  roof_dk: '#3b2f3a',
+  roof_md: '#58475a',
+  roof_lt: '#74607a',
 
-<path d="${archWin(677,184,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(677,184,14,20,8)}" fill="#ffd84d" opacity="0.18" id="wC2c"/>
-<path d="${archWin(664,213,18,27,10)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+  wood: '#5e4632',
 
-<!-- tavern C3 -->
-<rect x="710" y="168" width="46" height="75" fill="#091420"/>
-<polygon points="704,170 762,170 733,143" fill="#0c1c2e"/>
-<line x1="720" y1="168" x2="720" y2="162" stroke="#0d1e30" stroke-width="1.5"/>
-<rect x="714" y="155" width="26" height="8" rx="1" fill="#0d2030" stroke="#1a3048" stroke-width="1"/>
-<line x1="740" y1="168" x2="740" y2="162" stroke="#0d1e30" stroke-width="1.5"/>
-<path d="${archWin(718,178,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(718,178,11,16,6)}" fill="#ffd84d" opacity="0.26" id="wC3a"/>
-<path d="${archWin(736,178,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(736,178,11,16,6)}" fill="#ffd84d" opacity="0.20" id="wC3b"/>
-<path d="${archWin(725,200,10,14,5)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(725,200,10,14,5)}" fill="#ffd84d" opacity="0.15" id="wC3c"/>
-<path d="${archWin(718,218,22,25,11)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+  win_on: '#ffc95e',
+  win_hot: '#ffe9a3',
+  win_dim: '#c78d35',
+  win_off: '#38404f',
 
-<!-- CENTRE TREES — layered JRPG style -->
-<g id="tree-C1">
-  <rect x="561" y="216" width="5" height="26" fill="#060e09"/>
-  <ellipse cx="563" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
-  <ellipse cx="563" cy="216" rx="13" ry="9"  fill="#071510" id="tC1e"/>
-  <ellipse cx="559" cy="211" rx="11" ry="8"  fill="#091c12" id="tC1d"/>
-  <ellipse cx="566" cy="209" rx="10" ry="8"  fill="#0a2014" id="tC1c"/>
-  <ellipse cx="561" cy="204" rx="9"  ry="7"  fill="#0c2618" id="tC1b"/>
-  <ellipse cx="564" cy="200" rx="7"  ry="6"  fill="#0e2e1c" id="tC1a"/>
-  <ellipse cx="566" cy="199" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
-</g>
-<g id="tree-C2">
-  <rect x="769" y="216" width="5" height="26" fill="#060e09"/>
-  <ellipse cx="771" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
-  <ellipse cx="771" cy="216" rx="13" ry="9"  fill="#071510" id="tC2e"/>
-  <ellipse cx="767" cy="211" rx="11" ry="8"  fill="#091c12" id="tC2d"/>
-  <ellipse cx="774" cy="209" rx="10" ry="8"  fill="#0a2014" id="tC2c"/>
-  <ellipse cx="769" cy="204" rx="9"  ry="7"  fill="#0c2618" id="tC2b"/>
-  <ellipse cx="772" cy="200" rx="7"  ry="6"  fill="#0e2e1c" id="tC2a"/>
-  <ellipse cx="774" cy="199" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
-</g>
-<g id="tree-C3">
-  <rect x="789" y="219" width="4" height="23" fill="#060e09"/>
-  <ellipse cx="791" cy="222" rx="10" ry="6" fill="#050d08" opacity="0.5"/>
-  <ellipse cx="791" cy="219" rx="11" ry="8"  fill="#071510" id="tC3e"/>
-  <ellipse cx="787" cy="214" rx="9"  ry="7"  fill="#091c12" id="tC3d"/>
-  <ellipse cx="793" cy="212" rx="8"  ry="7"  fill="#0a2014" id="tC3c"/>
-  <ellipse cx="789" cy="208" rx="7"  ry="6"  fill="#0c2618" id="tC3b"/>
-  <ellipse cx="792" cy="205" rx="5"  ry="4"  fill="#0e2e1c" id="tC3a"/>
-</g>
+  lamp: '#ffd27a',
 
-<!-- ═══ RIGHT CLUSTER ═══ -->
-<!-- chapel R1 — NO cross -->
-<rect x="1162" y="168" width="38" height="75" fill="#091420"/>
-<polygon points="1156,170 1206,170 1181,140" fill="#0c1c2e"/>
-<!-- just a finial, no cross -->
-<line x1="1181" y1="135" x2="1181" y2="124" stroke="#ffd84d" stroke-width="1.5" opacity="0.3"/>
-<circle cx="1181" cy="123" r="2" fill="#ffd84d" opacity="0.3"/>
-<circle cx="1181" cy="180" r="7" fill="#091420" stroke="#182840" stroke-width="1.5"/>
-<circle cx="1181" cy="180" r="7" fill="#ffd84d" opacity="0.22" id="wR1rose"/>
-<line x1="1181" y1="173" x2="1181" y2="187" stroke="#091420" stroke-width="1.5"/>
-<line x1="1174" y1="180" x2="1188" y2="180" stroke="#091420" stroke-width="1.5"/>
-<path d="${archWin(1170,193,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1170,193,11,16,6)}" fill="#ffd84d" opacity="0.18" id="wR1a"/>
-<path d="${archWin(1186,193,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1186,193,11,16,6)}" fill="#ffd84d" opacity="0.15" id="wR1b"/>
-<path d="${archWin(1173,213,14,30,9)}" fill="#050d18" stroke="#122030" stroke-width="1"/>
+  tree_1: '#1e3427',
+  tree_2: '#294530',
+  tree_3: '#35563d',
+  tree_4: '#456b4b',
 
-<!-- manor R2 -->
-<rect x="1212" y="140" width="74" height="103" fill="#091420"/>
-<polygon points="1205,142 1292,142 1249,108" fill="#0c1c2e"/>
-<rect x="1212" y="131" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="1227" y="131" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="1242" y="131" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="1257" y="131" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="1272" y="131" width="11" height="13" rx="1" fill="#091420"/>
-<rect x="1218" y="105" width="8" height="28" fill="#07101a"/>
-<rect x="1278" y="105" width="8" height="28" fill="#07101a"/>
-<line x1="1212" y1="165" x2="1286" y2="165" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<line x1="1212" y1="188" x2="1286" y2="188" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<line x1="1212" y1="210" x2="1286" y2="210" stroke="#0b1828" stroke-width="1" opacity="0.5"/>
-<path d="${archWin(1220,148,13,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1220,148,13,20,8)}" fill="#ffd84d" opacity="0.28" id="wR2a"/>
-<path d="${archWin(1242,148,13,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1242,148,13,20,8)}" fill="#ffd84d" opacity="0.24" id="wR2b"/>
-<path d="${archWin(1264,148,13,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1264,148,13,20,8)}" fill="#ffd84d" opacity="0.22" id="wR2c"/>
-<path d="${archWin(1220,175,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1220,175,13,18,7)}" fill="#ffd84d" opacity="0.18" id="wR2d"/>
-<path d="${archWin(1264,175,13,18,7)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1264,175,13,18,7)}" fill="#ffd84d" opacity="0.16" id="wR2e"/>
-<path d="${archWin(1238,205,22,36,12)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
+  shadow: '#16181d',
+  outline: '#0d1016'
+};
 
-<!-- house R3 -->
-<rect x="1300" y="182" width="40" height="61" fill="#091420"/>
-<polygon points="1294,184 1346,184 1320,158" fill="#0c1c2e"/>
-<path d="${archWin(1308,192,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1308,192,11,16,6)}" fill="#ffd84d" opacity="0.18" id="wR3a"/>
-<path d="${archWin(1324,192,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
-<path d="${archWin(1324,192,11,16,6)}" fill="#ffd84d" opacity="0.14" id="wR3b"/>
+/* =========================================================
+   HELPERS
+========================================================= */
 
-<!-- RIGHT TREES — layered JRPG style -->
-<g id="tree-R1">
-  <rect x="1126" y="216" width="5" height="26" fill="#060e09"/>
-  <ellipse cx="1128" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
-  <ellipse cx="1128" cy="216" rx="13" ry="9"  fill="#071510" id="tR1e"/>
-  <ellipse cx="1124" cy="211" rx="11" ry="8"  fill="#091c12" id="tR1d"/>
-  <ellipse cx="1131" cy="209" rx="10" ry="8"  fill="#0a2014" id="tR1c"/>
-  <ellipse cx="1126" cy="204" rx="9"  ry="7"  fill="#0c2618" id="tR1b"/>
-  <ellipse cx="1129" cy="200" rx="7"  ry="6"  fill="#0e2e1c" id="tR1a"/>
-  <ellipse cx="1131" cy="199" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
-</g>
-<g id="tree-R2">
-  <rect x="1146" y="219" width="4" height="23" fill="#060e09"/>
-  <ellipse cx="1148" cy="222" rx="10" ry="6" fill="#050d08" opacity="0.5"/>
-  <ellipse cx="1148" cy="219" rx="11" ry="8"  fill="#071510" id="tR2e"/>
-  <ellipse cx="1144" cy="214" rx="9"  ry="7"  fill="#091c12" id="tR2d"/>
-  <ellipse cx="1150" cy="212" rx="8"  ry="7"  fill="#0a2014" id="tR2c"/>
-  <ellipse cx="1146" cy="208" rx="7"  ry="6"  fill="#0c2618" id="tR2b"/>
-  <ellipse cx="1149" cy="205" rx="5"  ry="4"  fill="#0e2e1c" id="tR2a"/>
-</g>
+function rect(x,y,w,h,c){
+  ctx.fillStyle = c;
+  ctx.fillRect(
+    Math.round(x)*SCALE,
+    Math.round(y)*SCALE,
+    Math.round(w)*SCALE,
+    Math.round(h)*SCALE
+  );
+}
 
-<!-- ═══ LANTERN POSTS — round cap, no square ═══ -->
-<rect x="392" y="196" width="3" height="46" fill="#1a2838"/>
-<!-- round lantern housing -->
-<ellipse cx="393" cy="191" rx="7" ry="5" fill="#1a2838"/>
-<circle cx="393" cy="188" r="6" fill="#ffd84d" opacity="0.72" id="lamp1" filter="url(#lampglow)"/>
-<circle cx="393" cy="188" r="16" fill="#ffd84d" opacity="0.07" id="lamp1g"/>
+function dot(x,y,c){
+  rect(x,y,1,1,c);
+}
 
-<rect x="862" y="196" width="3" height="46" fill="#1a2838"/>
-<ellipse cx="863" cy="191" rx="7" ry="5" fill="#1a2838"/>
-<circle cx="863" cy="188" r="6" fill="#ffd84d" opacity="0.64" id="lamp2" filter="url(#lampglow)"/>
-<circle cx="863" cy="188" r="16" fill="#ffd84d" opacity="0.06" id="lamp2g"/>
+function hline(x,y,w,c){
+  rect(x,y,w,1,c);
+}
 
-<rect x="1075" y="196" width="3" height="46" fill="#1a2838"/>
-<ellipse cx="1076" cy="191" rx="7" ry="5" fill="#1a2838"/>
-<circle cx="1076" cy="188" r="6" fill="#ffd84d" opacity="0.57" id="lamp3" filter="url(#lampglow)"/>
-<circle cx="1076" cy="188" r="16" fill="#ffd84d" opacity="0.055" id="lamp3g"/>
+function vline(x,y,h,c){
+  rect(x,y,1,h,c);
+}
 
-<!-- ═══ CAT ═══ -->
-<g id="cat" opacity="0" transform="translate(-80,222)">
-  <ellipse cx="20" cy="7" rx="15" ry="7" fill="#0c1c2c"/>
-  <ellipse cx="33" cy="3" rx="7" ry="6" fill="#0c1c2c"/>
-  <polygon points="29,-1 31,-7 34,-1" fill="#0c1c2c"/>
-  <polygon points="33,-1 36,-7 38,-1" fill="#0c1c2c"/>
-  <ellipse cx="35" cy="2" rx="1.5" ry="1" fill="#ffd84d" opacity="0.95"/>
-  <path d="M5,6 Q-6,2 -5,-5" stroke="#0c1c2c" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <rect id="cl1" x="10" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
-  <rect id="cl2" x="17" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
-  <rect id="cl3" x="24" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
-  <rect id="cl4" x="31" y="13" width="4" height="7" rx="2" fill="#0c1c2c"/>
-</g>
-  `;
+function noise(x,y,w,h,amount,color){
+  for(let i=0;i<amount;i++){
+    dot(
+      x + randI(0,w),
+      y + randI(0,h),
+      color
+    );
+  }
+}
 
-  document.body.appendChild(svg);
+function lerpColor(c1,c2,t){
+  const h=s=>parseInt(s,16);
 
-  // ══════════════════════════════════════
-  // Wind animation for trees
-  // ══════════════════════════════════════
-  const treeGroups = [
-    ['tL1a','tL1b','tL1c','tL1d','tL1e'],
-    ['tL2a','tL2b','tL2c','tL2d','tL2e'],
-    ['tC1a','tC1b','tC1c','tC1d','tC1e'],
-    ['tC2a','tC2b','tC2c','tC2d','tC2e'],
-    ['tC3a','tC3b','tC3c','tC3d','tC3e'],
-    ['tR1a','tR1b','tR1c','tR1d','tR1e'],
-    ['tR2a','tR2b','tR2c','tR2d','tR2e'],
-  ];
+  const r1=h(c1.slice(1,3));
+  const g1=h(c1.slice(3,5));
+  const b1=h(c1.slice(5,7));
 
-  // Gentle CSS-based wind sway on each ellipse group
-  treeGroups.forEach((group, gi) => {
-    group.forEach((id, i) => {
-      const el = svg.getElementById(id);
-      if (!el) return;
-      const delay  = (gi * 0.4 + i * 0.15).toFixed(2);
-      const dur    = (3.5 + Math.random() * 2).toFixed(2);
-      const amount = 1.5 + Math.random();
-      // animate using SMIL for SVG elements
-      el.innerHTML = `
-        <animateTransform attributeName="transform" type="translate"
-          values="0,0; ${amount},0; 0,0; -${amount*0.5},0; 0,0"
-          dur="${dur}s" begin="${delay}s" repeatCount="indefinite"
-          calcMode="spline"
-          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1"/>`;
-    });
+  const r2=h(c2.slice(1,3));
+  const g2=h(c2.slice(3,5));
+  const b2=h(c2.slice(5,7));
+
+  return `rgb(
+    ${Math.round(r1+(r2-r1)*t)},
+    ${Math.round(g1+(g2-g1)*t)},
+    ${Math.round(b1+(b2-b1)*t)}
+  )`;
+}
+
+/* =========================================================
+   FIREFLIES
+========================================================= */
+
+const fireflies = Array.from({length:24},()=>({
+  x: rand(0,W),
+  y: rand(8,70),
+  dx: rand(-0.02,0.02),
+  dy: rand(-0.01,0.01),
+  a: rand(0.3,1)
+}));
+
+/* =========================================================
+   WINDOWS
+========================================================= */
+
+const wins = [
+  {x:24,y:54,w:4,h:5,b:1},
+  {x:31,y:54,w:4,h:5,b:0.7},
+
+  {x:72,y:42,w:4,h:5,b:1},
+  {x:80,y:42,w:4,h:5,b:0.9},
+
+  {x:122,y:36,w:5,h:6,b:1},
+
+  {x:170,y:50,w:4,h:5,b:0.7},
+  {x:178,y:50,w:4,h:5,b:1},
+
+  {x:232,y:46,w:4,h:5,b:0.8},
+  {x:240,y:46,w:4,h:5,b:1}
+];
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+function drawSky(){
+
+  const g = ctx.createLinearGradient(
+    0,0,0,H*SCALE
+  );
+
+  g.addColorStop(0,C.sky_top);
+  g.addColorStop(1,C.sky_bottom);
+
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // moon glow
+  ctx.fillStyle = 'rgba(255,240,210,0.08)';
+  ctx.beginPath();
+  ctx.arc(
+    250*SCALE,
+    18*SCALE,
+    20*SCALE,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
+
+  // moon
+  ctx.fillStyle = C.moon;
+
+  ctx.beginPath();
+  ctx.arc(
+    250*SCALE,
+    18*SCALE,
+    8*SCALE,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
+}
+
+function drawMountains(){
+
+  ctx.fillStyle = C.mtn_far;
+
+  ctx.beginPath();
+
+  ctx.moveTo(0,canvas.height);
+
+  for(let i=0;i<W;i+=16){
+
+    const y =
+      40 +
+      Math.sin(i*0.03)*6 +
+      Math.sin(i*0.08)*3;
+
+    ctx.lineTo(
+      i*SCALE,
+      y*SCALE
+    );
+  }
+
+  ctx.lineTo(canvas.width,canvas.height);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = C.mtn_mid;
+
+  ctx.beginPath();
+
+  ctx.moveTo(0,canvas.height);
+
+  for(let i=0;i<W;i+=12){
+
+    const y =
+      52 +
+      Math.sin(i*0.02)*4;
+
+    ctx.lineTo(
+      i*SCALE,
+      y*SCALE
+    );
+  }
+
+  ctx.lineTo(canvas.width,canvas.height);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/* =========================================================
+   BUILDINGS
+========================================================= */
+
+function drawWall(x,y,w,h){
+
+  rect(x,y,w,h,C.wall_dk);
+
+  for(let r=y+2;r<y+h;r+=3){
+    hline(x+1,r,w-2,C.wall_md);
+  }
+
+  noise(x,y,w,h,20,'rgba(255,255,255,0.03)');
+  noise(x,y,w,h,18,'rgba(0,0,0,0.08)');
+}
+
+function drawRoof(cx,y,w){
+
+  const half = Math.floor(w/2);
+
+  for(let i=0;i<=half;i++){
+
+    const yy = y + Math.floor(i*0.7);
+
+    hline(
+      cx-half+i,
+      yy,
+      w-(i*2),
+
+      i < half*0.3
+      ? C.roof_lt
+      : i < half*0.7
+      ? C.roof_md
+      : C.roof_dk
+    );
+  }
+}
+
+function drawDoor(x,y,w,h){
+
+  rect(x,y,w,h,C.wood);
+
+  vline(x-1,y,h,C.wall_lt);
+  vline(x+w,y,h,C.wall_lt);
+
+  dot(x+w-2,y+h/2,C.lamp);
+}
+
+function drawWindow(x,y,w,h,b){
+
+  if(b > 0.1){
+
+    ctx.fillStyle =
+      `rgba(255,210,100,${b*0.18})`;
+
+    ctx.fillRect(
+      (x-2)*SCALE,
+      (y-2)*SCALE,
+      (w+4)*SCALE,
+      (h+4)*SCALE
+    );
+  }
+
+  rect(x-1,y-1,w+2,h+2,C.wall_lt);
+
+  const c = lerpColor(
+    C.win_off,
+    C.win_hot,
+    b
+  );
+
+  rect(x,y,w,h,c);
+
+  vline(
+    x + Math.floor(w/2),
+    y,
+    h,
+    C.wall_md
+  );
+
+  hline(
+    x,
+    y + Math.floor(h/2),
+    w,
+    C.wall_md
+  );
+}
+
+function drawTree(x,baseY,tall=false){
+
+  rect(x,baseY-4,2,4,'#35281d');
+
+  const tiers = tall
+    ? [12,10,8,6,4]
+    : [10,8,6,4];
+
+  tiers.forEach((w,i)=>{
+
+    const yy = baseY - 4 - (i*4);
+
+    rect(
+      x - Math.floor(w/2),
+      yy,
+      w,
+      4,
+
+      i===0 ? C.tree_1 :
+      i===1 ? C.tree_2 :
+      i===2 ? C.tree_3 :
+      C.tree_4
+    );
+
+    dot(
+      x - Math.floor(w/2)+1,
+      yy,
+      '#6e9a71'
+    );
+  });
+}
+
+function drawVillage(){
+
+  // LEFT HOUSE
+  drawWall(18,50,22,22);
+  drawRoof(29,43,24);
+  drawDoor(25,62,6,10);
+
+  // CENTER TOWER
+  drawWall(115,30,24,42);
+  drawRoof(127,18,26);
+
+  drawDoor(123,60,8,12);
+
+  // RIGHT HOUSE
+  drawWall(220,44,30,28);
+  drawRoof(235,35,32);
+
+  drawDoor(230,60,8,12);
+
+  // TAVERN
+  drawWall(160,46,28,26);
+  drawRoof(174,38,30);
+
+  drawDoor(170,60,8,12);
+
+  // trees
+  drawTree(60,72,true);
+  drawTree(92,72,false);
+
+  drawTree(205,72,true);
+
+  drawTree(280,72,true);
+}
+
+/* =========================================================
+   GROUND
+========================================================= */
+
+function drawGround(){
+
+  rect(0,70,W,20,C.ground);
+
+  rect(0,74,W,16,C.dirt);
+
+  ctx.fillStyle =
+    'rgba(180,200,220,0.05)';
+
+  ctx.fillRect(
+    0,
+    60*SCALE,
+    canvas.width,
+    12*SCALE
+  );
+}
+
+/* =========================================================
+   LAMPS
+========================================================= */
+
+const lamps = [
+  {x:104,y:68},
+  {x:148,y:68},
+  {x:260,y:68}
+];
+
+function drawLamps(){
+
+  lamps.forEach(l=>{
+
+    ctx.fillStyle =
+      'rgba(255,220,140,0.15)';
+
+    ctx.beginPath();
+
+    ctx.arc(
+      l.x*SCALE,
+      l.y*SCALE,
+      16,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    vline(l.x,l.y-6,6,C.wall_lt);
+
+    rect(
+      l.x-1,
+      l.y-8,
+      3,
+      3,
+      C.lamp
+    );
+  });
+}
+
+/* =========================================================
+   FIREFLIES
+========================================================= */
+
+function drawFireflies(){
+
+  fireflies.forEach(f=>{
+
+    f.x += f.dx;
+    f.y += f.dy;
+
+    if(f.x < 0) f.x = W;
+    if(f.x > W) f.x = 0;
+
+    ctx.globalAlpha = f.a;
+
+    ctx.fillStyle = '#ffd76a';
+
+    ctx.fillRect(
+      f.x*SCALE,
+      f.y*SCALE,
+      2,
+      2
+    );
+
+    ctx.globalAlpha = 1;
+  });
+}
+
+/* =========================================================
+   VIGNETTE
+========================================================= */
+
+function drawVignette(){
+
+  const vg = ctx.createRadialGradient(
+    canvas.width/2,
+    canvas.height/2,
+    100,
+
+    canvas.width/2,
+    canvas.height/2,
+    canvas.width/1.1
+  );
+
+  vg.addColorStop(
+    0,
+    'rgba(0,0,0,0)'
+  );
+
+  vg.addColorStop(
+    1,
+    'rgba(0,0,0,0.45)'
+  );
+
+  ctx.fillStyle = vg;
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+}
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  drawSky();
+
+  drawMountains();
+
+  drawGround();
+
+  drawVillage();
+
+  wins.forEach(w=>{
+    drawWindow(
+      w.x,
+      w.y,
+      w.w,
+      w.h,
+      w.b
+    );
   });
 
-  // ══════════════════════════════════════
-  // Windows
-  // ══════════════════════════════════════
-  const winData = [
-    { id:'wL1a', base:0.20 }, { id:'wL1b', base:0.15 },
-    { id:'wL2a', base:0.32 }, { id:'wL2b', base:0.26 }, { id:'wL2c', base:0.18 },
-    { id:'wL3a', base:0.14 }, { id:'wL3b', base:0.12 },
-    { id:'wC1a', base:0.24 }, { id:'wC1b', base:0.20 }, { id:'wC1c', base:0.14 },
-    { id:'wC2rose', base:0.28 },
-    { id:'wC2a', base:0.36 }, { id:'wC2b', base:0.30 }, { id:'wC2c', base:0.18 },
-    { id:'wC3a', base:0.26 }, { id:'wC3b', base:0.20 }, { id:'wC3c', base:0.15 },
-    { id:'wR1rose', base:0.22 },
-    { id:'wR1a', base:0.18 }, { id:'wR1b', base:0.15 },
-    { id:'wR2a', base:0.28 }, { id:'wR2b', base:0.24 }, { id:'wR2c', base:0.22 },
-    { id:'wR2d', base:0.18 }, { id:'wR2e', base:0.16 },
-    { id:'wR3a', base:0.18 }, { id:'wR3b', base:0.14 },
-    { id:'shadow-win', base:0.24 },
-  ];
+  drawLamps();
 
-  const wins = winData.map(d => ({ el: svg.getElementById(d.id), base: d.base }))
-                      .filter(d => d.el);
+  drawFireflies();
 
-  async function flickerWin(w) {
-    const flickers = randI(1, 4);
-    for (let i = 0; i < flickers; i++) {
-      w.el.setAttribute('opacity', '0');
-      await wait(rand(40, 130));
-      w.el.setAttribute('opacity', w.base);
-      await wait(rand(50, 120));
-    }
-    w.el.setAttribute('opacity', '0');
-    await wait(rand(8000, 45000));
-    for (let o = 0; o <= 12; o++) {
-      w.el.setAttribute('opacity', (w.base * o / 12).toFixed(3));
-      await wait(80);
-    }
-  }
+  drawVignette();
 
-  async function windowLoop() {
-    while (true) {
-      await wait(rand(4000, 14000));
-      const w = wins[randI(0, wins.length)];
-      if (w.el.id === 'shadow-win') continue;
-      flickerWin(w);
-    }
-  }
-  windowLoop();
+  requestAnimationFrame(render);
+}
 
-  // ══════════════════════════════════════
-  // Shadow figure — clipped inside window
-  // ══════════════════════════════════════
-  const figure    = svg.getElementById('shadow-figure');
-  const shadowWin = svg.getElementById('shadow-win');
+render();
 
-  async function shadowLoop() {
-    while (true) {
-      await wait(rand(25000, 70000));
-      if (parseFloat(shadowWin.getAttribute('opacity')) < 0.05) continue;
-      // slow fade in
-      for (let o = 0; o <= 10; o++) {
-        figure.setAttribute('opacity', (o / 10).toFixed(1));
-        await wait(80);
-      }
-      // drift slowly across window
-      const dir   = Math.random() > 0.5 ? 1 : -1;
-      let   dx    = 0;
-      const steps = randI(12, 25);
-      for (let i = 0; i < steps; i++) {
-        dx += dir * 0.3;
-        figure.setAttribute('transform', `translate(${dx},0)`);
-        await wait(120);
-      }
-      // pause then slow fade out
-      await wait(rand(800, 2500));
-      for (let o = 10; o >= 0; o--) {
-        figure.setAttribute('opacity', (o / 10).toFixed(1));
-        await wait(70);
-      }
-      figure.setAttribute('transform', 'translate(0,0)');
-    }
-  }
-  shadowLoop();
+/* =========================================================
+   WINDOW FLICKER
+========================================================= */
 
-  // ══════════════════════════════════════
-  // Cat
-  // ══════════════════════════════════════
-  const cat  = svg.getElementById('cat');
-  const legs = ['cl1','cl2','cl3','cl4'].map(id => svg.getElementById(id));
-  let legFrame = 0, legTimer = null;
+setInterval(()=>{
 
-  function startLegs(ms) {
-    legTimer = setInterval(() => {
-      legFrame = (legFrame + 1) % 4;
-      legs.forEach((l, i) => {
-        const up = (i % 2 === 0) ? legFrame < 2 : legFrame >= 2;
-        l.setAttribute('y',      up ? '11' : '13');
-        l.setAttribute('height', up ? '9'  : '7');
-      });
-    }, ms);
-  }
-  function stopLegs() {
-    clearInterval(legTimer); legTimer = null;
-    legs.forEach(l => { l.setAttribute('y','13'); l.setAttribute('height','7'); });
-  }
+  const w = wins[randI(0,wins.length)];
 
-  async function catLoop() {
-    while (true) {
-      await wait(rand(18000, 55000));
-      const goRight = Math.random() > 0.5;
-      const startX  = goRight ? -80 : 1500;
-      const endX    = goRight ? rand(350, 1200) : rand(200, 1050);
-      const speed   = rand(0.5, 1.0);
-      const setPos  = x => {
-        if (!goRight) {
-          cat.setAttribute('transform', `translate(${x+40},222) scale(-1,1) translate(-40,0)`);
-        } else {
-          cat.setAttribute('transform', `translate(${x},222)`);
-        }
-      };
-      setPos(startX);
-      cat.setAttribute('opacity', '0');
-      await wait(80);
-      cat.setAttribute('opacity', '0.93');
-      startLegs(110);
-      let x = startX;
-      const dir = goRight ? 1 : -1;
-      while ((goRight && x < endX) || (!goRight && x > endX)) {
-        x += dir * speed;
-        setPos(x);
-        await wait(32);
-      }
-      stopLegs();
-      await wait(rand(1000, 4000));
-      for (let o = 9; o >= 0; o--) {
-        cat.setAttribute('opacity', (o/10).toFixed(1));
-        await wait(55);
-      }
-    }
-  }
-  catLoop();
+  w.b = rand(0.2,1);
 
-  // ══════════════════════════════════════
-  // Lanterns
-  // ══════════════════════════════════════
-  const lamps = [
-    { dot: svg.getElementById('lamp1'), glow: svg.getElementById('lamp1g'), base:0.72, baseG:0.07 },
-    { dot: svg.getElementById('lamp2'), glow: svg.getElementById('lamp2g'), base:0.64, baseG:0.06 },
-    { dot: svg.getElementById('lamp3'), glow: svg.getElementById('lamp3g'), base:0.57, baseG:0.055 },
-  ];
-  async function lampFlicker(l) {
-    while (true) {
-      await wait(rand(1500, 6000));
-      const d = rand(0.3, 0.55);
-      l.dot.setAttribute('opacity', d);
-      l.glow.setAttribute('opacity', d * 0.10);
-      await wait(rand(50, 180));
-      l.dot.setAttribute('opacity', l.base);
-      l.glow.setAttribute('opacity', l.baseG);
-    }
-  }
-  lamps.forEach(l => lampFlicker(l));
-
-  // ══════════════════════════════════════
-  // Fireflies
-  // ══════════════════════════════════════
-  for (let i = 0; i < 18; i++) {
-    const f = document.createElement('div');
-    f.className = 'firefly';
-    f.style.cssText = [
-      `left:${rand(2,95)}%`,
-      `top:${rand(5,52)}%`,
-      `--dur:${rand(3,7)}s`,
-      `--del:${rand(0,7)}s`,
-      `--dx:${(Math.random()-.5)*40}px`,
-      `--dy:${(Math.random()-.5)*28}px`,
-    ].join(';');
-    document.body.appendChild(f);
-  }
-
-  // ══════════════════════════════════════
-  // Mobile nav
-  // ══════════════════════════════════════
-  const toggle = document.querySelector('.nav-toggle');
-  const links  = document.querySelector('.nav-links');
-  if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
+},600);
 
 })();
+</script>
+
+</body>
+</html>
