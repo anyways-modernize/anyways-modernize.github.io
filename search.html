@@ -1,0 +1,241 @@
+name: Build Blog Posts
+
+on:
+  push:
+    paths:
+      - 'posts/**.md'
+      - '_template.html'
+      - '.github/workflows/build-posts.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+
+      - name: Convert MD posts to HTML
+        run: |
+          for f in posts/*.md; do
+            [ -f "$f" ] || continue
+            name=$(basename "$f" .md)
+
+            title=$(grep '^title:' "$f" | head -1 | sed 's/^title:[[:space:]]*//')
+            tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
+            desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
+
+            body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html)
+            body=$(echo "$body" | python3 -c "
+          import sys, re
+          html = sys.stdin.read()
+          html = re.sub(r'(<div class=\"note\">)\s*<p>(.*?)</p>\s*(</div>)', r'\1\2\3', html, flags=re.DOTALL)
+          print(html, end='')
+          ")
+
+            echo "$body" > /tmp/post_body.html
+
+            python3 - "$title" "$tag" "$desc" "posts/${name}.html" << 'PYEOF'
+          import sys, pathlib
+
+          title, tag, desc, outpath = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+          body = pathlib.Path('/tmp/post_body.html').read_text()
+          tmpl = pathlib.Path('_template.html').read_text()
+
+          html = (tmpl
+            .replace('{{TITLE}}',       title)
+            .replace('{{TAG}}',         tag)
+            .replace('{{DESCRIPTION}}', desc)
+            .replace('{{CONTENT}}',     body))
+
+          pathlib.Path(outpath).write_text(html)
+          print(f'Built: {outpath}')
+          PYEOF
+
+          done
+
+      - name: Generate scrolls.html, search.json and update index.html
+        run: |
+          python3 << 'PYEOF'
+          import pathlib, re, subprocess, json
+          from datetime import datetime, timezone
+
+          posts = []
+          for f in sorted(pathlib.Path('posts').glob('*.md')):
+            txt = f.read_text()
+            def meta(key):
+              m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
+              return m.group(1).strip() if m else ''
+
+            result = subprocess.run(
+              ['git', 'log', '-1', '--format=%aI', '--', str(f)],
+              capture_output=True, text=True
+            )
+            timestamp_str = result.stdout.strip()
+            try:
+              parsed_dt = datetime.fromisoformat(timestamp_str)
+              display_date = parsed_dt.strftime('%B %d, %Y')
+            except ValueError:
+              parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
+              display_date = ''
+
+            # strip frontmatter and get plain text body for search
+            body_md = re.sub(r'^---.*?---\s*', '', txt, flags=re.DOTALL)
+            # strip markdown syntax to plain text
+            body_plain = re.sub(r'[#*`_~\[\]()>:|]+', ' ', body_md)
+            body_plain = re.sub(r'\s+', ' ', body_plain).strip()
+
+            posts.append({
+              'title':        meta('title'),
+              'tag':          meta('tag'),
+              'desc':         meta('description'),
+              'parsed_dt':    parsed_dt,
+              'display_date': display_date,
+              'href':         f'/posts/{f.stem}.html',
+              'body':         body_plain,
+            })
+
+          posts.sort(key=lambda p: p['parsed_dt'], reverse=True)
+
+          # ── Generate search.json ──
+          search_data = [{
+            'title': p['title'],
+            'tag':   p['tag'],
+            'desc':  p['desc'],
+            'date':  p['display_date'],
+            'href':  p['href'],
+            'body':  p['body'],
+          } for p in posts]
+          pathlib.Path('data').mkdir(exist_ok=True)
+          pathlib.Path('data/search.json').write_text(json.dumps(search_data, ensure_ascii=False, indent=2))
+          print(f'Built search.json with {len(search_data)} posts')
+
+          # ── Generate scrolls.html ──
+          all_cards = ''
+          for p in posts:
+            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
+            all_cards += f'''
+            <div class="post-card">
+              <div class="tag">{p["tag"]}</div>
+              {date_label}
+              <h3>{p["title"]}</h3>
+              <p>{p["desc"]}</p>
+              <a class="read-more" href="{p["href"]}">Read the guide →</a>
+            </div>'''
+
+          scrolls_page = f'''<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>All Scrolls — Anyways Modernize</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="/css/style.css"/>
+          </head>
+          <body>
+            <div class="stars">
+              <div class="star" style="top:10%;left:20%;"></div>
+              <div class="star" style="top:30%;left:70%;"></div>
+              <div class="star" style="top:55%;left:45%;"></div>
+              <div class="star" style="top:75%;left:80%;"></div>
+              <div class="star" style="top:20%;left:88%;"></div>
+            </div>
+            <nav>
+              <div class="nav-inner">
+                <div class="logo">Anyways Modernize</div>
+                <div class="nav-links">
+                  <a href="/">Tavern</a>
+                  <a href="#">Workshop</a>
+                  <a href="#">Traveler</a>
+                  <a href="/scrolls.html">Scrolls</a>
+                </div>
+                <button class="nav-toggle" aria-label="Open menu">
+                  <span></span><span></span><span></span>
+                </button>
+              </div>
+            </nav>
+            <section class="section">
+              <h2 class="section-title">📜 All Scrolls</h2>
+              <div class="posts">{all_cards}</div>
+            </section>
+            <footer>
+              <div class="pikachu">⚡</div>
+              <p>The Intune Tavern • Built beside a quiet forest route</p>
+            </footer>
+            <script src="/village.js"></script>
+          </body>
+          </html>'''
+
+          pathlib.Path('scrolls.html').write_text(scrolls_page)
+          print(f'Built scrolls.html with {len(posts)} posts')
+
+          # ── Update index.html latest 3 ──
+          latest = posts[:3]
+          index_cards = ''
+          for p in latest:
+            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
+            index_cards += f'''
+              <div class="post-card">
+                <div class="tag">{p["tag"]}</div>
+                {date_label}
+                <h3>{p["title"]}</h3>
+                <p>{p["desc"]}</p>
+                <a class="read-more" href="{p["href"]}">Read the guide →</a>
+              </div>'''
+
+          index_html = pathlib.Path('index.html').read_text()
+          new_posts_block = f'<!-- POSTS START -->\n      <div class="posts">{index_cards}\n      </div>\n      <!-- POSTS END -->'
+          index_html = re.sub(
+            r'<!-- POSTS START -->.*?<!-- POSTS END -->',
+            new_posts_block,
+            index_html,
+            flags=re.DOTALL
+          )
+          pathlib.Path('index.html').write_text(index_html)
+          print(f'Updated index.html with {len(latest)} latest posts')
+          PYEOF
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posts/*.html scrolls.html index.html data/search.json
+          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index + search"
+          git pull --rebase
+          git push
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
