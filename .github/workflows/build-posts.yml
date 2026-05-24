@@ -94,10 +94,8 @@ jobs:
               'href':         f'/posts/{f.stem}.html',
             })
 
-          # Sort newest first
           posts.sort(key=lambda p: p['parsed_dt'], reverse=True)
 
-          # ── Generate scrolls.html (all posts) ──
           all_cards = ''
           for p in posts:
             date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
@@ -158,7 +156,6 @@ jobs:
           pathlib.Path('scrolls.html').write_text(scrolls_page)
           print(f'Built scrolls.html with {len(posts)} posts')
 
-          # ── Update index.html (latest 3 posts only) ──
           latest = posts[:3]
           index_cards = ''
           for p in latest:
@@ -173,7 +170,6 @@ jobs:
               </div>'''
 
           index_html = pathlib.Path('index.html').read_text()
-          # replace everything between <!-- POSTS START --> and <!-- POSTS END -->
           new_posts_block = f'<!-- POSTS START -->\n      <div class="posts">{index_cards}\n      </div>\n      <!-- POSTS END -->'
           index_html = re.sub(
             r'<!-- POSTS START -->.*?<!-- POSTS END -->',
@@ -191,8 +187,33 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add posts/*.html scrolls.html index.html
           git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index"
+          git pull --rebase
           git push
 
   deploy:
     needs: build
-    uses: ./.github/workflows/static.yml
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
