@@ -60,7 +60,7 @@ jobs:
 
           done
 
-      - name: Generate scrolls.html
+      - name: Generate scrolls.html and update index.html
         run: |
           python3 << 'PYEOF'
           import pathlib, re, subprocess
@@ -73,7 +73,6 @@ jobs:
               m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
               return m.group(1).strip() if m else ''
 
-            # get full timestamp from git log
             result = subprocess.run(
               ['git', 'log', '-1', '--format=%aI', '--', str(f)],
               capture_output=True, text=True
@@ -95,13 +94,14 @@ jobs:
               'href':         f'/posts/{f.stem}.html',
             })
 
-          # Sort newest first by full datetime
+          # Sort newest first
           posts.sort(key=lambda p: p['parsed_dt'], reverse=True)
 
-          cards = ''
+          # ── Generate scrolls.html (all posts) ──
+          all_cards = ''
           for p in posts:
             date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
-            cards += f'''
+            all_cards += f'''
             <div class="post-card">
               <div class="tag">{p["tag"]}</div>
               {date_label}
@@ -110,7 +110,7 @@ jobs:
               <a class="read-more" href="{p["href"]}">Read the guide →</a>
             </div>'''
 
-          page = f'''<!DOCTYPE html>
+          scrolls_page = f'''<!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8"/>
@@ -145,7 +145,7 @@ jobs:
             </nav>
             <section class="section">
               <h2 class="section-title">📜 All Scrolls</h2>
-              <div class="posts">{cards}</div>
+              <div class="posts">{all_cards}</div>
             </section>
             <footer>
               <div class="pikachu">⚡</div>
@@ -155,16 +155,42 @@ jobs:
           </body>
           </html>'''
 
-          pathlib.Path('scrolls.html').write_text(page)
+          pathlib.Path('scrolls.html').write_text(scrolls_page)
           print(f'Built scrolls.html with {len(posts)} posts')
+
+          # ── Update index.html (latest 3 posts only) ──
+          latest = posts[:3]
+          index_cards = ''
+          for p in latest:
+            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
+            index_cards += f'''
+              <div class="post-card">
+                <div class="tag">{p["tag"]}</div>
+                {date_label}
+                <h3>{p["title"]}</h3>
+                <p>{p["desc"]}</p>
+                <a class="read-more" href="{p["href"]}">Read the guide →</a>
+              </div>'''
+
+          index_html = pathlib.Path('index.html').read_text()
+          # replace everything between <!-- POSTS START --> and <!-- POSTS END -->
+          new_posts_block = f'<!-- POSTS START -->\n      <div class="posts">{index_cards}\n      </div>\n      <!-- POSTS END -->'
+          index_html = re.sub(
+            r'<!-- POSTS START -->.*?<!-- POSTS END -->',
+            new_posts_block,
+            index_html,
+            flags=re.DOTALL
+          )
+          pathlib.Path('index.html').write_text(index_html)
+          print(f'Updated index.html with {len(latest)} latest posts')
           PYEOF
 
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add posts/*.html scrolls.html
-          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls index"
+          git add posts/*.html scrolls.html index.html
+          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index"
           git push
 
   deploy:
