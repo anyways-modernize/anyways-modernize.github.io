@@ -13,28 +13,62 @@
   box-sizing: border-box;
 }
 body {
-  background:
-    radial-gradient(circle at top, #1d2d40 0%, #0d141c 50%);
+  background: radial-gradient(circle at top, #1d2d40 0%, #0d141c 50%);
   color: var(--text);
   font-family: 'Inter', sans-serif;
   line-height: 1.8;
-  padding-bottom: 4rem;
+  padding-bottom: 220px;
   overflow-x: hidden;
 }
+
+/* ── NAV ── */
 nav {
-  padding: 1.5rem;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  background: rgba(13,20,28,0.8);
+  background: rgba(13,20,28,0.85);
   position: sticky;
   top: 0;
   backdrop-filter: blur(8px);
   z-index: 100;
 }
-nav a {
-  color: var(--yellow);
-  text-decoration: none;
-  font-weight: 600;
+.nav-inner {
+  max-width: 1100px;
+  margin: auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
+.logo {
+  font-family: 'Pixelify Sans', sans-serif;
+  color: var(--yellow);
+  font-size: 1.5rem;
+  text-shadow: 0 0 12px rgba(255,216,77,0.3);
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 1.5rem; align-items: center; }
+.nav-links a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
+.nav-links a:hover { color: var(--yellow); }
+.nav-toggle {
+  display: none;
+  background: none; border: none; cursor: pointer;
+  padding: 0.4rem; flex-direction: column; gap: 5px;
+}
+.nav-toggle span {
+  display: block; width: 22px; height: 2px;
+  background: var(--yellow); border-radius: 2px;
+}
+
+/* ── SEARCH ICON ── */
+.nav-links a[aria-label="Search"] {
+  font-size: 1.1rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+.nav-links a[aria-label="Search"]:hover {
+  opacity: 1;
+}
+
+/* ── ARTICLE ── */
 .container {
   position: relative;
   z-index: 10;
@@ -53,7 +87,7 @@ nav a {
 }
 h1 {
   font-family: 'Pixelify Sans', sans-serif;
-  font-size: 3rem;
+  font-size: clamp(1.8rem, 6vw, 3rem);
   line-height: 1.2;
   color: var(--yellow);
   margin-bottom: 1rem;
@@ -109,8 +143,7 @@ footer {
 }
 .star {
   position: absolute;
-  width: 2px;
-  height: 2px;
+  width: 2px; height: 2px;
   background: white;
   border-radius: 50%;
   animation: twinkle 4s infinite ease-in-out;
@@ -123,8 +156,7 @@ footer {
 /* ── FIREFLIES ── */
 .firefly {
   position: fixed;
-  width: 3px;
-  height: 3px;
+  width: 3px; height: 3px;
   border-radius: 50%;
   background: var(--yellow);
   opacity: 0;
@@ -141,8 +173,7 @@ footer {
 /* ── LANDSCAPE ── */
 .landscape {
   position: fixed;
-  bottom: 0;
-  left: 0;
+  bottom: 0; left: 0;
   width: 100%;
   z-index: 2;
   pointer-events: none;
@@ -150,7 +181,21 @@ footer {
 }
 
 /* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .nav-links {
+    display: none; flex-direction: column;
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: rgba(13,20,28,0.97);
+    padding: 1rem 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 1rem; z-index: 99;
+  }
+  .nav-links.open { display: flex; }
+  .nav-toggle { display: flex; }
+}
 @media (max-width: 600px) {
   h1 { font-size: 2rem; }
   .container { padding: 2.5rem 1rem; }
+  body { padding-bottom: 150px; }
+  .landscape { max-height: 130px; }
 }
