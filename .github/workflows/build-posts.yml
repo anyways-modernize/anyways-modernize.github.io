@@ -60,10 +60,10 @@ jobs:
 
           done
 
-      - name: Generate scrolls.html and update index.html
+      - name: Generate scrolls.html, search.json and update index.html
         run: |
           python3 << 'PYEOF'
-          import pathlib, re, subprocess
+          import pathlib, re, subprocess, json
           from datetime import datetime, timezone
 
           posts = []
@@ -85,6 +85,12 @@ jobs:
               parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
               display_date = ''
 
+            # strip frontmatter and get plain text body for search
+            body_md = re.sub(r'^---.*?---\s*', '', txt, flags=re.DOTALL)
+            # strip markdown syntax to plain text
+            body_plain = re.sub(r'[#*`_~\[\]()>:|]+', ' ', body_md)
+            body_plain = re.sub(r'\s+', ' ', body_plain).strip()
+
             posts.append({
               'title':        meta('title'),
               'tag':          meta('tag'),
@@ -92,10 +98,25 @@ jobs:
               'parsed_dt':    parsed_dt,
               'display_date': display_date,
               'href':         f'/posts/{f.stem}.html',
+              'body':         body_plain,
             })
 
           posts.sort(key=lambda p: p['parsed_dt'], reverse=True)
 
+          # ── Generate search.json ──
+          search_data = [{
+            'title': p['title'],
+            'tag':   p['tag'],
+            'desc':  p['desc'],
+            'date':  p['display_date'],
+            'href':  p['href'],
+            'body':  p['body'],
+          } for p in posts]
+          pathlib.Path('data').mkdir(exist_ok=True)
+          pathlib.Path('data/search.json').write_text(json.dumps(search_data, ensure_ascii=False, indent=2))
+          print(f'Built search.json with {len(search_data)} posts')
+
+          # ── Generate scrolls.html ──
           all_cards = ''
           for p in posts:
             date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
@@ -156,6 +177,7 @@ jobs:
           pathlib.Path('scrolls.html').write_text(scrolls_page)
           print(f'Built scrolls.html with {len(posts)} posts')
 
+          # ── Update index.html latest 3 ──
           latest = posts[:3]
           index_cards = ''
           for p in latest:
@@ -185,8 +207,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add posts/*.html scrolls.html index.html
-          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index"
+          git add posts/*.html scrolls.html index.html data/search.json
+          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index + search"
           git pull --rebase
           git push
 
