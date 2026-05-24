@@ -4,38 +4,12 @@
   const randI = (a, b) => Math.floor(rand(a, b));
   const wait  = ms => new Promise(r => setTimeout(r, ms));
 
-  // ── Pixel art palette ──
-  // Everything is multiples of 2px on a 480x80 canvas scaled up 3x
-  // Colors inspired by SNES era RPGs (Chrono Trigger / FF6)
-  const P = {
-    sky:      '#0d141c',
-    mtn1:     '#0f1e2e',
-    mtn2:     '#122438',
-    ground:   '#060c12',
-    dirt:     '#080f18',
-    stone1:   '#0a1520',  // dark stone
-    stone2:   '#0d1c2a',  // mid stone
-    stone3:   '#112233',  // light stone edge
-    roof1:    '#091828',  // dark roof
-    roof2:    '#0c2035',  // roof highlight
-    win_on:   '#ffd84d',  // window lit
-    win_dim:  '#c4922a',  // window dim
-    win_off:  '#091420',  // window off (same as stone)
-    win_frm:  '#1a3048',  // window frame
-    door:     '#050c16',
-    tree_dk:  '#061008',
-    tree_md:  '#0a1c0e',
-    tree_lt:  '#0d2412',
-    tree_hi:  '#122e18',
-    lamp:     '#ffd84d',
-    lamp_dim: '#b86a00',
-    black:    '#020507',
-  };
-
-  // ── Canvas approach: draw pixel art to canvas, animate with JS ──
-  const SCALE  = 3;   // upscale factor (3x = chunky SNES look)
-  const W      = 480; // logical pixel width
-  const H      = 80;  // logical pixel height
+  // ── Canvas pixel art setup ──
+  // Draw at 320x60 logical pixels, scale up 4x = 1280x240 display
+  // This gives chunky SNES-style pixels
+  const SCALE = 4;
+  const W = 320;
+  const H = 60;
 
   const canvas = document.createElement('canvas');
   canvas.width  = W * SCALE;
@@ -49,6 +23,7 @@
     'max-height:240px',
     'image-rendering:pixelated',
     'image-rendering:crisp-edges',
+    '-ms-interpolation-mode:nearest-neighbor',
     'z-index:2',
     'pointer-events:none',
   ].join(';');
@@ -57,494 +32,538 @@
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
 
-  // ── Draw helpers — all coords in logical pixels ──
-  function px(color) { ctx.fillStyle = color; }
-  function rect(x, y, w, h, color) {
-    if (color) ctx.fillStyle = color;
-    ctx.fillRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE);
+  // ── Pixel helpers ──
+  function rect(x, y, w, h, c) {
+    ctx.fillStyle = c;
+    ctx.fillRect(Math.round(x)*SCALE, Math.round(y)*SCALE, Math.round(w)*SCALE, Math.round(h)*SCALE);
   }
-  function line(x, y, w, color) { rect(x, y, w, 1, color); } // horizontal line
-  function col(x, y, h, color)  { rect(x, y, 1, h, color); } // vertical line
-  function dot(x, y, color)     { rect(x, y, 1, 1, color); }
+  function dot(x, y, c) { rect(x, y, 1, 1, c); }
+  function hline(x, y, w, c) { rect(x, y, w, 1, c); }
+  function vline(x, y, h, c) { rect(x, y, 1, h, c); }
 
-  // Draw an arched window in pixel art: rect with top 2px rounded by removing corners
-  function pixWin(x, y, w, h, color) {
-    rect(x, y+1, w, h-1, color);      // body
-    rect(x+1, y, w-2, 1, color);      // arch top row (minus corners)
-  }
-
-  // ── State ──
-  // Window states: 0=off, 1=on, fading values between
-  const windows = {
-    // id: { x, y, w, h, brightness (0-1), base }
-    wL1a: { x:10,  y:44, w:4, h:5, b:1, base:1 },
-    wL1b: { x:16,  y:44, w:4, h:5, b:1, base:1 },
-    wL2a: { x:32,  y:36, w:4, h:6, b:1, base:1 },
-    wL2b: { x:38,  y:36, w:4, h:6, b:1, base:1 },
-    wL2c: { x:32,  y:45, w:4, h:5, b:0.7, base:0.7 },
-    wC1a: { x:194, y:38, w:4, h:6, b:1, base:1 },
-    wC1b: { x:200, y:38, w:4, h:6, b:1, base:1 },
-    wC2a: { x:218, y:32, w:4, h:6, b:1, base:1 },
-    wC2b: { x:224, y:32, w:4, h:6, b:1, base:1 },
-    wC2c: { x:218, y:42, w:4, h:6, b:0.8, base:0.8 },
-    // shadow window — special
-    wCs:  { x:224, y:42, w:4, h:6, b:0.8, base:0.8 },
-    wC3a: { x:242, y:38, w:4, h:6, b:1, base:1 },
-    wC3b: { x:248, y:38, w:4, h:6, b:1, base:1 },
-    wR1a: { x:398, y:44, w:4, h:5, b:0.8, base:0.8 },
-    wR1b: { x:404, y:44, w:4, h:5, b:0.8, base:0.8 },
-    wR2a: { x:422, y:34, w:4, h:6, b:1, base:1 },
-    wR2b: { x:428, y:34, w:4, h:6, b:1, base:1 },
-    wR2c: { x:434, y:34, w:4, h:6, b:1, base:1 },
-    wR2d: { x:422, y:44, w:4, h:5, b:0.7, base:0.7 },
-    wR2e: { x:434, y:44, w:4, h:5, b:0.7, base:0.7 },
-    wR3a: { x:454, y:44, w:4, h:5, b:0.8, base:0.8 },
-    wR3b: { x:460, y:44, w:4, h:5, b:0.6, base:0.6 },
-  };
-
-  // Lantern positions
-  const lanterns = [
-    { x:130, y:56, b:1 },
-    { x:290, y:56, b:1 },
-    { x:350, y:56, b:1 },
-  ];
-
-  // Cat state
-  const cat = { x:-16, y:68, dir:1, visible:false, walking:false, frame:0, frameTimer:0 };
-
-  // Shadow figure state
-  const shadow = { x:0, dx:0, opacity:0, active:false };
-
-  // ── DRAW STATIC SCENE ──
-  function drawScene() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // sky gradient (pixel rows)
-    for (let y = 0; y < 50; y++) {
-      const t = y / 50;
-      const alpha = t * 0.85;
-      ctx.fillStyle = `rgba(8,15,24,${alpha})`;
-      ctx.fillRect(0, y * SCALE, canvas.width, SCALE);
-    }
-    rect(0, 50, W, 30, '#07101a');
-
-    // mountains — pixel stepped silhouette
-    const mtn = [
-      [0,52],[12,44],[24,48],[40,40],[56,44],[72,36],[90,40],[108,34],
-      [126,38],[144,30],[162,34],[180,28],[198,32],[216,26],[234,30],
-      [252,24],[270,28],[288,22],[306,26],[324,20],[342,24],[360,18],
-      [378,22],[396,16],[414,20],[432,14],[448,18],[464,12],[480,16],
-    ];
-    ctx.fillStyle = P.mtn1;
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-    for (let i = 0; i < mtn.length; i++) {
-      const [mx, my] = mtn[i];
-      ctx.lineTo(mx * SCALE, my * SCALE);
-    }
-    ctx.lineTo(canvas.width, canvas.height);
-    ctx.closePath();
-    ctx.fill();
-
-    // ground
-    rect(0, 70, W, 10, P.ground);
-    rect(0, 68, W, 2,  P.dirt);
-
-    // ═══ LEFT CLUSTER ═══
-    // cottage
-    rect(6,  52, 22, 18, P.stone1);
-    rect(4,  46, 26,  7, P.roof1);
-    rect(6,  44, 22,  3, P.roof2);
-    rect(14, 60, 6,  10, P.door);
-
-    // inn (tall)
-    rect(30, 38, 28, 32, P.stone1);
-    rect(28, 30, 32,  9, P.roof1);
-    rect(30, 28, 28,  3, P.roof2);
-    // battlements
-    for (let bx = 30; bx < 58; bx += 4) { rect(bx, 26, 2, 4, P.stone2); }
-    rect(36, 56, 8, 14, P.door);
-    // chimney
-    rect(52, 22, 4, 10, P.stone2);
-
-    // small house
-    rect(62, 52, 18, 18, P.stone1);
-    rect(60, 46, 22,  7, P.roof1);
-    rect(62, 44, 18,  3, P.roof2);
-
-    // LEFT TREES (pixel art — layered triangular with rounded top)
-    drawTree(80, 54, P.tree_dk, P.tree_md, P.tree_lt, P.tree_hi);
-    drawTree(90, 56, P.tree_dk, P.tree_md, P.tree_lt, P.tree_hi);
-
-    // ═══ CENTRE CLUSTER ═══
-    // house C1
-    rect(188, 44, 22, 26, P.stone1);
-    rect(186, 37, 26,  8, P.roof1);
-    rect(188, 35, 22,  3, P.roof2);
-    rect(195, 58, 8,  12, P.door);
-
-    // wizard tower (tallest)
-    rect(212, 28, 26, 42, P.stone1);
-    // conical roof — pixel stepped
-    rect(214, 22, 22, 7, P.roof1);
-    rect(216, 18, 18, 5, P.roof1);
-    rect(218, 14, 14, 5, P.roof2);
-    rect(220, 10, 10, 5, P.roof2);
-    rect(222,  7,  6, 4, P.roof2);
-    rect(223,  5,  4, 3, P.roof2);
-    // spire
-    rect(224,  2,  2, 4, P.lamp);
-    // battlements
-    for (let bx = 212; bx < 238; bx += 4) { rect(bx, 20, 2, 3, P.stone2); }
-    // rose window (pixel circle)
-    rect(220, 25, 10, 1, P.win_frm);
-    rect(218, 26, 14, 5, P.win_frm);
-    rect(220, 31, 10, 1, P.win_frm);
-    rect(219, 26, 12, 5, P.win_on);
-    // cross divider
-    rect(224, 25, 2, 7, P.stone1);
-    rect(220, 28, 10, 2, P.stone1);
-    // stone layers
-    for (let sy = 34; sy < 70; sy += 6) { line(212, sy, 26, P.stone2); }
-    rect(218, 60, 14, 10, P.door);
-
-    // tavern C3
-    rect(240, 42, 22, 28, P.stone1);
-    rect(238, 35, 26,  8, P.roof1);
-    rect(240, 33, 22,  3, P.roof2);
-    // hanging sign
-    rect(244, 32, 14, 3, P.stone3);
-    rect(246, 29, 10, 3, '#0d2030');
-    rect(247, 60, 8,  10, P.door);
-
-    // CENTRE TREES
-    drawTree(178, 56, P.tree_dk, P.tree_md, P.tree_lt, P.tree_hi);
-    drawTree(265, 54, P.tree_dk, P.tree_md, P.tree_lt, P.tree_hi);
-    drawTree(272, 57, P.tree_dk, P.tree_md, P.tree_lt, P.tree_hi);
-
-    // ═══ RIGHT CLUSTER ═══
-    // chapel
-    rect(392, 46, 20, 24, P.stone1);
-    rect(390, 38, 24,  9, P.roof1);
-    rect(392, 36, 20,  3, P.roof2);
-    // finial
-    rect(401, 33, 2, 4, P.stone3);
-    dot(402, 32, P.lamp);
-    rect(396, 58, 8,  12, P.door);
-
-    // manor (wide)
-    rect(416, 30, 30, 40, P.stone1);
-    rect(414, 22, 34,  9, P.roof1);
-    rect(416, 20, 30,  3, P.roof2);
-    for (let bx = 416; bx < 446; bx += 4) { rect(bx, 18, 2, 4, P.stone2); }
-    // chimneys
-    rect(418, 14, 4, 8, P.stone2);
-    rect(438, 14, 4, 8, P.stone2);
-    // stone layers
-    for (let sy = 36; sy < 70; sy += 6) { line(416, sy, 30, P.stone2); }
-    rect(426, 58, 14, 12, P.door);
-
-    // house R3
-    rect(450, 48, 22, 22, P.stone1);
-    rect(448, 42, 26,  7, P.roof1);
-    rect(450, 40, 22,  3, P.roof2);
-
-    // RIGHT TREES
-    drawTree(382, 56, P.tree_dk, P.tree_md, P.tree_lt, P.tree_hi);
-    drawTree(390, 58, P.tree_dk, P.tree_md, P.tree_lt, P.tree_hi);
-
-    // lantern posts
-    lanterns.forEach(l => {
-      col(l.x, 57, 14, P.stone2);
-      rect(l.x-1, 55, 3, 2, P.stone3);
-    });
-  }
-
-  // Pixel art tree: layered triangles
-  function drawTree(cx, baseY, c1, c2, c3, c4) {
-    // trunk
-    col(cx,   baseY,   4, '#06100a');
-    col(cx+1, baseY,   4, '#07130b');
-    // layer 4 (widest, bottom)
-    rect(cx-4, baseY-4, 10, 4, c1);
-    dot(cx-4, baseY-4, c2); dot(cx+5, baseY-4, c2);
-    // layer 3
-    rect(cx-3, baseY-8, 8, 4, c2);
-    dot(cx-3, baseY-8, c3); dot(cx+4, baseY-8, c3);
-    // layer 2
-    rect(cx-2, baseY-12, 6, 4, c3);
-    dot(cx-2, baseY-12, c4); dot(cx+3, baseY-12, c4);
-    // layer 1 (top)
-    rect(cx-1, baseY-16, 4, 4, c4);
-    // highlight pixel
-    dot(cx,   baseY-16, '#193820');
-    dot(cx+1, baseY-17, '#193820');
-  }
-
-  // ── DRAW DYNAMIC LAYER (windows, lanterns, cat, shadow) ──
-  function drawWindows() {
-    Object.entries(windows).forEach(([id, w]) => {
-      const color = w.b > 0.05
-        ? lerpColor(P.win_off, P.win_on, w.b)
-        : P.win_off;
-      // frame
-      pixWin(w.x, w.y, w.w, w.h, P.win_frm);
-      // light fill
-      pixWin(w.x+1, w.y+1, w.w-2, w.h-2, color);
-    });
-  }
-
-  function drawLanterns() {
-    lanterns.forEach(l => {
-      const c = l.b > 0.5 ? P.lamp : P.lamp_dim;
-      dot(l.x,   l.y, c);
-      dot(l.x+1, l.y, c);
-      // glow: soft 1px halo
-      ctx.fillStyle = `rgba(255,216,77,${l.b * 0.25})`;
-      ctx.fillRect((l.x-1)*SCALE, (l.y-1)*SCALE, 4*SCALE, 4*SCALE);
-    });
-  }
-
-  // Cat pixel art frames (facing right)
-  const CAT_FRAMES = [
-    // frame 0: legs down
-    (x, y) => {
-      rect(x,   y,   7, 4, P.black); // body
-      rect(x+5, y-1, 4, 3, P.black); // head
-      dot(x+8, y-1, P.lamp);          // eye
-      rect(x+1, y+3, 2, 2, P.black); // front legs down
-      rect(x+4, y+3, 2, 2, P.black); // back legs down
-      rect(x-2, y+1, 2, 1, P.black); // tail
-      rect(x-3, y,   1, 2, P.black);
-    },
-    // frame 1: legs mid
-    (x, y) => {
-      rect(x,   y,   7, 4, P.black);
-      rect(x+5, y-1, 4, 3, P.black);
-      dot(x+8, y-1, P.lamp);
-      rect(x+1, y+3, 2, 3, P.black); // front leg down
-      rect(x+4, y+2, 2, 2, P.black); // back leg up
-      rect(x-2, y+1, 2, 1, P.black);
-      rect(x-3, y,   1, 2, P.black);
-    },
-    // frame 2: legs stride
-    (x, y) => {
-      rect(x,   y,   7, 4, P.black);
-      rect(x+5, y-1, 4, 3, P.black);
-      dot(x+8, y-1, P.lamp);
-      rect(x+1, y+2, 2, 2, P.black); // front leg up
-      rect(x+4, y+3, 2, 3, P.black); // back leg down
-      rect(x-2, y+1, 2, 1, P.black);
-      rect(x-3, y,   1, 2, P.black);
-    },
-    // frame 3: legs other mid
-    (x, y) => {
-      rect(x,   y,   7, 4, P.black);
-      rect(x+5, y-1, 4, 3, P.black);
-      dot(x+8, y-1, P.lamp);
-      rect(x+1, y+3, 2, 2, P.black);
-      rect(x+4, y+3, 2, 2, P.black);
-      rect(x-2, y+2, 2, 1, P.black); // tail low
-      rect(x-3, y+1, 1, 2, P.black);
-    },
-  ];
-
-  function drawCat() {
-    if (!cat.visible) return;
-    ctx.save();
-    if (cat.dir === -1) {
-      // flip horizontally around cat center
-      ctx.translate((cat.x + 5) * SCALE, 0);
-      ctx.scale(-1, 1);
-      ctx.translate(-(cat.x + 5) * SCALE, 0);
-    }
-    CAT_FRAMES[cat.frame](cat.x, cat.y);
-    ctx.restore();
-  }
-
-  // Shadow figure pixel art (inside window wCs at x:224,y:42,w:4,h:6)
-  function drawShadow() {
-    if (shadow.opacity < 0.05) return;
-    ctx.save();
-    ctx.globalAlpha = shadow.opacity;
-    const sx = 225 + shadow.dx;
-    const sy = 42;
-    dot(sx,   sy,   P.black);   // head top
-    rect(sx-1, sy+1, 4, 2, P.black); // head
-    rect(sx,   sy+3, 2, 3, P.black); // body
-    dot(sx-1,  sy+3, P.black);  // shoulder L
-    dot(sx+2,  sy+3, P.black);  // shoulder R
-    ctx.restore();
-  }
-
-  // Color lerp helper
+  // lerp two hex colors
   function lerpColor(c1, c2, t) {
     const h = s => parseInt(s, 16);
     const r1=h(c1.slice(1,3)),g1=h(c1.slice(3,5)),b1=h(c1.slice(5,7));
     const r2=h(c2.slice(1,3)),g2=h(c2.slice(3,5)),b2=h(c2.slice(5,7));
-    const r=Math.round(r1+(r2-r1)*t);
-    const g=Math.round(g1+(g2-g1)*t);
-    const b=Math.round(b1+(b2-b1)*t);
-    return `rgb(${r},${g},${b})`;
+    return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;
   }
 
-  // ── MAIN RENDER LOOP ──
+  // ── Palette ──
+  const C = {
+    sky:     '#0a1220',
+    mtn_dk:  '#0c1828',
+    mtn_md:  '#0f2035',
+    ground:  '#060c10',
+    dirt:    '#07101a',
+    wall_dk: '#091420',
+    wall_md: '#0c1c2c',
+    wall_lt: '#102438',
+    roof_dk: '#081628',
+    roof_md: '#0c2040',
+    roof_lt: '#112850',
+    win_on:  '#ffd84d',
+    win_dim: '#c4922a',
+    win_off: '#091420',
+    win_frm: '#1a3050',
+    door:    '#04080f',
+    tree_1:  '#061008',
+    tree_2:  '#091808',
+    tree_3:  '#0d200e',
+    tree_4:  '#102614',
+    tree_5:  '#142e18',
+    lamp:    '#ffd84d',
+    shadow:  '#020507',
+    black:   '#020406',
+  };
+
+  // ── Window state ──
+  // Each window: { x, y, w, h, b (brightness 0-1), base }
+  // Positioned to sit ON the building walls
+  const wins = {
+    // Left cottage
+    wL1a: {x:7,  y:40, w:3, h:4, b:1, base:1},
+    wL1b: {x:12, y:40, w:3, h:4, b:1, base:1},
+    // Left inn
+    wL2a: {x:25, y:30, w:3, h:5, b:1, base:1},
+    wL2b: {x:30, y:30, w:3, h:5, b:1, base:1},
+    wL2c: {x:25, y:37, w:3, h:4, b:.7, base:.7},
+    wL2d: {x:30, y:37, w:3, h:4, b:.7, base:.7},
+    // Left small house
+    wL3a: {x:45, y:42, w:3, h:4, b:.8, base:.8},
+    wL3b: {x:50, y:42, w:3, h:4, b:.6, base:.6},
+    // Centre left house
+    wC1a: {x:104,y:35, w:3, h:5, b:1,  base:1},
+    wC1b: {x:109,y:35, w:3, h:5, b:1,  base:1},
+    // Tower rose window
+    wCr:  {x:121,y:22, w:5, h:5, b:1,  base:1},
+    // Tower upper windows
+    wC2a: {x:119,y:30, w:3, h:5, b:1,  base:1},
+    wC2b: {x:124,y:30, w:3, h:5, b:1,  base:1},
+    // Tower shadow window
+    wCs:  {x:119,y:37, w:3, h:5, b:.8, base:.8},
+    wC2c: {x:124,y:37, w:3, h:5, b:.8, base:.8},
+    // Tavern
+    wC3a: {x:138,y:35, w:3, h:5, b:1,  base:1},
+    wC3b: {x:143,y:35, w:3, h:5, b:1,  base:1},
+    // Right chapel
+    wR1a: {x:232,y:38, w:3, h:4, b:.8, base:.8},
+    wR1b: {x:237,y:38, w:3, h:4, b:.7, base:.7},
+    // Right manor
+    wR2a: {x:250,y:28, w:3, h:5, b:1,  base:1},
+    wR2b: {x:255,y:28, w:3, h:5, b:1,  base:1},
+    wR2c: {x:260,y:28, w:3, h:5, b:1,  base:1},
+    wR2d: {x:250,y:36, w:3, h:4, b:.7, base:.7},
+    wR2e: {x:260,y:36, w:3, h:4, b:.7, base:.7},
+    // Right house
+    wR3a: {x:277,y:38, w:3, h:4, b:.8, base:.8},
+    wR3b: {x:282,y:38, w:3, h:4, b:.6, base:.6},
+  };
+
+  // Lanterns
+  const lamps = [
+    {x:78,  y:50, b:1},
+    {x:163, y:50, b:1},
+    {x:200, y:50, b:1},
+  ];
+
+  // Cat state
+  const cat = {x:-20, y:52, dir:1, visible:false, frame:0, tick:0, opacity:1};
+
+  // Shadow figure state
+  const shadow = {dx:0, opacity:0};
+
+  // ── DRAW STATIC SCENE ──
+  function drawBg() {
+    // Sky
+    rect(0, 0, W, H, C.sky);
+
+    // Mountains — stepped silhouette
+    const ridge = [
+      0,38, 8,32, 16,35, 26,28, 36,31, 48,24, 60,27,
+      72,20, 84,23, 96,17, 108,20, 120,14, 132,17,
+      144,12, 156,15, 168,10, 180,13, 192,8,  204,11,
+      216,7,  228,10, 240,6,  252,9,  264,5,  276,8,
+      288,4,  300,7,  312,3,  320,6,
+    ];
+    ctx.fillStyle = C.mtn_dk;
+    ctx.beginPath();
+    ctx.moveTo(0, H * SCALE);
+    for (let i = 0; i < ridge.length; i += 2) {
+      ctx.lineTo(ridge[i] * SCALE, ridge[i+1] * SCALE);
+    }
+    ctx.lineTo(W * SCALE, H * SCALE);
+    ctx.closePath();
+    ctx.fill();
+
+    // Second closer hill
+    const hill = [0,48, 40,42, 80,45, 120,40, 160,43, 200,39, 240,42, 280,38, 320,41];
+    ctx.fillStyle = C.mtn_md;
+    ctx.beginPath();
+    ctx.moveTo(0, H * SCALE);
+    for (let i = 0; i < hill.length; i += 2) {
+      ctx.lineTo(hill[i] * SCALE, hill[i+1] * SCALE);
+    }
+    ctx.lineTo(W * SCALE, H * SCALE);
+    ctx.closePath();
+    ctx.fill();
+
+    // Ground
+    rect(0, 55, W, 5, C.dirt);
+    rect(0, 57, W, 3, C.ground);
+  }
+
+  // Draw a pixel-art building wall with stone rows
+  function drawWall(x, y, w, h) {
+    rect(x, y, w, h, C.wall_dk);
+    // stone row highlights every 3px
+    for (let row = y+2; row < y+h; row += 3) {
+      hline(x+1, row, w-2, C.wall_md);
+    }
+    // subtle right edge shadow
+    vline(x+w-1, y, h, C.wall_dk);
+  }
+
+  // Draw pitched roof
+  function drawRoof(cx, y, w, steep) {
+    // steep: how many px tall per px wide
+    const half = Math.floor(w/2);
+    for (let i = 0; i <= half; i++) {
+      hline(cx - half + i, y + (steep ? i : Math.floor(i*0.7)), w - i*2, i===0 ? C.roof_lt : C.roof_dk);
+    }
+  }
+
+  // Draw stepped pyramid roof (for tower)
+  function drawTowerRoof(cx, baseY, steps) {
+    for (let s = 0; s < steps; s++) {
+      const w = (steps - s) * 2;
+      hline(cx - (steps-s) + 1, baseY - s, w, s < 2 ? C.roof_lt : C.roof_dk);
+    }
+  }
+
+  // Draw pixel window with frame
+  function drawWin(x, y, w, h, brightness) {
+    // frame (1px border)
+    rect(x-1, y-1, w+2, h+2, C.win_frm);
+    // glass
+    const color = brightness < 0.05
+      ? C.win_off
+      : lerpColor(C.win_off, C.win_on, brightness);
+    rect(x, y, w, h, color);
+    // window divider cross (for larger windows)
+    if (w >= 3 && h >= 4) {
+      vline(x + Math.floor(w/2), y, h, brightness < 0.05 ? C.wall_md : lerpColor(C.win_on, C.win_frm, 0.6));
+      hline(x, y + Math.floor(h/2), w, brightness < 0.05 ? C.wall_md : lerpColor(C.win_on, C.win_frm, 0.6));
+    }
+  }
+
+  // Draw arched door
+  function drawDoor(x, y, w, h) {
+    rect(x, y, w, h, C.door);
+    // arch top
+    rect(x+1, y-1, w-2, 1, C.door);
+    // frame
+    vline(x-1, y-1, h+1, C.wall_md);
+    vline(x+w, y-1, h+1, C.wall_md);
+  }
+
+  // Draw JRPG pixel tree
+  function drawTree(cx, baseY, tall) {
+    const h = tall ? 18 : 14;
+    // trunk
+    rect(cx, baseY - 4, 2, 4, '#07110a');
+    // shadow base ellipse
+    rect(cx-3, baseY-1, 8, 2, '#050e07');
+    // 4 canopy tiers bottom to top
+    const tiers = [
+      {w:10, c:C.tree_2},
+      {w:8,  c:C.tree_3},
+      {w:6,  c:C.tree_4},
+      {w:4,  c:C.tree_5},
+    ];
+    if (tall) tiers.push({w:2, c:'#182e1c'});
+    tiers.forEach((t, i) => {
+      const ty = baseY - 4 - (i * 4);
+      rect(cx - Math.floor(t.w/2), ty, t.w, 4, t.c);
+      // highlight top-left of each tier
+      dot(cx - Math.floor(t.w/2) + 1, ty, '#142a16');
+      // dark right edge
+      vline(cx + Math.floor(t.w/2) - 1, ty, 4, C.tree_2);
+    });
+    // top pixel highlight
+    dot(cx, baseY - 4 - tiers.length*4 + 1, '#1a3820');
+  }
+
+  // ── SCENE LAYOUT ──
+  function drawBuildings() {
+
+    // ═══ FAR LEFT — cottage ═══
+    drawWall(4, 44, 18, 13);
+    drawRoof(13, 39, 18, false);
+    drawDoor(10, 50, 5, 7);
+
+    // ═══ LEFT — inn (tall) ═══
+    drawWall(22, 28, 20, 29);
+    drawRoof(32, 22, 22, true);
+    // battlements
+    for (let bx=22; bx<42; bx+=4) rect(bx, 22, 2, 3, C.wall_md);
+    // chimney
+    drawWall(38, 18, 3, 8);
+    drawDoor(28, 44, 7, 13);
+
+    // ═══ LEFT SMALL HOUSE ═══
+    drawWall(43, 42, 14, 15);
+    drawRoof(50, 37, 14, false);
+    drawDoor(47, 50, 5, 7);
+
+    // LEFT TREES
+    drawTree(67, 56, true);
+    drawTree(74, 56, false);
+
+    // ═══ CENTRE LEFT HOUSE ═══
+    drawWall(100, 33, 18, 24);
+    drawRoof(109, 27, 20, false);
+    drawDoor(106, 47, 6, 10);
+
+    // ═══ WIZARD TOWER (tallest, centre) ═══
+    drawWall(115, 20, 20, 37);
+    // stepped pyramid roof
+    drawTowerRoof(125, 20, 8);
+    // spire
+    vline(125, 4, 5, C.lamp);
+    dot(124, 3, C.lamp); dot(126, 3, C.lamp);
+    // battlements
+    for (let bx=115; bx<135; bx+=4) rect(bx, 18, 2, 3, C.wall_md);
+    // rose window (pixel circle)
+    rect(121, 22, 5, 5, C.win_frm);
+    rect(122, 21, 3, 7, C.win_frm);
+    rect(120, 23, 7, 3, C.win_frm);
+    rect(121, 22, 5, 5, C.win_on);
+    vline(123, 22, 5, C.wall_md);
+    hline(121, 24, 5, C.wall_md);
+    // stone rows
+    for (let sy=25; sy<56; sy+=4) hline(115, sy, 20, C.wall_md);
+    drawDoor(120, 47, 8, 10);
+
+    // ═══ TAVERN ═══
+    drawWall(136, 32, 18, 25);
+    drawRoof(145, 26, 20, false);
+    // hanging sign
+    rect(139, 28, 10, 4, '#0d2030');
+    hline(139, 27, 10, C.wall_lt);
+    drawDoor(141, 46, 6, 11);
+
+    // CENTRE TREES
+    drawTree(160, 56, true);
+    drawTree(166, 56, false);
+
+    // ═══ RIGHT — chapel ═══
+    drawWall(228, 36, 16, 21);
+    drawRoof(236, 30, 18, true);
+    // finial
+    vline(236, 25, 5, C.wall_lt);
+    dot(236, 24, C.lamp);
+    // rose window
+    rect(232, 32, 5, 5, C.win_frm);
+    rect(233, 31, 3, 7, C.win_frm);
+    rect(231, 33, 7, 3, C.win_frm);
+    rect(232, 32, 5, 5, C.win_on);
+    vline(234, 32, 5, C.wall_md);
+    hline(232, 34, 5, C.wall_md);
+    drawDoor(233, 46, 6, 11);
+
+    // ═══ RIGHT — manor (wide) ═══
+    drawWall(246, 24, 22, 33);
+    drawRoof(257, 18, 24, false);
+    for (let bx=246; bx<268; bx+=4) rect(bx, 18, 2, 3, C.wall_md);
+    // chimneys
+    drawWall(248, 14, 3, 6);
+    drawWall(263, 14, 3, 6);
+    for (let sy=30; sy<56; sy+=4) hline(246, sy, 22, C.wall_md);
+    drawDoor(252, 44, 9, 13);
+
+    // ═══ RIGHT SMALL HOUSE ═══
+    drawWall(272, 40, 14, 17);
+    drawRoof(279, 34, 16, false);
+    drawDoor(276, 50, 5, 7);
+
+    // RIGHT TREES
+    drawTree(223, 56, false);
+    drawTree(290, 56, true);
+    drawTree(297, 56, false);
+
+    // Lantern posts
+    lamps.forEach(l => {
+      vline(l.x, 50, 7, C.wall_lt);
+      rect(l.x-1, 49, 3, 2, C.wall_md);
+    });
+  }
+
+  // ── DRAW DYNAMIC ELEMENTS ──
+  function drawWindows() {
+    Object.values(wins).forEach(w => {
+      drawWin(w.x, w.y, w.w, w.h, w.b);
+    });
+  }
+
+  function drawLamps() {
+    lamps.forEach(l => {
+      // soft glow
+      ctx.fillStyle = `rgba(255,216,77,${l.b * 0.20})`;
+      ctx.fillRect((l.x-3)*SCALE, (l.y-3)*SCALE, 8*SCALE, 8*SCALE);
+      // lamp dot
+      rect(l.x, l.y, 2, 2, l.b > 0.5 ? C.lamp : '#8a5800');
+    });
+  }
+
+  // Cat pixel art: 12x8 sprite, 4 walk frames
+  function drawCatSprite(x, y, frame, flip) {
+    ctx.save();
+    if (flip) {
+      ctx.translate((x + 6) * SCALE, 0);
+      ctx.scale(-1, 1);
+      ctx.translate(-(x + 6) * SCALE, 0);
+    }
+    const s = C.shadow;
+    // body
+    rect(x+1, y+2, 7, 4, s);
+    // head
+    rect(x+7, y+1, 5, 4, s);
+    // ears
+    dot(x+7, y,   s);
+    dot(x+11, y,  s);
+    // eye
+    dot(x+10, y+2, C.lamp);
+    // tail
+    rect(x, y+3, 2, 2, s);
+    dot(x, y+2, s);
+    // legs (4 frames)
+    if (frame === 0) {
+      rect(x+2, y+5, 2, 3, s);
+      rect(x+5, y+5, 2, 3, s);
+    } else if (frame === 1) {
+      rect(x+2, y+5, 2, 2, s);
+      rect(x+1, y+6, 2, 2, s);
+      rect(x+5, y+5, 2, 3, s);
+      rect(x+6, y+7, 2, 1, s);
+    } else if (frame === 2) {
+      rect(x+2, y+5, 2, 3, s);
+      rect(x+1, y+7, 2, 1, s);
+      rect(x+5, y+5, 2, 2, s);
+      rect(x+6, y+6, 2, 2, s);
+    } else {
+      rect(x+2, y+5, 2, 2, s);
+      rect(x+3, y+6, 2, 2, s);
+      rect(x+5, y+5, 2, 3, s);
+    }
+    ctx.restore();
+  }
+
+  function drawCat() {
+    if (!cat.visible) return;
+    ctx.save();
+    ctx.globalAlpha = cat.opacity;
+    drawCatSprite(cat.x, cat.y, cat.frame, cat.dir === -1);
+    ctx.restore();
+  }
+
+  // Shadow figure inside tower shadow window (wCs: x:119,y:37,w:3,h:5)
+  function drawShadow() {
+    if (shadow.opacity < 0.02) return;
+    ctx.save();
+    ctx.globalAlpha = shadow.opacity;
+    const wx = wins.wCs.x;
+    const wy = wins.wCs.y;
+    const sx = wx + 1 + shadow.dx; // constrained inside window
+    // head
+    dot(sx,   wy,   C.shadow);
+    dot(sx+1, wy,   C.shadow);
+    // body
+    vline(sx,   wy+1, 3, C.shadow);
+    vline(sx+1, wy+1, 3, C.shadow);
+    // arms
+    dot(sx-1, wy+2, C.shadow);
+    dot(sx+2, wy+2, C.shadow);
+    ctx.restore();
+  }
+
+  // ── MAIN RENDER ──
   function render() {
-    drawScene();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBg();
+    drawBuildings();
     drawWindows();
-    drawLanterns();
+    drawLamps();
     drawShadow();
     drawCat();
     requestAnimationFrame(render);
   }
   render();
 
-  // ══════════════════════════════════════
-  // Window flicker logic
-  // ══════════════════════════════════════
-  const winIds = Object.keys(windows).filter(k => k !== 'wCs');
-
+  // ── Window flicker ──
+  const winKeys = Object.keys(wins).filter(k => k !== 'wCs');
   async function flickerWin(id) {
-    const w = windows[id];
-    const flickers = randI(1, 4);
-    for (let i = 0; i < flickers; i++) {
-      w.b = 0;
-      await wait(rand(40, 120));
-      w.b = w.base;
-      await wait(rand(50, 110));
+    const w = wins[id];
+    for (let i = 0; i < randI(1,4); i++) {
+      w.b = 0; await wait(rand(40,120));
+      w.b = w.base; await wait(rand(50,110));
     }
     w.b = 0;
     await wait(rand(8000, 40000));
-    // fade back on
-    for (let s = 0; s <= 10; s++) {
-      w.b = w.base * s / 10;
-      await wait(60);
-    }
+    for (let s=0; s<=10; s++) { w.b = w.base*s/10; await wait(60); }
   }
-
   async function windowLoop() {
     while (true) {
-      await wait(rand(4000, 12000));
-      const id = winIds[randI(0, winIds.length)];
-      flickerWin(id);
+      await wait(rand(4000,12000));
+      flickerWin(winKeys[randI(0, winKeys.length)]);
     }
   }
   windowLoop();
 
-  // ══════════════════════════════════════
-  // Lantern flicker
-  // ══════════════════════════════════════
+  // ── Lamp flicker ──
   async function lampLoop(l) {
     while (true) {
-      await wait(rand(1500, 6000));
+      await wait(rand(1500,6000));
       l.b = rand(0.3, 0.6);
-      await wait(rand(50, 160));
+      await wait(rand(50,160));
       l.b = 1;
     }
   }
-  lanterns.forEach(l => lampLoop(l));
+  lamps.forEach(l => lampLoop(l));
 
-  // ══════════════════════════════════════
-  // Cat — walks behind buildings/trees
-  // Hide spots: behind left trees (x≈80), behind centre trees (x≈178 or 265), behind right trees (x≈382)
-  // ══════════════════════════════════════
-  const hideSpots = [82, 180, 267, 384];
+  // ── Cat — walks slowly, hides behind trees ──
+  // Tree hide spots in logical px: left trees ~67, centre trees ~160, right trees ~223,290
+  const hideSpots = [67, 160, 223, 290];
 
-  async function catWalk() {
+  async function catLoop() {
     while (true) {
-      await wait(rand(15000, 45000));
-
+      await wait(rand(15000, 50000));
       const goRight = Math.random() > 0.5;
-      cat.dir = goRight ? 1 : -1;
-      cat.x   = goRight ? -16 : W + 2;
-
-      // pick a hide spot in the right direction
-      const spots = goRight
-        ? hideSpots.filter(s => s > 20 && s < W - 20)
-        : hideSpots.filter(s => s > 20 && s < W - 20).reverse();
-      const hideX = spots[randI(0, spots.length)];
-
+      cat.dir   = goRight ? 1 : -1;
+      cat.x     = goRight ? -14 : W + 2;
+      cat.frame = 0;
+      cat.tick  = 0;
+      cat.opacity = 1;
       cat.visible = true;
-      cat.walking = true;
-      cat.frameTimer = 0;
 
-      const speed = rand(0.4, 0.8);
+      // pick hide spot
+      const validSpots = hideSpots.filter(s => goRight ? s > 10 : s < W - 10);
+      const hideX = validSpots[randI(0, validSpots.length)] - 6;
+
+      const speed = rand(0.15, 0.30); // very slow — ~0.2 logical px per frame at 30fps
+      const framePeriod = Math.round(8 / speed); // animate legs relative to speed
 
       // walk to hide spot
+      let tick = 0;
       while ((goRight && cat.x < hideX) || (!goRight && cat.x > hideX)) {
         cat.x += cat.dir * speed;
-        cat.frameTimer += speed;
-        if (cat.frameTimer > 4) {
-          cat.frame = (cat.frame + 1) % 4;
-          cat.frameTimer = 0;
-        }
-        await wait(30);
+        tick++;
+        if (tick % framePeriod === 0) cat.frame = (cat.frame + 1) % 4;
+        await wait(33); // ~30fps
       }
 
-      // hide behind tree/building
+      // hide
       cat.visible = false;
-      cat.walking = false;
-      await wait(rand(2000, 8000));
+      await wait(rand(3000, 10000));
 
-      // re-emerge and walk off screen
+      // re-emerge
       cat.visible = true;
-      cat.walking = true;
-      const exitX = goRight ? W + 2 : -16;
+      const exitX = goRight ? W + 14 : -14;
 
       while ((goRight && cat.x < exitX) || (!goRight && cat.x > exitX)) {
         cat.x += cat.dir * speed;
-        cat.frameTimer += speed;
-        if (cat.frameTimer > 4) {
-          cat.frame = (cat.frame + 1) % 4;
-          cat.frameTimer = 0;
-        }
-        await wait(30);
+        tick++;
+        if (tick % framePeriod === 0) cat.frame = (cat.frame + 1) % 4;
+        await wait(33);
       }
 
       cat.visible = false;
     }
   }
-  catWalk();
+  catLoop();
 
-  // ══════════════════════════════════════
-  // Shadow figure — inside tower window (wCs)
-  // ══════════════════════════════════════
+  // ── Shadow figure ──
   async function shadowLoop() {
     while (true) {
       await wait(rand(20000, 60000));
-      if (windows['wCs'].b < 0.1) continue;
-
+      if (wins.wCs.b < 0.1) continue;
       shadow.dx = 0;
-      // fade in
-      for (let s = 0; s <= 8; s++) {
-        shadow.opacity = s / 8;
-        await wait(80);
-      }
-
-      // drift across window (constrained to 2px so it stays inside 4px window)
+      for (let s=0; s<=8; s++) { shadow.opacity = s/8; await wait(80); }
       const dir = Math.random() > 0.5 ? 1 : -1;
-      for (let i = 0; i < randI(6, 14); i++) {
+      for (let i=0; i<randI(4,10); i++) {
         const next = shadow.dx + dir;
-        if (next >= -1 && next <= 1) shadow.dx = next;
-        await wait(200);
+        if (next >= 0 && next <= 1) shadow.dx = next;
+        await wait(250);
       }
-
-      await wait(rand(500, 2000));
-
-      // fade out
-      for (let s = 8; s >= 0; s--) {
-        shadow.opacity = s / 8;
-        await wait(70);
-      }
+      await wait(rand(500,2000));
+      for (let s=8; s>=0; s--) { shadow.opacity = s/8; await wait(70); }
       shadow.dx = 0;
     }
   }
   shadowLoop();
 
-  // ══════════════════════════════════════
-  // Fireflies
-  // ══════════════════════════════════════
-  for (let i = 0; i < 18; i++) {
+  // ── Fireflies ──
+  for (let i=0; i<18; i++) {
     const f = document.createElement('div');
     f.className = 'firefly';
     f.style.cssText = [
@@ -558,9 +577,7 @@
     document.body.appendChild(f);
   }
 
-  // ══════════════════════════════════════
-  // Mobile nav
-  // ══════════════════════════════════════
+  // ── Mobile nav ──
   const toggle = document.querySelector('.nav-toggle');
   const links  = document.querySelector('.nav-links');
   if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
