@@ -1,241 +1,162 @@
-name: Build Blog Posts
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search — Anyways Modernize</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    .search-wrap {
+      max-width: 750px;
+      margin: 3rem auto 0;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+    .search-input {
+      width: 100%;
+      background: rgba(26,38,51,0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem 1.4rem;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus { border-color: rgba(255,216,77,0.5); }
+    .search-count {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 1rem 0 1.5rem;
+      min-height: 1.2em;
+    }
+    .highlight {
+      background: rgba(255,216,77,0.25);
+      color: var(--yellow);
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    .no-results {
+      color: var(--muted);
+      text-align: center;
+      padding: 3rem 0;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="stars">
+    <div class="star" style="top:10%;left:20%;"></div>
+    <div class="star" style="top:30%;left:70%;"></div>
+    <div class="star" style="top:55%;left:45%;"></div>
+    <div class="star" style="top:75%;left:80%;"></div>
+    <div class="star" style="top:20%;left:88%;"></div>
+  </div>
 
-on:
-  push:
-    paths:
-      - 'posts/**.md'
-      - '_template.html'
-      - '.github/workflows/build-posts.yml'
+  <nav>
+    <div class="nav-inner">
+      <div class="logo">Anyways Modernize</div>
+      <div class="nav-links">
+        <a href="/">Tavern</a>
+        <a href="#">Workshop</a>
+        <a href="#">Traveler</a>
+        <a href="/scrolls.html">Scrolls</a>
+      </div>
+      <button class="nav-toggle" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  <div class="search-wrap">
+    <h2 class="section-title" style="margin-bottom:1.5rem;">🔍 Search Scrolls</h2>
+    <input
+      type="text"
+      class="search-input"
+      id="search-input"
+      placeholder="Search by keyword, tag, or title…"
+      autofocus
+    />
+    <p class="search-count" id="search-count"></p>
+  </div>
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  <section class="section" style="padding-top:0;">
+    <div class="posts" id="results"></div>
+  </section>
 
-      - name: Install pandoc
-        run: sudo apt-get install -y pandoc
+  <footer>
+    <div class="pikachu">⚡</div>
+    <p>The Intune Tavern • Built beside a quiet forest route</p>
+  </footer>
 
-      - name: Convert MD posts to HTML
-        run: |
-          for f in posts/*.md; do
-            [ -f "$f" ] || continue
-            name=$(basename "$f" .md)
+  <script src="/village.js"></script>
+  <script>
+    let posts = [];
 
-            title=$(grep '^title:' "$f" | head -1 | sed 's/^title:[[:space:]]*//')
-            tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
-            desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
+    function highlight(text, query) {
+      if (!query) return text;
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark class="highlight">$1</mark>');
+    }
 
-            body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html)
-            body=$(echo "$body" | python3 -c "
-          import sys, re
-          html = sys.stdin.read()
-          html = re.sub(r'(<div class=\"note\">)\s*<p>(.*?)</p>\s*(</div>)', r'\1\2\3', html, flags=re.DOTALL)
-          print(html, end='')
-          ")
+    function render(query) {
+      const q = query.trim().toLowerCase();
+      const results = document.getElementById('results');
+      const count = document.getElementById('search-count');
 
-            echo "$body" > /tmp/post_body.html
-
-            python3 - "$title" "$tag" "$desc" "posts/${name}.html" << 'PYEOF'
-          import sys, pathlib
-
-          title, tag, desc, outpath = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
-          body = pathlib.Path('/tmp/post_body.html').read_text()
-          tmpl = pathlib.Path('_template.html').read_text()
-
-          html = (tmpl
-            .replace('{{TITLE}}',       title)
-            .replace('{{TAG}}',         tag)
-            .replace('{{DESCRIPTION}}', desc)
-            .replace('{{CONTENT}}',     body))
-
-          pathlib.Path(outpath).write_text(html)
-          print(f'Built: {outpath}')
-          PYEOF
-
-          done
-
-      - name: Generate scrolls.html, search.json and update index.html
-        run: |
-          python3 << 'PYEOF'
-          import pathlib, re, subprocess, json
-          from datetime import datetime, timezone
-
-          posts = []
-          for f in sorted(pathlib.Path('posts').glob('*.md')):
-            txt = f.read_text()
-            def meta(key):
-              m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
-              return m.group(1).strip() if m else ''
-
-            result = subprocess.run(
-              ['git', 'log', '-1', '--format=%aI', '--', str(f)],
-              capture_output=True, text=True
-            )
-            timestamp_str = result.stdout.strip()
-            try:
-              parsed_dt = datetime.fromisoformat(timestamp_str)
-              display_date = parsed_dt.strftime('%B %d, %Y')
-            except ValueError:
-              parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
-              display_date = ''
-
-            # strip frontmatter and get plain text body for search
-            body_md = re.sub(r'^---.*?---\s*', '', txt, flags=re.DOTALL)
-            # strip markdown syntax to plain text
-            body_plain = re.sub(r'[#*`_~\[\]()>:|]+', ' ', body_md)
-            body_plain = re.sub(r'\s+', ' ', body_plain).strip()
-
-            posts.append({
-              'title':        meta('title'),
-              'tag':          meta('tag'),
-              'desc':         meta('description'),
-              'parsed_dt':    parsed_dt,
-              'display_date': display_date,
-              'href':         f'/posts/{f.stem}.html',
-              'body':         body_plain,
-            })
-
-          posts.sort(key=lambda p: p['parsed_dt'], reverse=True)
-
-          # ── Generate search.json ──
-          search_data = [{
-            'title': p['title'],
-            'tag':   p['tag'],
-            'desc':  p['desc'],
-            'date':  p['display_date'],
-            'href':  p['href'],
-            'body':  p['body'],
-          } for p in posts]
-          pathlib.Path('data').mkdir(exist_ok=True)
-          pathlib.Path('data/search.json').write_text(json.dumps(search_data, ensure_ascii=False, indent=2))
-          print(f'Built search.json with {len(search_data)} posts')
-
-          # ── Generate scrolls.html ──
-          all_cards = ''
-          for p in posts:
-            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
-            all_cards += f'''
-            <div class="post-card">
-              <div class="tag">{p["tag"]}</div>
-              {date_label}
-              <h3>{p["title"]}</h3>
-              <p>{p["desc"]}</p>
-              <a class="read-more" href="{p["href"]}">Read the guide →</a>
-            </div>'''
-
-          scrolls_page = f'''<!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8"/>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-            <title>All Scrolls — Anyways Modernize</title>
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
-            <link rel="stylesheet" href="/css/style.css"/>
-          </head>
-          <body>
-            <div class="stars">
-              <div class="star" style="top:10%;left:20%;"></div>
-              <div class="star" style="top:30%;left:70%;"></div>
-              <div class="star" style="top:55%;left:45%;"></div>
-              <div class="star" style="top:75%;left:80%;"></div>
-              <div class="star" style="top:20%;left:88%;"></div>
-            </div>
-            <nav>
-              <div class="nav-inner">
-                <div class="logo">Anyways Modernize</div>
-                <div class="nav-links">
-                  <a href="/">Tavern</a>
-                  <a href="#">Workshop</a>
-                  <a href="#">Traveler</a>
-                  <a href="/scrolls.html">Scrolls</a>
-                </div>
-                <button class="nav-toggle" aria-label="Open menu">
-                  <span></span><span></span><span></span>
-                </button>
-              </div>
-            </nav>
-            <section class="section">
-              <h2 class="section-title">📜 All Scrolls</h2>
-              <div class="posts">{all_cards}</div>
-            </section>
-            <footer>
-              <div class="pikachu">⚡</div>
-              <p>The Intune Tavern • Built beside a quiet forest route</p>
-            </footer>
-            <script src="/village.js"></script>
-          </body>
-          </html>'''
-
-          pathlib.Path('scrolls.html').write_text(scrolls_page)
-          print(f'Built scrolls.html with {len(posts)} posts')
-
-          # ── Update index.html latest 3 ──
-          latest = posts[:3]
-          index_cards = ''
-          for p in latest:
-            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
-            index_cards += f'''
-              <div class="post-card">
-                <div class="tag">{p["tag"]}</div>
-                {date_label}
-                <h3>{p["title"]}</h3>
-                <p>{p["desc"]}</p>
-                <a class="read-more" href="{p["href"]}">Read the guide →</a>
-              </div>'''
-
-          index_html = pathlib.Path('index.html').read_text()
-          new_posts_block = f'<!-- POSTS START -->\n      <div class="posts">{index_cards}\n      </div>\n      <!-- POSTS END -->'
-          index_html = re.sub(
-            r'<!-- POSTS START -->.*?<!-- POSTS END -->',
-            new_posts_block,
-            index_html,
-            flags=re.DOTALL
+      const filtered = q
+        ? posts.filter(p =>
+            p.title.toLowerCase().includes(q) ||
+            p.tag.toLowerCase().includes(q) ||
+            p.desc.toLowerCase().includes(q) ||
+            p.body.toLowerCase().includes(q)
           )
-          pathlib.Path('index.html').write_text(index_html)
-          print(f'Updated index.html with {len(latest)} latest posts')
-          PYEOF
+        : posts;
 
-      - name: Commit generated files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add posts/*.html scrolls.html index.html data/search.json
-          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index + search"
-          git pull --rebase
-          git push
+      count.textContent = q
+        ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${query}"`
+        : `${posts.length} post${posts.length !== 1 ? 's' : ''} total`;
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    concurrency:
-      group: "pages"
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      if (filtered.length === 0) {
+        results.innerHTML = '<p class="no-results">No scrolls found for that search. Try another keyword.</p>';
+        return;
+      }
+
+      results.innerHTML = filtered.map(p => {
+        // find a snippet around the keyword in the body
+        let snippet = p.desc;
+        if (q && p.body.toLowerCase().includes(q)) {
+          const idx = p.body.toLowerCase().indexOf(q);
+          const start = Math.max(0, idx - 60);
+          const end = Math.min(p.body.length, idx + q.length + 60);
+          snippet = (start > 0 ? '…' : '') + p.body.slice(start, end) + (end < p.body.length ? '…' : '');
+        }
+
+        const date = p.date ? `<span class="post-date">${p.date}</span>` : '';
+        return `
+          <div class="post-card">
+            <div class="tag">${highlight(p.tag, query)}</div>
+            ${date}
+            <h3>${highlight(p.title, query)}</h3>
+            <p>${highlight(snippet, query)}</p>
+            <a class="read-more" href="${p.href}">Read the guide →</a>
+          </div>`;
+      }).join('');
+    }
+
+    fetch('/data/search.json')
+      .then(r => r.json())
+      .then(data => {
+        posts = data;
+        render('');
+        document.getElementById('search-input').addEventListener('input', e => render(e.target.value));
+      });
+  </script>
+</body>
+</html>
