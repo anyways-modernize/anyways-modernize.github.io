@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="skyFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d141c" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#070d14" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- fade from page bg into ground -->
+  <rect x="0" y="0" width="1440" height="220" fill="url(#skyFade)"/>
+
+  <!-- far mountain ridge -->
+  <polygon points="
+    0,160 80,110 160,130 240,95 320,118 400,85 480,108 560,78 640,102
+    720,72 800,98 880,68 960,95 1040,65 1120,90 1200,62 1280,88 1360,70 1440,85
+    1440,220 0,220"
+    fill="#0f1a25" opacity="0.9"/>
+
+  <!-- mid hills -->
+  <ellipse cx="200"  cy="195" rx="220" ry="45" fill="#0c1520"/>
+  <ellipse cx="700"  cy="198" rx="280" ry="40" fill="#0c1520"/>
+  <ellipse cx="1200" cy="195" rx="250" ry="42" fill="#0c1520"/>
+
+  <!-- ground strip -->
+  <rect x="0" y="205" width="1440" height="15" fill="#08111a"/>
+
+  <!-- ── LEFT CLUSTER ── -->
+  <!-- inn / tavern (tallest) -->
+  <rect x="95"  y="135" width="52" height="70" fill="#0b1520"/>
+  <polygon points="89,137 153,137 121,108" fill="#111e2e"/>
+  <rect x="107" y="148" width="13" height="16" fill="#ffd84d" opacity="0.30"/>
+  <rect x="127" y="148" width="13" height="16" fill="#ffd84d" opacity="0.20"/>
+  <rect x="117" y="172" width="14" height="33" fill="#0b1520"/>
+  <!-- battlements -->
+  <rect x="95"  y="128" width="9" height="10" fill="#0b1520"/>
+  <rect x="110" y="128" width="9" height="10" fill="#0b1520"/>
+  <rect x="125" y="128" width="9" height="10" fill="#0b1520"/>
+  <rect x="140" y="128" width="9" height="10" fill="#0b1520"/>
+  <!-- chimney -->
+  <rect x="140" y="108" width="6" height="18" fill="#090f18"/>
+
+  <!-- house left -->
+  <rect x="38"  y="158" width="38" height="47" fill="#0b1520"/>
+  <polygon points="33,160 81,160 57,138" fill="#111e2e"/>
+  <rect x="48"  y="170" width="10" height="14" fill="#ffd84d" opacity="0.22"/>
+  <rect x="63"  y="170" width="10" height="14" fill="#ffd84d" opacity="0.15"/>
+
+  <!-- small cottage -->
+  <rect x="160" y="166" width="32" height="39" fill="#0b1520"/>
+  <polygon points="155,168 197,168 176,149" fill="#111e2e"/>
+  <rect x="169" y="177" width="9" height="12" fill="#ffd84d" opacity="0.18"/>
+
+  <!-- ── LEFT TREES ── -->
+  <polygon points="215,205 225,168 235,205" fill="#09160e"/>
+  <polygon points="213,196 225,160 237,196" fill="#0c1e14"/>
+  <polygon points="237,206 246,172 255,206" fill="#09160e"/>
+  <polygon points="235,198 246,165 257,198" fill="#0c1e14"/>
+
+  <!-- ── CENTRE CLUSTER ── -->
+  <!-- tall tower -->
+  <rect x="665" y="128" width="38" height="85" fill="#0b1520"/>
+  <polygon points="659,130 709,130 687,104" fill="#111e2e"/>
+  <rect x="675" y="142" width="11" height="14" fill="#ffd84d" opacity="0.35"/>
+  <rect x="675" y="163" width="11" height="14" fill="#ffd84d" opacity="0.18"/>
+  <!-- spire -->
+  <polygon points="684,104 690,104 687,88" fill="#ffd84d" opacity="0.25"/>
+  <!-- battlements -->
+  <rect x="665" y="122" width="7" height="9" fill="#0b1520"/>
+  <rect x="678" y="122" width="7" height="9" fill="#0b1520"/>
+  <rect x="691" y="122" width="7" height="9" fill="#0b1520"/>
+
+  <!-- house centre-left -->
+  <rect x="615" y="152" width="40" height="55" fill="#0b1520"/>
+  <polygon points="610,154 660,154 635,132" fill="#111e2e"/>
+  <rect x="624" y="164" width="11" height="15" fill="#ffd84d" opacity="0.24"/>
+  <rect x="641" y="164" width="11" height="15" fill="#ffd84d" opacity="0.18"/>
+
+  <!-- house centre-right -->
+  <rect x="718" y="155" width="36" height="52" fill="#0b1520"/>
+  <polygon points="713,157 759,157 736,136" fill="#111e2e"/>
+  <rect x="727" y="167" width="10" height="13" fill="#ffd84d" opacity="0.20"/>
+
+  <!-- ── CENTRE TREES ── -->
+  <polygon points="570,206 580,170 590,206" fill="#09160e"/>
+  <polygon points="568,198 580,163 592,198" fill="#0c1e14"/>
+  <polygon points="760,206 770,172 780,206" fill="#09160e"/>
+  <polygon points="758,197 770,165 782,197" fill="#0c1e14"/>
+  <polygon points="782,207 791,175 800,207" fill="#09160e"/>
+
+  <!-- ── RIGHT CLUSTER ── -->
+  <!-- manor house -->
+  <rect x="1240" y="140" width="58" height="68" fill="#0b1520"/>
+  <polygon points="1234,142 1304,142 1269,115" fill="#111e2e"/>
+  <rect x="1250" y="153" width="13" height="17" fill="#ffd84d" opacity="0.28"/>
+  <rect x="1272" y="153" width="13" height="17" fill="#ffd84d" opacity="0.22"/>
+  <rect x="1256" y="178" width="16" height="30" fill="#0b1520"/>
+  <!-- chimneys -->
+  <rect x="1244" y="112" width="6" height="20" fill="#090f18"/>
+  <rect x="1293" y="112" width="6" height="20" fill="#090f18"/>
+
+  <!-- house right-1 -->
+  <rect x="1185" y="158" width="38" height="50" fill="#0b1520"/>
+  <polygon points="1180,160 1228,160 1204,139" fill="#111e2e"/>
+  <rect x="1194" y="170" width="10" height="13" fill="#ffd84d" opacity="0.20"/>
+  <rect x="1211" y="170" width="10" height="13" fill="#ffd84d" opacity="0.15"/>
+
+  <!-- small right -->
+  <rect x="1310" y="165" width="32" height="42" fill="#0b1520"/>
+  <polygon points="1305,167 1347,167 1326,148" fill="#111e2e"/>
+  <rect x="1319" y="176" width="9" height="12" fill="#ffd84d" opacity="0.18"/>
+
+  <!-- ── RIGHT TREES ── -->
+  <polygon points="1140,206 1150,170 1160,206" fill="#09160e"/>
+  <polygon points="1138,198 1150,163 1162,198" fill="#0c1e14"/>
+  <polygon points="1162,207 1171,174 1180,207" fill="#09160e"/>
+  <polygon points="1370,205 1379,172 1388,205" fill="#09160e"/>
+  <polygon points="1368,197 1379,165 1390,197" fill="#0c1e14"/>
+  <polygon points="1390,206 1399,175 1408,206" fill="#09160e"/>
+
+  <!-- ── LANTERN POSTS ── -->
+  <!-- post 1 -->
+  <rect x="386" y="178" width="3" height="30" fill="#1a2838"/>
+  <rect x="383" y="176" width="9" height="5" fill="#1a2838"/>
+  <circle cx="387" cy="175" r="5" fill="#ffd84d" opacity="0.65"/>
+  <circle cx="387" cy="175" r="10" fill="#ffd84d" opacity="0.10"/>
+
+  <!-- post 2 -->
+  <rect x="545" y="180" width="3" height="28" fill="#1a2838"/>
+  <rect x="542" y="178" width="9" height="5" fill="#1a2838"/>
+  <circle cx="546" cy="177" r="5" fill="#ffd84d" opacity="0.55"/>
+  <circle cx="546" cy="177" r="10" fill="#ffd84d" opacity="0.08"/>
+
+  <!-- post 3 -->
+  <rect x="880" y="178" width="3" height="30" fill="#1a2838"/>
+  <rect x="877" y="176" width="9" height="5" fill="#1a2838"/>
+  <circle cx="881" cy="175" r="5" fill="#ffd84d" opacity="0.60"/>
+  <circle cx="881" cy="175" r="10" fill="#ffd84d" opacity="0.09"/>
+
+  <!-- post 4 -->
+  <rect x="1060" y="179" width="3" height="29" fill="#1a2838"/>
+  <rect x="1057" y="177" width="9" height="5" fill="#1a2838"/>
+  <circle cx="1061" cy="176" r="5" fill="#ffd84d" opacity="0.50"/>
+  <circle cx="1061" cy="176" r="10" fill="#ffd84d" opacity="0.08"/>
+</svg>
