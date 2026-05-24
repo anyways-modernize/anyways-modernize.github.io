@@ -43,7 +43,7 @@ nav {
   color: var(--yellow);
   font-size: 1.5rem;
   text-shadow: 0 0 12px rgba(255,216,77,0.3);
-  text-decoration: none;
+  text-decoration: none; 
 }
 .nav-links { display: flex; gap: 1.5rem; align-items: center; }
 .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
