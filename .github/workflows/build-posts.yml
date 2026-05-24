@@ -29,7 +29,7 @@ jobs:
             tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
             desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
 
-            body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown --to html)
+            body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html)
 
             echo "$body" > /tmp/post_body.html
 
@@ -137,7 +137,6 @@ jobs:
           git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls index"
           git push
 
-  # Chain into the deploy workflow after build succeeds
   deploy:
     needs: build
     uses: ./.github/workflows/static.yml
