@@ -5,10 +5,14 @@ on:
     paths:
       - 'posts/**.md'
       - '_template.html'
+      - '.github/workflows/build-posts.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - uses: actions/checkout@v4
 
@@ -18,31 +22,124 @@ jobs:
       - name: Convert MD posts to HTML
         run: |
           for f in posts/*.md; do
+            [ -f "$f" ] || continue
             name=$(basename "$f" .md)
-            
-            # Extract frontmatter fields
-            title=$(grep '^title:' "$f" | sed 's/title: //')
-            tag=$(grep '^tag:' "$f" | sed 's/tag: //')
-            desc=$(grep '^description:' "$f" | sed 's/description: //')
-            
-            # Convert MD body to HTML (skip frontmatter lines)
-            body=$(pandoc --from markdown --to html "$f")
-            
-            # Fill template
-            sed \
-              -e "s|{{TITLE}}|$title|g" \
-              -e "s|{{TAG}}|$tag|g" \
-              -e "s|{{DESCRIPTION}}|$desc|g" \
-              -e "s|{{CONTENT}}|$body|g" \
-              _template.html > "posts/${name}.html"
-            
-            echo "Built: posts/${name}.html"
+
+            title=$(grep '^title:' "$f" | head -1 | sed 's/^title:[[:space:]]*//')
+            tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
+            desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
+
+            # strip frontmatter (between the two --- lines) then convert
+            body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown --to html)
+
+            # escape & in values so sed doesn't misinterpret them
+            title_esc=$(printf '%s\n' "$title" | sed 's/[&/\]/\\&/g')
+            tag_esc=$(printf '%s\n' "$tag"   | sed 's/[&/\]/\\&/g')
+            desc_esc=$(printf '%s\n' "$desc" | sed 's/[&/\]/\\&/g')
+
+            # use a temp file for the body to avoid shell escaping issues
+            echo "$body" > /tmp/post_body.html
+
+            python3 - "$title_esc" "$tag_esc" "$desc_esc" "posts/${name}.html" << 'PYEOF'
+          import sys, pathlib
+
+          title, tag, desc, outpath = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+          body = pathlib.Path('/tmp/post_body.html').read_text()
+          tmpl = pathlib.Path('_template.html').read_text()
+
+          html = (tmpl
+            .replace('{{TITLE}}',       title)
+            .replace('{{TAG}}',         tag)
+            .replace('{{DESCRIPTION}}', desc)
+            .replace('{{CONTENT}}',     body))
+
+          pathlib.Path(outpath).write_text(html)
+          print(f'Built: {outpath}')
+          PYEOF
+
           done
 
-      - name: Commit generated HTML
+      - name: Generate scrolls.html (post index)
+        run: |
+          python3 << 'PYEOF'
+          import pathlib, re
+
+          posts = []
+          for f in sorted(pathlib.Path('posts').glob('*.md')):
+            txt = f.read_text()
+            def meta(key):
+              m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
+              return m.group(1).strip() if m else ''
+            posts.append({
+              'title': meta('title'),
+              'tag':   meta('tag'),
+              'desc':  meta('description'),
+              'href':  f'/posts/{f.stem}.html',
+            })
+
+          cards = ''
+          for p in posts:
+            cards += f'''
+            <div class="post-card">
+              <div class="tag">{p["tag"]}</div>
+              <h3>{p["title"]}</h3>
+              <p>{p["desc"]}</p>
+              <a class="read-more" href="{p["href"]}">Read the guide →</a>
+            </div>'''
+
+          page = f'''<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>All Scrolls — Anyways Modernize</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="/css/style.css"/>
+          </head>
+          <body>
+            <div class="stars">
+              <div class="star" style="top:10%;left:20%;"></div>
+              <div class="star" style="top:30%;left:70%;"></div>
+              <div class="star" style="top:55%;left:45%;"></div>
+              <div class="star" style="top:75%;left:80%;"></div>
+              <div class="star" style="top:20%;left:88%;"></div>
+            </div>
+            <nav>
+              <div class="nav-inner">
+                <div class="logo">Anyways Modernize</div>
+                <div class="nav-links">
+                  <a href="/">Tavern</a>
+                  <a href="#">Workshop</a>
+                  <a href="#">Traveler</a>
+                  <a href="/scrolls.html">Scrolls</a>
+                </div>
+                <button class="nav-toggle" aria-label="Open menu">
+                  <span></span><span></span><span></span>
+                </button>
+              </div>
+            </nav>
+            <section class="section">
+              <h2 class="section-title">📜 All Scrolls</h2>
+              <div class="posts">{cards}</div>
+            </section>
+            <footer>
+              <div class="pikachu">⚡</div>
+              <p>The Intune Tavern • Built beside a quiet forest route</p>
+            </footer>
+            <script src="/village.js"></script>
+          </body>
+          </html>'''
+
+          pathlib.Path('scrolls.html').write_text(page)
+          print(f'Built scrolls.html with {len(posts)} posts')
+          PYEOF
+
+      - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add posts/*.html
-          git diff --staged --quiet || git commit -m "Auto-generate HTML from Markdown posts"
+          git add posts/*.html scrolls.html
+          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls index"
           git push
