@@ -51,6 +51,7 @@
   </style>
 </head>
 <body>
+
   <div class="stars">
     <div class="star" style="top:10%;left:20%;"></div>
     <div class="star" style="top:30%;left:70%;"></div>
@@ -59,19 +60,9 @@
     <div class="star" style="top:20%;left:88%;"></div>
   </div>
 
+  <!-- NAV -->
   <nav>
-    <div class="nav-inner">
-      <div class="logo">Anyways Modernize</div>
-      <div class="nav-links">
-        <a href="/">Tavern</a>
-        <a href="#">Workshop</a>
-        <a href="#">Traveler</a>
-        <a href="/scrolls.html">Scrolls</a>
-      </div>
-      <button class="nav-toggle" aria-label="Open menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+    <div class="nav-inner" id="nav-inner"></div>
   </nav>
 
   <div class="search-wrap">
@@ -129,7 +120,6 @@
       }
 
       results.innerHTML = filtered.map(p => {
-        // find a snippet around the keyword in the body
         let snippet = p.desc;
         if (q && p.body.toLowerCase().includes(q)) {
           const idx = p.body.toLowerCase().indexOf(q);
@@ -137,7 +127,6 @@
           const end = Math.min(p.body.length, idx + q.length + 60);
           snippet = (start > 0 ? '…' : '') + p.body.slice(start, end) + (end < p.body.length ? '…' : '');
         }
-
         const date = p.date ? `<span class="post-date">${p.date}</span>` : '';
         return `
           <div class="post-card">
