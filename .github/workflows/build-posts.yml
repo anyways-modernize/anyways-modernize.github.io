@@ -29,7 +29,7 @@ jobs:
             tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
             desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
 
-            body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html)
+            body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html | sed 's|<div class="note"><p>|<div class="note">|g; s|</p></div>|</div>|g')
 
             echo "$body" > /tmp/post_body.html
 
