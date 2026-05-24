@@ -21,9 +21,13 @@ Some text here.
 :::
 
 
-::: note⚡ Potato3 :::
+::: note
+⚡ Potato2
+:::
 
-::: note⚡ Potato4 :::
+::: note
+⚡ Potato4 
+:::
 
 ```powershell
 Get-AutopilotDevice
