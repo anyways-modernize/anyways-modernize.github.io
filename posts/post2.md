@@ -1,0 +1,21 @@
+---
+title: How to Set Up Autopilot
+tag: AUTOPILOT
+description: A cozy walkthrough of Windows Autopilot setup.
+---
+
+## Introduction
+
+Here's how to get started with Autopilot...
+
+## Step 1
+
+Some text here.
+
+```powershell
+Get-AutopilotDevice
+```
+
+## Final Thoughts
+
+That's all for tonight!
