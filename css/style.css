@@ -1,18 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&family=Inter:wght@400;600&display=swap');
+
 :root {
   --bg: #0d141c;
   --bg2: #111c27;
   --card: #1a2633;
   --border: #2b3d4f;
-
   --text: #dce7f2;
   --muted: #8fa4b8;
-
   --yellow: #ffd84d;
   --yellow-soft: #ffefad;
-
   --green: #83c98a;
   --blue: #7dcfff;
-
   --shadow: rgba(0,0,0,0.35);
 }
 
@@ -27,16 +25,14 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
+  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
   color: var(--text);
   font-family: 'Inter', sans-serif;
   line-height: 1.7;
   overflow-x: hidden;
 }
 
-/* STARS */
-
+/* ── STARS ── */
 .stars {
   position: fixed;
   inset: 0;
@@ -44,7 +40,6 @@ body {
   z-index: -1;
   opacity: 0.4;
 }
-
 .star {
   position: absolute;
   width: 2px;
@@ -53,87 +48,88 @@ body {
   border-radius: 50%;
   animation: twinkle 4s infinite ease-in-out;
 }
-
 @keyframes twinkle {
-  0%,100% {
-    opacity: 0.2;
-  }
-
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 1; }
 }
 
-/* NAV */
-
+/* ── NAV ── */
 nav {
   width: 100%;
   border-bottom: 1px solid rgba(255,255,255,0.05);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
-  background: rgba(13,20,28,0.75);
+  background: rgba(13,20,28,0.85);
   z-index: 100;
 }
-
 .nav-inner {
   max-width: 1100px;
   margin: auto;
   padding: 1rem 1.5rem;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .logo {
   font-family: 'Pixelify Sans', sans-serif;
   color: var(--yellow);
   font-size: 1.5rem;
   text-shadow: 0 0 12px rgba(255,216,77,0.3);
 }
-
 .nav-links {
   display: flex;
   gap: 1.5rem;
 }
-
 .nav-links a {
   color: var(--muted);
   text-decoration: none;
-  transition: 0.3s;
+  transition: color 0.3s;
 }
-
 .nav-links a:hover {
   color: var(--yellow);
 }
 
-/* HERO */
+/* hamburger — hidden on desktop */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  flex-direction: column;
+  gap: 5px;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--yellow);
+  border-radius: 2px;
+  transition: opacity 0.2s;
+}
 
+/* ── HERO ── */
 .hero {
   max-width: 1100px;
   margin: auto;
   padding: 6rem 1.5rem 4rem;
-
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 3rem;
   align-items: center;
 }
-
 .hero h1 {
   font-family: 'Pixelify Sans', sans-serif;
-  font-size: 4rem;
+  font-size: clamp(2.2rem, 6vw, 4rem);
   line-height: 1.1;
   margin-bottom: 1rem;
   color: var(--yellow);
 }
-
 .hero p {
   color: var(--muted);
   font-size: 1.1rem;
 }
-
 .hero-card {
   background: rgba(26,38,51,0.85);
   border: 1px solid var(--border);
@@ -141,16 +137,13 @@ nav {
   padding: 2rem;
   box-shadow: 0 10px 30px var(--shadow);
 }
-
 .hero-card h3 {
   margin-bottom: 1rem;
   color: var(--yellow);
 }
-
 .hero-card p {
   color: var(--muted);
 }
-
 .terminal {
   background: #0b1117;
   border-radius: 12px;
@@ -161,50 +154,43 @@ nav {
   border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* POSTS */
-
+/* ── POSTS ── */
 .section {
   max-width: 1100px;
   margin: auto;
-  padding: 2rem 1.5rem 5rem;
+  /* extra bottom padding so landscape doesn't cover last card */
+  padding: 2rem 1.5rem 240px;
 }
-
 .section-title {
   font-family: 'Pixelify Sans', sans-serif;
   color: var(--yellow);
   font-size: 2rem;
   margin-bottom: 2rem;
 }
-
 .posts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
 }
-
 .post-card {
   background: rgba(26,38,51,0.9);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 1.8rem;
-  transition: 0.3s ease;
+  transition: transform 0.3s ease, border-color 0.3s ease;
 }
-
 .post-card:hover {
   transform: translateY(-4px);
   border-color: rgba(255,216,77,0.4);
 }
-
 .post-card h3 {
   margin-bottom: 0.7rem;
   color: var(--yellow-soft);
 }
-
 .post-card p {
   color: var(--muted);
   margin-bottom: 1rem;
 }
-
 .tag {
   display: inline-block;
   background: rgba(255,216,77,0.12);
@@ -214,45 +200,113 @@ nav {
   font-size: 0.8rem;
   margin-bottom: 1rem;
 }
-
 .read-more {
   color: var(--green);
   text-decoration: none;
   font-weight: 600;
 }
-
 .read-more:hover {
   color: var(--yellow);
 }
 
-/* FOOTER */
-
+/* ── FOOTER ── */
 footer {
   border-top: 1px solid rgba(255,255,255,0.05);
-  padding: 2rem;
+  /* sits above landscape */
+  padding: 2rem 2rem 6rem;
   text-align: center;
   color: var(--muted);
+  position: relative;
+  z-index: 10;
 }
-
 .pikachu {
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
 
-/* MOBILE */
+/* ── VILLAGE LANDSCAPE ── */
+.landscape {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+  pointer-events: none;
+  /* let it breathe at very wide screens */
+  max-height: 220px;
+}
 
+/* firefly dots (keep existing .star animation, these use same keyframe) */
+.firefly {
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--yellow);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: firefly-float var(--dur) var(--del) infinite ease-in-out;
+}
+@keyframes firefly-float {
+  0%, 100% { opacity: 0;   transform: translate(0, 0); }
+  30%       { opacity: 0.9; }
+  60%       { opacity: 0.3; transform: translate(var(--dx), var(--dy)); }
+}
+
+/* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-
   .hero {
     grid-template-columns: 1fr;
+    padding: 4rem 1.5rem 3rem;
   }
-
   .hero h1 {
-    font-size: 3rem;
+    font-size: clamp(1.8rem, 8vw, 3rem);
   }
-
+  /* hide text links, show hamburger */
   .nav-links {
     display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(13,20,28,0.97);
+    padding: 1rem 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 1rem;
   }
+  .nav-links.open {
+    display: flex;
+  }
+  .nav-toggle {
+    display: flex;
+  }
+  .posts {
+    grid-template-columns: 1fr;
+  }
+  .section {
+    padding-bottom: 200px;
+  }
+  .landscape {
+    max-height: 180px;
+  }
+}
 
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+  .section-title {
+    font-size: 1.5rem;
+  }
+  .landscape {
+    max-height: 130px;
+  }
+  .section {
+    padding-bottom: 150px;
+  }
 }
