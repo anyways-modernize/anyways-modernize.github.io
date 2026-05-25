@@ -23,7 +23,19 @@
 
   <!-- NAV -->
   <nav>
-    <div class="nav-inner" id="nav-inner"></div>
+    <div class="nav-inner">
+      <a class="logo" href="/">Anyways Modernize</a>
+      <div class="nav-links">
+        <a href="/">Tavern</a>
+        <a href="#">Workshop</a>
+        <a href="#">Traveler</a>
+        <a href="/scrolls.html">Scrolls</a>
+        <a href="/search.html" aria-label="Search">🔍</a>
+      </div>
+      <button class="nav-toggle" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -62,7 +74,7 @@
         <a class="read-more" href="/posts/post2.html">Read the guide →</a>
       </div>
       <div class="post-card">
-        <div class="tag">Intune</div>
+        <div class="tag">INTUNE</div>
         <span class="post-date">May 24, 2026</span>
         <h3>Potato</h3>
         <p>Potato1</p>
@@ -85,6 +97,11 @@
     <p>The Intune Tavern • Built beside a quiet forest route</p>
   </footer>
 
-  <script src="village.js"></script>
+  <script src="/village.js"></script>
+  <script>
+    const toggle = document.querySelector('.nav-toggle');
+    const links  = document.querySelector('.nav-links');
+    if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
+  </script>
 </body>
 </html>
