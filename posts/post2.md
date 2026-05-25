@@ -9,7 +9,7 @@ description: A cozy walkthrough of Windows Autopilot setup.
 Here's how to get started with Autopilot...
 
 ::: note
-⚡ Potatoo
+⚡ Potatooo
 :::
 
 ## Step 1
