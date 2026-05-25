@@ -229,10 +229,10 @@ footer {
 /* ── POST PAGE ── */
 .container {
   position: relative; z-index: 10;
-  max-width: 780px;
+  max-width: 900px;
   margin: 3rem auto 6rem;
-  padding: 2.5rem 3rem;
-  background: rgba(26, 38, 51, 0.75);
+  padding: 3rem 4rem;
+  background: rgba(5, 10, 16, 0.35);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -295,5 +295,5 @@ footer {
 }
 
 @media (max-width: 600px) {
-  .container { padding: 1.5rem; margin: 1.5rem 1rem 5rem; }
+  .container { padding: 2rem; margin: 1.5rem 1rem 12rem; }
 }
