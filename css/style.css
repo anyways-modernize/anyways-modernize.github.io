@@ -113,10 +113,10 @@ nav {
 .hero {
   position: relative; z-index: 10;
   max-width: 1100px; margin: auto;
-  padding: 6rem 1.5rem 4rem;
+  padding: 6rem 1.5rem 2rem;
   display: grid;
   grid-template-columns: 1fr 350px;
-  gap: 3rem; align-items: center;
+  gap: 3rem; align-items: start;
 }
 .hero h1 {
   font-family: 'Pixelify Sans', sans-serif;
