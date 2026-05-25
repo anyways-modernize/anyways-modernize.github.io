@@ -94,15 +94,12 @@
 <!-- LEFT TREES — layered JRPG style -->
 <g id="tree-L1">
   <rect x="213" y="214" width="5" height="28" fill="#060e09"/>
-  <!-- shadow base -->
   <ellipse cx="215" cy="218" rx="13" ry="8" fill="#050d08" opacity="0.5"/>
-  <!-- main canopy layers bottom to top -->
   <ellipse cx="215" cy="214" rx="14" ry="10" fill="#071510" id="tL1e"/>
   <ellipse cx="211" cy="209" rx="11" ry="9"  fill="#091c12" id="tL1d"/>
   <ellipse cx="218" cy="207" rx="10" ry="8"  fill="#0a2014" id="tL1c"/>
   <ellipse cx="213" cy="202" rx="9"  ry="8"  fill="#0c2618" id="tL1b"/>
   <ellipse cx="216" cy="198" rx="7"  ry="6"  fill="#0e2e1c" id="tL1a"/>
-  <!-- highlight -->
   <ellipse cx="218" cy="197" rx="4"  ry="3"  fill="#132e18" opacity="0.6"/>
 </g>
 <g id="tree-L2">
@@ -150,19 +147,13 @@
 <path d="${archWin(677,158,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(677,158,14,20,8)}" fill="#ffd84d" opacity="0.30" id="wC2b"/>
 
-<!-- shadow window — background glow, then figure clipped inside -->
 <path d="${archWin(655,184,14,20,8)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(655,184,14,20,8)}" fill="#ffd84d" opacity="0.24" id="shadow-win"/>
 
-<!-- shadow figure CLIPPED inside the window arch -->
 <g clip-path="url(#shadow-clip)" id="shadow-figure" opacity="0">
-  <!-- head -->
   <ellipse cx="662" cy="188" rx="3.5" ry="3.5" fill="#03070d"/>
-  <!-- neck -->
   <rect x="660" y="191" width="4" height="2" fill="#03070d"/>
-  <!-- shoulders -->
   <path d="M656,193 Q662,190 668,193 L668,204 L656,204 Z" fill="#03070d"/>
-  <!-- arms -->
   <line x1="656" y1="195" x2="653" y2="200" stroke="#03070d" stroke-width="2" stroke-linecap="round"/>
   <line x1="668" y1="195" x2="671" y2="200" stroke="#03070d" stroke-width="2" stroke-linecap="round"/>
 </g>
@@ -185,7 +176,7 @@
 <path d="${archWin(725,200,10,14,5)}" fill="#ffd84d" opacity="0.15" id="wC3c"/>
 <path d="${archWin(718,218,22,25,11)}" fill="#050d18" stroke="#122030" stroke-width="1.5"/>
 
-<!-- CENTRE TREES — layered JRPG style -->
+<!-- CENTRE TREES -->
 <g id="tree-C1">
   <rect x="561" y="216" width="5" height="26" fill="#060e09"/>
   <ellipse cx="563" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
@@ -217,10 +208,8 @@
 </g>
 
 <!-- ═══ RIGHT CLUSTER ═══ -->
-<!-- chapel R1 — NO cross -->
 <rect x="1162" y="168" width="38" height="75" fill="#091420"/>
 <polygon points="1156,170 1206,170 1181,140" fill="#0c1c2e"/>
-<!-- just a finial, no cross -->
 <line x1="1181" y1="135" x2="1181" y2="124" stroke="#ffd84d" stroke-width="1.5" opacity="0.3"/>
 <circle cx="1181" cy="123" r="2" fill="#ffd84d" opacity="0.3"/>
 <circle cx="1181" cy="180" r="7" fill="#091420" stroke="#182840" stroke-width="1.5"/>
@@ -266,7 +255,7 @@
 <path d="${archWin(1324,192,11,16,6)}" fill="#091420" stroke="#182840" stroke-width="1"/>
 <path d="${archWin(1324,192,11,16,6)}" fill="#ffd84d" opacity="0.14" id="wR3b"/>
 
-<!-- RIGHT TREES — layered JRPG style -->
+<!-- RIGHT TREES -->
 <g id="tree-R1">
   <rect x="1126" y="216" width="5" height="26" fill="#060e09"/>
   <ellipse cx="1128" cy="220" rx="12" ry="7" fill="#050d08" opacity="0.5"/>
@@ -287,9 +276,8 @@
   <ellipse cx="1149" cy="205" rx="5"  ry="4"  fill="#0e2e1c" id="tR2a"/>
 </g>
 
-<!-- ═══ LANTERN POSTS — round cap, no square ═══ -->
+<!-- ═══ LANTERN POSTS ═══ -->
 <rect x="392" y="196" width="3" height="46" fill="#1a2838"/>
-<!-- round lantern housing -->
 <ellipse cx="393" cy="191" rx="7" ry="5" fill="#1a2838"/>
 <circle cx="393" cy="188" r="6" fill="#ffd84d" opacity="0.72" id="lamp1" filter="url(#lampglow)"/>
 <circle cx="393" cy="188" r="16" fill="#ffd84d" opacity="0.07" id="lamp1g"/>
@@ -334,7 +322,6 @@
     ['tR2a','tR2b','tR2c','tR2d','tR2e'],
   ];
 
-  // Gentle CSS-based wind sway on each ellipse group
   treeGroups.forEach((group, gi) => {
     group.forEach((id, i) => {
       const el = svg.getElementById(id);
@@ -342,7 +329,6 @@
       const delay  = (gi * 0.4 + i * 0.15).toFixed(2);
       const dur    = (3.5 + Math.random() * 2).toFixed(2);
       const amount = 1.5 + Math.random();
-      // animate using SMIL for SVG elements
       el.innerHTML = `
         <animateTransform attributeName="transform" type="translate"
           values="0,0; ${amount},0; 0,0; -${amount*0.5},0; 0,0"
@@ -401,7 +387,7 @@
   windowLoop();
 
   // ══════════════════════════════════════
-  // Shadow figure — clipped inside window
+  // Shadow figure
   // ══════════════════════════════════════
   const figure    = svg.getElementById('shadow-figure');
   const shadowWin = svg.getElementById('shadow-win');
@@ -410,12 +396,10 @@
     while (true) {
       await wait(rand(25000, 70000));
       if (parseFloat(shadowWin.getAttribute('opacity')) < 0.05) continue;
-      // slow fade in
       for (let o = 0; o <= 10; o++) {
         figure.setAttribute('opacity', (o / 10).toFixed(1));
         await wait(80);
       }
-      // drift slowly across window
       const dir   = Math.random() > 0.5 ? 1 : -1;
       let   dx    = 0;
       const steps = randI(12, 25);
@@ -424,7 +408,6 @@
         figure.setAttribute('transform', `translate(${dx},0)`);
         await wait(120);
       }
-      // pause then slow fade out
       await wait(rand(800, 2500));
       for (let o = 10; o >= 0; o--) {
         figure.setAttribute('opacity', (o / 10).toFixed(1));
@@ -544,6 +527,12 @@
       });
   }
 
-  
+  // ── Load shared footer ──
+  const footerEl = document.querySelector('footer');
+  if (footerEl) {
+    fetch('/footer.html')
+      .then(r => r.text())
+      .then(html => { footerEl.innerHTML = html; });
+  }
 
 })();
