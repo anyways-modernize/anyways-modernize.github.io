@@ -62,19 +62,7 @@
 
   <!-- NAV -->
   <nav>
-    <div class="nav-inner">
-      <a class="logo" href="/">Anyways Modernize</a>
-      <div class="nav-links">
-        <a href="/">Tavern</a>
-        <a href="#">Workshop</a>
-        <a href="#">Traveler</a>
-        <a href="/scrolls.html">Scrolls</a>
-        <a href="/search.html" aria-label="Search">🔍</a>
-      </div>
-      <button class="nav-toggle" aria-label="Open menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+    <div class="nav-inner" id="nav-inner"></div>
   </nav>
 
   <div class="search-wrap">
@@ -100,10 +88,6 @@
 
   <script src="/village.js"></script>
   <script>
-    const toggle = document.querySelector('.nav-toggle');
-    const links  = document.querySelector('.nav-links');
-    if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
-
     let posts = [];
 
     function highlight(text, query) {
