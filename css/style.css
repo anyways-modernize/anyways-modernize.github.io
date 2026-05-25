@@ -23,7 +23,6 @@ body {
   font-family: 'Inter', sans-serif;
   line-height: 1.8;
   overflow-x: hidden;
-  padding-bottom: 220px;
 }
 
 /* ── STARS ── */
@@ -64,12 +63,12 @@ body {
 
 /* ── LANDSCAPE ── */
 .landscape {
-  position: fixed;
-  bottom: 0; left: 0;
+  display: block;
   width: 100%;
   z-index: 2;
   pointer-events: none;
   max-height: 220px;
+  margin-top: -1px;
 }
 
 /* ── NAV ── */
@@ -146,7 +145,7 @@ nav {
 .section {
   position: relative; z-index: 10;
   max-width: 1100px; margin: auto;
-  padding: 2rem 1.5rem 260px;
+  padding: 2rem 1.5rem 3rem;
 }
 .section-title {
   font-family: 'Pixelify Sans', sans-serif;
@@ -253,14 +252,11 @@ footer {
   .nav-links.open { display: flex; }
   .nav-toggle { display: flex; }
   .posts { grid-template-columns: 1fr; }
-  .section { padding-bottom: 200px; }
-  .landscape { max-height: 180px; }
+  .section { padding-bottom: 3rem; }
 }
 @media (max-width: 480px) {
   .hero h1 { font-size: 1.8rem; }
   .section-title { font-size: 1.5rem; }
-  .landscape { max-height: 130px; }
-  .section { padding-bottom: 150px; }
-  body { padding-bottom: 150px; }
+  .section { padding-bottom: 2rem; }
   .container { padding: 2.5rem 1rem; }
 }
