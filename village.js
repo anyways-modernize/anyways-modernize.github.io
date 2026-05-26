@@ -124,10 +124,10 @@
 
 <!-- Moon only, no stars -->
 <polygon points="0,205 60,162 120,180 190,140 265,162 345,120 430,145 510,108 595,132 680,98 765,122 850,90 935,116 1020,84 1105,110 1185,82 1270,106 1355,84 1440,100 1440,300 0,300" fill="${C.mtns}" opacity="0.95"/>
-<circle cx="1360" cy="42" r="26" fill="#f5edcc" opacity="0.90"/>
-<circle cx="1356" cy="38" r="7" fill="#ede0b8" opacity="0.28"/>
-<circle cx="1370" cy="50" r="4" fill="#ede0b8" opacity="0.20"/>
-<circle cx="1360" cy="42" r="50" fill="url(#moonGlow)"/>
+<circle cx="1380" cy="185" r="18" fill="#f5edcc" opacity="0.85"/>
+<circle cx="1377" cy="182" r="5" fill="#ede0b8" opacity="0.25"/>
+<circle cx="1385" cy="192" r="3" fill="#ede0b8" opacity="0.18"/>
+<circle cx="1380" cy="185" r="34" fill="url(#moonGlow)"/>
 
 
 <!-- Mountains & hills -->
