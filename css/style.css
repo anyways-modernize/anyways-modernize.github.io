@@ -65,7 +65,7 @@ body {
   position: fixed;
   bottom: 0; left: 0;
   width: 100%;
-  z-index: 5;
+  z-index: 2;
   pointer-events: none;
   /* NO max-height — let the SVG viewBox control its own size */
 }
