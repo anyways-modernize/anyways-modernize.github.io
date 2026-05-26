@@ -7,7 +7,7 @@
   const NS    = 'http://www.w3.org/2000/svg';
 
   const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 1440 300');
+  svg.setAttribute('viewBox', '0 100 1440 200');
   svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
   svg.setAttribute('aria-hidden', 'true');
   svg.classList.add('landscape');
