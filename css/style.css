@@ -67,8 +67,7 @@ body {
   width: 100%;
   z-index: 2;
   pointer-events: none;
-  height: 160px;
-  overflow: hidden;
+  /* Full SVG — no clipping */
 }
 
 /* ── NAV ── */
@@ -150,7 +149,7 @@ nav {
 .section {
   position: relative; z-index: 10;
   max-width: 1100px; margin: auto;
-  padding: 2rem 1.5rem 170px;
+  padding: 2rem 1.5rem 155px;
 }
 .section-title {
   font-family: 'Pixelify Sans', sans-serif;
@@ -197,7 +196,7 @@ footer {
   position: relative;
   z-index: 3;
   border-top: 1px solid rgba(255,255,255,0.05);
-  padding: 2rem 2rem 170px;
+  padding: 2rem 2rem 155px;
   text-align: center;
   color: var(--muted);
 }
@@ -217,12 +216,12 @@ footer {
   .nav-links.open { display:flex; }
   .nav-toggle { display:flex; }
   .posts { grid-template-columns:1fr; }
-  .section { padding-bottom: 160px; }
+  .section { padding-bottom: 155px; }
 }
 @media (max-width: 480px) {
   .hero h1 { font-size:1.8rem; }
   .section-title { font-size:1.5rem; }
-  .section { padding-bottom: 130px; }
+  .section { padding-bottom: 120px; }
 }
 
 /* ── POST PAGE ── */
