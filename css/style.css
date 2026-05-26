@@ -67,7 +67,8 @@ body {
   width: 100%;
   z-index: 2;
   pointer-events: none;
-  max-height: 200px;
+  height: 300px; /* full SVG height */
+  overflow: hidden;
 }
 
 /* ── NAV ── */
@@ -149,7 +150,7 @@ nav {
 .section {
   position: relative; z-index: 10;
   max-width: 1100px; margin: auto;
-  padding: 2rem 1.5rem 320px;
+  padding: 2rem 1.5rem 160px;
 }
 .section-title {
   font-family: 'Pixelify Sans', sans-serif;
@@ -196,7 +197,7 @@ footer {
   position: relative;
   z-index: 3;
   border-top: 1px solid rgba(255,255,255,0.05);
-  padding: 2rem 2rem 320px;
+  padding: 2rem 2rem 160px;
   text-align: center;
   color: var(--muted);
 }
@@ -216,12 +217,12 @@ footer {
   .nav-links.open { display:flex; }
   .nav-toggle { display:flex; }
   .posts { grid-template-columns:1fr; }
-  .section { padding-bottom: 260px; }
+  .section { padding-bottom: 160px; }
 }
 @media (max-width: 480px) {
   .hero h1 { font-size:1.8rem; }
   .section-title { font-size:1.5rem; }
-  .section { padding-bottom: 200px; }
+  .section { padding-bottom: 130px; }
 }
 
 /* ── POST PAGE ── */
