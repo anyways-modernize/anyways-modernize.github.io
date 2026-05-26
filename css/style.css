@@ -67,7 +67,7 @@ body {
   width: 100%;
   z-index: 2;
   pointer-events: none;
-  transform: scale(0.6);
+  transform: scale(0.75);
   transform-origin: bottom center;
 }
 
