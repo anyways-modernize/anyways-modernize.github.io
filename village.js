@@ -120,21 +120,21 @@
   <clipPath id="twclip"><path d="${aw(SW_X,SW_Y,SW_W,SW_H,SW_AH)}"/></clipPath>
 </defs>
 
-<rect x="0" y="0" width="1440" height="300" fill="${C.sky}"/>
+<!-- sky removed: transparent -->
 
 <!-- Moon only, no stars -->
-<circle cx="1360" cy="42" r="26" fill="#f5edcc" opacity="0.90"/>
-<circle cx="1356" cy="38" r="7" fill="#ede0b8" opacity="0.28"/>
-<circle cx="1370" cy="50" r="4" fill="#ede0b8" opacity="0.20"/>
-<circle cx="1360" cy="42" r="50" fill="url(#moonGlow)"/>
+<!-- moon removed -->
+
+
+<!-- moon removed -->
 
 <!-- Mountains & hills -->
-<polygon points="0,205 60,162 120,180 190,140 265,162 345,120 430,145 510,108 595,132 680,98 765,122 850,90 935,116 1020,84 1105,110 1185,82 1270,106 1355,84 1440,100 1440,300 0,300" fill="${C.mtns}" opacity="0.95"/>
-<ellipse cx="200" cy="260" rx="260" ry="58" fill="${C.hill}"/>
-<ellipse cx="720" cy="262" rx="340" ry="56" fill="${C.hill}"/>
-<ellipse cx="1240" cy="260" rx="300" ry="58" fill="${C.hill}"/>
-<rect x="0" y="266" width="1440" height="34" fill="${C.gnd}"/>
-<rect x="0" y="266" width="1440" height="2" fill="#0d1e2e" opacity="0.6"/>
+<!-- mountains removed -->
+<!-- hill removed -->
+<!-- hill removed -->
+<!-- hill removed -->
+<!-- ground removed -->
+<!-- ground line removed -->
 
 <!-- ═══ LEFT CLUSTER ═══ -->
 ${house(30,214,46,52,34,{chimneyX:4,chimneyH:22})}
