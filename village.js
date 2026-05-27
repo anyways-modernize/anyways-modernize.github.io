@@ -5,6 +5,19 @@
   const randI = (a, b) => Math.floor(rand(a, b));
   const wait  = ms => new Promise(r => setTimeout(r, ms));
 
+  // ── CLEANUP TRACKING ──
+  const _intervals = [];
+  const _aborted = { value: false };
+ 
+  window.addEventListener('beforeunload', () => {
+    _aborted.value = true;
+    _intervals.forEach(clearInterval);
+    document.querySelectorAll('.firefly').forEach(f => f.remove());
+    const landscape = document.querySelector('.landscape');
+    if (landscape) landscape.remove();
+  });
+  
+
   // ── Inject SVG from Inkscape ──
   const wrapper = document.createElement('div');
   wrapper.innerHTML = `<svg viewBox="0 0 1440 300" xmlns="http://www.w3.org/2000/svg" class="landscape">
@@ -3517,13 +3530,13 @@
     await wait(rand(9000,52000));
     for(let o=0;o<=14;o++){w.el.setAttribute('opacity',(w.base*o/14).toFixed(3));await wait(75);}
   }
-  (async function wl(){while(true){await wait(rand(3000,12000));const w=wins[randI(0,wins.length)];if(w.el.id==='shadow-win')continue;flickerWin(w);}})();
+  (async function wl(){while(!_aborted.value){await wait(rand(3000,12000));const w=wins[randI(0,wins.length)];if(w.el.id==='shadow-win')continue;flickerWin(w);}})();
 
   /* ── SHADOW WIZARD ── */
   const figure = svg.getElementById('shadow-figure');
   const shadowWin = svg.getElementById('shadow-win');
   (async function sl(){
-    while(true){
+    while(!_aborted.value){
       await wait(rand(30000,80000));
       if(parseFloat(shadowWin.getAttribute('opacity')||'0')<0.05)continue;
       for(let o=0;o<=10;o++){figure.setAttribute('opacity',(o/10).toFixed(1));await wait(80);}
@@ -3558,11 +3571,11 @@
   const cat = svg.getElementById('cat');
   const cLegs = ['cl1','cl2','cl3','cl4'].map(id=>svg.getElementById(id));
   let catLT=null,catLF=0;
-  function startCatLegs(ms){catLT=setInterval(()=>{catLF=(catLF+1)%4;cLegs.forEach((l,i)=>{const up=(i%2===0)?catLF<2:catLF>=2;l.setAttribute('y',up?'262':'265');l.setAttribute('height',up?'10':'7');});},ms);}
+  function startCatLegs(ms){catLT=setInterval(()=>{catLF=(catLF+1)%4;cLegs.forEach((l,i)=>{const up=(i%2===0)?catLF<2:catLF>=2;l.setAttribute('y',up?'262':'265');l.setAttribute('height',up?'10':'7');});},ms);_intervals.push(catLT);}
   function stopCatLegs(){clearInterval(catLT);catLT=null;cLegs.forEach(l=>{l.setAttribute('y','265');l.setAttribute('height','7');});}
   function setCatPos(x,r){if(r){cat.setAttribute('transform',`translate(${x},0)`);}else{cat.setAttribute('transform',`translate(${x+46},0) scale(-1,1)`);}}
   (async function cl(){
-    while(true){
+    while(!_aborted.value){
       await wait(rand(18000,55000));
       const r=Math.random()>0.5;
       const sx=r?-100:1500,ex=r?rand(300,1150):rand(240,1100),sp=rand(0.45,0.90);
@@ -3601,12 +3614,12 @@
   const hLA=svg.getElementById('hLA'),hRA=svg.getElementById('hRA');
   const hLB=svg.getElementById('hLB'),hRB=svg.getElementById('hRB');
   let hLT=null,hLF=0;
-  function startHeroLegs(ms){hLT=setInterval(()=>{hLF=(hLF+1)%4;const sL=[0,5,0,-5][hLF],sR=[0,-5,0,5][hLF];hLL.setAttribute('x2',String(-4+sL));hLL.setAttribute('y2',String(272+Math.abs(sL)*0.2));hRL.setAttribute('x2',String(4+sR));hRL.setAttribute('y2',String(272+Math.abs(sR)*0.2));hLB.setAttribute('cx',String(-4+sL));hRB.setAttribute('cx',String(4+sR));hLA.setAttribute('x2',String(-10+sR*0.5));hRA.setAttribute('x2',String(10+sL*0.5));},ms);}
+  function startHeroLegs(ms){hLT=setInterval(()=>{hLF=(hLF+1)%4;const sL=[0,5,0,-5][hLF],sR=[0,-5,0,5][hLF];hLL.setAttribute('x2',String(-4+sL));hLL.setAttribute('y2',String(272+Math.abs(sL)*0.2));hRL.setAttribute('x2',String(4+sR));hRL.setAttribute('y2',String(272+Math.abs(sR)*0.2));hLB.setAttribute('cx',String(-4+sL));hRB.setAttribute('cx',String(4+sR));hLA.setAttribute('x2',String(-10+sR*0.5));hRA.setAttribute('x2',String(10+sL*0.5));},ms);_intervals.push(hLT);}
   function stopHeroLegs(){clearInterval(hLT);hLT=null;hLL.setAttribute('x2','-4');hRL.setAttribute('x2','4');hLL.setAttribute('y2','272');hRL.setAttribute('y2','272');hLB.setAttribute('cx','-4');hRB.setAttribute('cx','4');hLA.setAttribute('x2','-10');hRA.setAttribute('x2','10');}
   function setHeroPos(x,r){if(r){hero.setAttribute('transform',`translate(${x},-6)`);}else{hero.setAttribute('transform',`translate(${x},-6) scale(-1,1)`);}}
   (async function hl(){
     await wait(rand(6000,18000));
-    while(true){
+    while(!_aborted.value){
       const r=Math.random()>0.5;
       const sx=r?-20:1460,ex=r?rand(300,1100):rand(280,1060),sp=rand(0.55,1.0);
       setHeroPos(sx,r);hero.setAttribute('opacity','0');await wait(60);
@@ -3627,7 +3640,7 @@
   ].forEach(async l=>{
     const dot=svg.getElementById(l.dot),glo=svg.getElementById(l.glow);
     if(!dot||!glo)return;
-    while(true){
+    while(!_aborted.value){
       await wait(rand(1500,7000));
       const v=rand(0.28,0.50);
       dot.setAttribute('opacity',v);glo.setAttribute('opacity',(v*0.09).toFixed(3));
@@ -3637,6 +3650,7 @@
   });
 
   /* ── FIREFLIES ── */
+  document.querySelectorAll('.firefly').forEach(f => f.remove());
   for(let i=0;i<16;i++){
     const f=document.createElement('div');
     f.className='firefly';
