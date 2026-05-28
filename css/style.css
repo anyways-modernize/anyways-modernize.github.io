@@ -289,6 +289,13 @@ footer {
   color: var(--muted);
   font-style: italic;
 }
+.container img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+}
 
 @media (max-width: 600px) {
   .container { padding: 2rem; margin: 1.5rem 1rem 12rem; }
