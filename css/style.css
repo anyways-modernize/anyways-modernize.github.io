@@ -229,9 +229,9 @@ footer {
 /* ── POST PAGE ── */
 .container {
   position: relative; z-index: 10;
-  max-width: 900px;
+  max-width: 1100px;
   margin: 3rem auto 6rem;
-  padding: 3rem 4rem;
+ padding: 3rem 1.5rem;
   background: rgba(5, 10, 16, 0.35);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
