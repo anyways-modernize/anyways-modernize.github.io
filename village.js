@@ -5,48 +5,6 @@
   const randI = (a, b) => Math.floor(rand(a, b));
   const wait  = ms => new Promise(r => setTimeout(r, ms));
 
-  // ── CLEANUP TRACKING ──
-  const _intervals = [];
-  const _aborted = { value: false };
- 
-function cleanup() {
-    _aborted.value = true;
-    _intervals.forEach(clearInterval);
-    _intervals = [];
-    document.querySelectorAll('.firefly').forEach(f => f.remove());
-    const landscape = document.querySelector('.landscape');
-    if (landscape) landscape.remove();
-    const cat = document.getElementById('cat');
-    if (cat) cat.remove();
-    const hero = document.getElementById('hero');
-    if (hero) hero.remove();
-  }
-
-  function init() {
-    _aborted = { value: false };
-    _intervals = [];
-
-    // ... ALL your existing code goes here unchanged,
-    // just remove the old beforeunload/pagehide listener from inside it ...
-
-  }
-
-  // Normal page load
-  init();
-
-  // Cleanup when leaving
-  window.addEventListener('pagehide', cleanup);
-
-  // Re-init if restored from bfcache
-  window.addEventListener('pageshow', (e) => {
-    if (e.persisted) {
-      cleanup();
-      // Small delay to let cleanup settle before re-init
-      setTimeout(init, 50);
-    }
-  });
-  
-
   // ── Inject SVG from Inkscape ──
   const wrapper = document.createElement('div');
   wrapper.innerHTML = `<svg viewBox="0 0 1440 300" xmlns="http://www.w3.org/2000/svg" class="landscape">
@@ -3694,3 +3652,12 @@ function cleanup() {
   if(footerEl)fetch('/footer.html').then(r=>r.text()).then(html=>{footerEl.innerHTML=html;});
 
 })();
+
+
+// Outside the IIFE entirely
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    // Force a full page reload when restored from bfcache
+    window.location.reload();
+  }
+});
