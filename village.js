@@ -9,13 +9,14 @@
   const _intervals = [];
   const _aborted = { value: false };
  
-  window.addEventListener('beforeunload', () => {
+  window.addEventListener('pagehide', (e) => {
     _aborted.value = true;
     _intervals.forEach(clearInterval);
     document.querySelectorAll('.firefly').forEach(f => f.remove());
     const landscape = document.querySelector('.landscape');
     if (landscape) landscape.remove();
   });
+
   
 
   // ── Inject SVG from Inkscape ──
