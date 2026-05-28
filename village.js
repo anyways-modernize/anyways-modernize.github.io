@@ -3648,7 +3648,6 @@
   /* ── NAV / FOOTER ── */
   const navEl=document.getElementById('nav-inner');
   if(navEl){fetch('/nav.html').then(r=>r.text()).then(html=>{navEl.innerHTML=html;const t=document.querySelector('.nav-toggle'),l=document.querySelector('.nav-links');if(t&&l)t.addEventListener('click',()=>l.classList.toggle('open'));});}
-  const footerEl=document.querySelector('footer');
-  if(footerEl)fetch('/footer.html').then(r=>r.text()).then(html=>{footerEl.innerHTML=html;});
+
 
 })();
