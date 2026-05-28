@@ -15,8 +15,8 @@ Indeed! Many of us as admins don't spend enough time exploring every option avai
 
 I was reading one of the blog posts by Mr. T-Bone [T-Bone's blog post](https://www.tbone.se/2026/01/09/update-secure-boot-certificate-by-using-intune-remediation/) and noticed he had enabled the **Pre-remediation Detection Output** column. I gave it a try and really liked it. You can review results as they start to populate, and export the data as a CSV, or even push it to Power Automate.
 
-<img width="1786" height="1051" alt="image" src="https://github.com/user-attachments/assets/9d63745e-a420-4544-8ea5-45ba6758f3b7" />
-<img width="2211" height="615" alt="image" src="https://github.com/user-attachments/assets/1e5e1fd2-59fe-4230-9f32-6babed1bc612" />
+<img alt="image" src="https://github.com/user-attachments/assets/9d63745e-a420-4544-8ea5-45ba6758f3b7" />
+<img alt="image" src="https://github.com/user-attachments/assets/1e5e1fd2-59fe-4230-9f32-6babed1bc612" />
 
 There is a limit on the output. Apparently, it's capped at **2,048 characters**. (https://learn.microsoft.com/en-us/intune/device-management/tools/deploy-remediations)
 
@@ -26,11 +26,11 @@ Did you know you can run a Proactive Remediation with only a detection script?
 
 This is perfect for getting a quick overview of a specific situation. For example, you can find out how many devices have a folder on C:\ named **"Johannes likes eatingg horse steak"**.
 
-<img width="949" height="1204" alt="image" src="https://github.com/user-attachments/assets/06f76d2d-f95f-43a6-8fe1-c83f35102ab8" />
+<img alt="image" src="https://github.com/user-attachments/assets/06f76d2d-f95f-43a6-8fe1-c83f35102ab8" />
 
 Notice how **Detection script = Yes** and **Remediation script = No**. When you open the script to inspect it, Microsoft even includes a note:
 
-<img width="1265" height="1143" alt="image" src="https://github.com/user-attachments/assets/6de80e05-8eea-49a6-8764-8245edf62747" />
+<img alt="image" src="https://github.com/user-attachments/assets/6de80e05-8eea-49a6-8764-8245edf62747" />
 
 ## Final Thoughts
 I hope you enjoyed this short article — and hopefully this becomes a recurring series!
