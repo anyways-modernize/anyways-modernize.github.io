@@ -1,10 +1,6 @@
 (function () {
   'use strict';
-
-  const rand  = (a, b) => Math.random() * (b - a) + a;
-  const randI = (a, b) => Math.floor(rand(a, b));
-  const wait  = ms => new Promise(r => setTimeout(r, ms));
-
+  
   // ── Inject SVG from Inkscape ──
   const wrapper = document.createElement('div');
   wrapper.innerHTML = `<svg viewBox="0 0 1440 300" xmlns="http://www.w3.org/2000/svg" class="landscape">
