@@ -17,11 +17,10 @@
 html { 
   scroll-behavior:smooth; 
   scrollbar-gutter: stable;
-  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
-  background-attachment: fixed;
 }
 body {
-  background: transparent;
+  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
+  background-attachment: fixed;
   color: var(--text);
   font-family: 'Inter', sans-serif;
   line-height: 1.7;
