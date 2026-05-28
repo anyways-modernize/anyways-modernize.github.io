@@ -147,9 +147,7 @@ nav {
 
 /* ── POSTS SECTION ── */
 .section {
-  position: relative; z-index: 10;
-  max-width: 1100px; margin: auto;
-  padding: 6rem 1.5rem 4rem;
+background: transparent;
 }
 .section--top {
   padding: 6rem 1.5rem 4rem;
@@ -159,16 +157,11 @@ nav {
   color: var(--yellow); font-size: 2rem; margin-bottom: 2rem;
 }
 .posts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
-  gap: 1.5rem;
+  background: transparent;
 }
 .post-card {
-  position: relative; z-index: 10;
-  background: rgba(26,38,51,0.9);
-  border: 1px solid var(--border);
-  border-radius: 20px; padding: 1.8rem;
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  background: transparent;
+  border: none;
 }
 .post-card:hover {
   transform: translateY(-4px);
