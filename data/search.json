@@ -14,13 +14,5 @@
     "date": "May 24, 2026",
     "href": "/posts/post-3.html",
     "body": "Introduction Here's how to get started with Potato... note ⚡ Potato Step 1 Some text here. hmmm powershell Get-AutopilotDevice Final Thoughts That's all for tonight!"
-  },
-  {
-    "title": "How to Set Up Autopilot",
-    "tag": "AUTOPILOT",
-    "desc": "A cozy walkthrough of Windows Autopilot setup.",
-    "date": "May 24, 2026",
-    "href": "/posts/my-post.html",
-    "body": "Introduction Here's how to get started with Autopilot... Step 1 Some text here. powershell Get-AutopilotDevice Final Thoughts That's all for tonight!"
   }
 ]
