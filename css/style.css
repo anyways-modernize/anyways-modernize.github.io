@@ -198,7 +198,7 @@ nav {
 footer {
   position: relative;
   z-index: 3;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: none;
   padding: 2rem 2rem 90px;
   text-align: center;
   color: var(--muted);
