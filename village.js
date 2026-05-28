@@ -9,14 +9,42 @@
   const _intervals = [];
   const _aborted = { value: false };
  
-  window.addEventListener('pagehide', (e) => {
+function cleanup() {
     _aborted.value = true;
     _intervals.forEach(clearInterval);
+    _intervals = [];
     document.querySelectorAll('.firefly').forEach(f => f.remove());
     const landscape = document.querySelector('.landscape');
     if (landscape) landscape.remove();
-  });
+    const cat = document.getElementById('cat');
+    if (cat) cat.remove();
+    const hero = document.getElementById('hero');
+    if (hero) hero.remove();
+  }
 
+  function init() {
+    _aborted = { value: false };
+    _intervals = [];
+
+    // ... ALL your existing code goes here unchanged,
+    // just remove the old beforeunload/pagehide listener from inside it ...
+
+  }
+
+  // Normal page load
+  init();
+
+  // Cleanup when leaving
+  window.addEventListener('pagehide', cleanup);
+
+  // Re-init if restored from bfcache
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      cleanup();
+      // Small delay to let cleanup settle before re-init
+      setTimeout(init, 50);
+    }
+  });
   
 
   // ── Inject SVG from Inkscape ──
