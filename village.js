@@ -3652,12 +3652,3 @@
   if(footerEl)fetch('/footer.html').then(r=>r.text()).then(html=>{footerEl.innerHTML=html;});
 
 })();
-
-
-// Outside the IIFE entirely
-window.addEventListener('pageshow', (e) => {
-  if (e.persisted) {
-    // Force a full page reload when restored from bfcache
-    window.location.reload();
-  }
-});
