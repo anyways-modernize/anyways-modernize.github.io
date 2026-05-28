@@ -1,5 +1,9 @@
 (function () {
   'use strict';
+
+  const rand  = (a, b) => Math.random() * (b - a) + a;
+  const randI = (a, b) => Math.floor(rand(a, b));
+  const wait  = ms => new Promise(r => setTimeout(r, ms));
   
   // ── Inject SVG from Inkscape ──
   const wrapper = document.createElement('div');
