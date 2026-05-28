@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intune - Did You Know? - Proactive Remediations — Anyways Modernize</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner" id="nav-inner"></div>
+  </nav>
+
+  <div class="container">
+    <div class="tag">INTUNE</div>
+    <h1>Intune - Did You Know? - Proactive Remediations</h1>
+    <p class="subtitle">Did You Know? A series highlighting features that most admins overlook or aren't aware of in their tenant.</p>
+
+    <h2 id="introduction">Introduction</h2>
+<p><em>Did You Know?</em> is a series where I highlight features that
+many admins overlook or simply aren’t aware of in their tenant. A lot of
+articles will focus on Intune, but who knows, we might also cover Entra,
+Windows 365, Defender, and more.</p>
+<h2 id="did-you-know">Did You Know?</h2>
+<p>Did you know you can capture text/log output from Proactive
+Remediations?</p>
+<p>Indeed! Many of us as admins don’t spend enough time exploring every
+option available across Microsoft tenant features.</p>
+<p>I was reading one of the blog posts by Mr. T-Bone <a
+href="https://www.tbone.se/2026/01/09/update-secure-boot-certificate-by-using-intune-remediation/">T-Bone’s
+blog post</a> and noticed he had enabled the <strong>Pre-remediation
+Detection Output</strong> column. I gave it a try and really liked it.
+You can review results as they start to populate, and export the data as
+a CSV, or even push it to Power Automate.</p>
+<p><img width="1786" height="1051" alt="image" src="https://github.com/user-attachments/assets/9d63745e-a420-4544-8ea5-45ba6758f3b7" />
+<img width="2211" height="615" alt="image" src="https://github.com/user-attachments/assets/1e5e1fd2-59fe-4230-9f32-6babed1bc612" /></p>
+<p>There is a limit on the output. Apparently, it’s capped at
+<strong>2,048 characters</strong>.
+(https://learn.microsoft.com/en-us/intune/device-management/tools/deploy-remediations)</p>
+<h2 id="did-you-know-bonus">Did You Know? — Bonus!</h2>
+<p>Did you know you can run a Proactive Remediation with only a
+detection script?</p>
+<p>This is perfect for getting a quick overview of a specific situation.
+For example, you can find out how many devices have a folder on C: named
+<strong>“Johannes likes eatingg horse steak”</strong>.</p>
+<p><img width="949" height="1204" alt="image" src="https://github.com/user-attachments/assets/06f76d2d-f95f-43a6-8fe1-c83f35102ab8" /></p>
+<p>Notice how <strong>Detection script = Yes</strong> and
+<strong>Remediation script = No</strong>. When you open the script to
+inspect it, Microsoft even includes a note:</p>
+<p><img width="1265" height="1143" alt="image" src="https://github.com/user-attachments/assets/6de80e05-8eea-49a6-8764-8245edf62747" /></p>
+<h2 id="final-thoughts">Final Thoughts</h2>
+<p>I hope you enjoyed this short article — and hopefully this becomes a
+recurring series!</p>
+
+  </div>
+
+  <footer></footer>
+
+  <script src="/village.js"></script>
+</body>
+</html>
