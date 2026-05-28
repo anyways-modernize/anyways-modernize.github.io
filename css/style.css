@@ -21,7 +21,6 @@ html {
   background-attachment: fixed;
 }
 body {
-  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
   background: transparent;
   color: var(--text);
   font-family: 'Inter', sans-serif;
