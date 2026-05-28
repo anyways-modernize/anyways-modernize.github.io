@@ -199,15 +199,12 @@ nav {
 
 /* ── FOOTER — sits behind the village (z-index lower than .landscape) ── */
 footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+  position: relative;
+  z-index: 1;
   padding: 2rem 2rem 90px;
   text-align: center;
   color: var(--muted);
-  border-top: none;
-  z-index: 1;
+  background: var(--bg);
 }
 .pikachu { font-size:2rem; margin-bottom:0.5rem; }
 
