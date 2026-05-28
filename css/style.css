@@ -14,10 +14,15 @@
   --shadow: rgba(0,0,0,0.35);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; scrollbar-gutter: stable;}
+html { 
+  scroll-behavior:smooth; 
+  scrollbar-gutter: stable;
+  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
+  background-attachment: fixed;
+}
 body {
   background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
-  background-attachment: fixed; 
+  background: transparent;
   color: var(--text);
   font-family: 'Inter', sans-serif;
   line-height: 1.7;
