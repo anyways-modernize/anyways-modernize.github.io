@@ -13,7 +13,7 @@ Did you know you can capture text/log output from Proactive Remediations?
 
 Indeed! Many of us as admins don't spend enough time exploring every option available across Microsoft tenant features.
 
-I was reading one of the blog posts by Mr. T-Bone['s blog post](https://www.tbone.se/2026/01/09/update-secure-boot-certificate-by-using-intune-remediation/) and noticed he had enabled the **Pre-remediation Detection Output** column. I gave it a try and really liked it. You can review results as they start to populate, and export the data as a CSV, or even push it to Power Automate.
+I was reading one of the blog posts by [Mr. T-Bone's blog post](https://www.tbone.se/2026/01/09/update-secure-boot-certificate-by-using-intune-remediation/) and noticed he had enabled the **Pre-remediation Detection Output** column. I gave it a try and really liked it. You can review results as they start to populate, and export the data as a CSV, or even push it to Power Automate.
 
 <img alt="image" src="https://github.com/user-attachments/assets/9d63745e-a420-4544-8ea5-45ba6758f3b7" />
 <img alt="image" src="https://github.com/user-attachments/assets/1e5e1fd2-59fe-4230-9f32-6babed1bc612" />
@@ -24,7 +24,7 @@ There is a limit on the output. Apparently, it's capped at **2,048 characters**.
 
 Did you know you can run a Proactive Remediation with only a detection script? 
 
-This is perfect for getting a quick overview of a specific situation. For example, you can find out how many devices have a folder on C:\ named **"Johannes likes eatingg horse steak"**.
+This is perfect for getting a quick overview of a specific situation. For example, you can find out how many devices have a folder on C:\ named **"Johannes likes eating horse steak"**.
 
 <img alt="image" src="https://github.com/user-attachments/assets/06f76d2d-f95f-43a6-8fe1-c83f35102ab8" />
 
