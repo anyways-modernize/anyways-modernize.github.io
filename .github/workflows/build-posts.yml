@@ -126,7 +126,7 @@ jobs:
               {date_label}
               <h3>{p["title"]}</h3>
               <p>{p["desc"]}</p>
-              <a class="read-more" href="{p["href"]}">Read the guide →</a>
+              <a class="read-more" href="{p["href"]}">Read the scroll →</a>
             </div>'''
 
           scrolls_page = f'''<!DOCTYPE html>
@@ -174,7 +174,7 @@ jobs:
                 {date_label}
                 <h3>{p["title"]}</h3>
                 <p>{p["desc"]}</p>
-                <a class="read-more" href="{p["href"]}">Read the guide →</a>
+                <a class="read-more" href="{p["href"]}">Read the scroll →</a>
               </div>'''
 
           index_html = pathlib.Path('index.html').read_text()
