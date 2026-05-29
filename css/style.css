@@ -14,10 +14,9 @@
   --shadow: rgba(0,0,0,0.35);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-html {
-  scroll-behavior:smooth;
+html { 
+  scroll-behavior:smooth; 
   scrollbar-gutter: stable;
-  height: 100%;
 }
 body {
   background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
@@ -25,17 +24,6 @@ body {
   font-family: 'Inter', sans-serif;
   line-height: 1.7;
   overflow-x: hidden;
-  /* FIX: flex column so footer is pushed to bottom */
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ── MAIN CONTENT WRAPPER — grows to fill space, pushes footer down ── */
-main {
-  flex: 1;
-  position: relative;
-  z-index: 10;
 }
 
 /* ── STARS (behind everything) ── */
@@ -75,7 +63,7 @@ main {
   60%     { opacity:0.2;  transform:translate(var(--dx),var(--dy)); }
 }
 
-/* ── LANDSCAPE (village — fixed to bottom of screen, behind footer text) ── */
+/* ── LANDSCAPE (village — sits above footer, below nav/content) ── */
 .landscape {
   position: fixed;
   bottom: 0; left: 0;
@@ -209,17 +197,16 @@ nav {
   margin-bottom: 0.5rem;
 }
 
-/* ── FOOTER — FIX: sits at bottom of page, above village visually ── */
+/* ── FOOTER — sits behind the village (z-index lower than .landscape) ── */
 footer {
+  isolation: isolate;
   position: relative;
+  bottom: 0;
   z-index: 10;
-  /* padding-bottom gives space so village doesn't cover the text */
-  padding: 2rem 2rem 110px;
+  padding: 2rem 2rem 90px;
   text-align: center;
   color: var(--muted);
   background: transparent;
-  /* margin-top: auto ensures footer is pushed to bottom when using flex body */
-  margin-top: auto;
 }
 .pikachu { font-size:2rem; margin-bottom:0.5rem; }
 
@@ -250,7 +237,7 @@ footer {
   position: relative; z-index: 10;
   max-width: 1100px;
   margin: 3rem auto 6rem;
-  padding: 3rem 1.5rem;
+ padding: 3rem 1.5rem;
   background: rgba(5, 10, 16, 0.35);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
