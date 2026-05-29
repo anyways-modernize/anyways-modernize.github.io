@@ -205,7 +205,7 @@ footer {
   padding: 2rem 2rem 90px;
   text-align: center;
   color: var(--muted);
-  background: var(--bg);
+   background: transparent;
 }
 .pikachu { font-size:2rem; margin-bottom:0.5rem; }
 
