@@ -13,17 +13,34 @@
   --blue: #7dcfff;
   --shadow: rgba(0,0,0,0.35);
 }
+
 * { margin:0; padding:0; box-sizing:border-box; }
-html { 
-  scroll-behavior:smooth; 
+
+html {
+  scroll-behavior: smooth;
   scrollbar-gutter: stable;
+  height: 100%;
 }
+
 body {
-  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
+  background-color: #0d141c;
+  background-image: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
   color: var(--text);
   font-family: 'Inter', sans-serif;
   line-height: 1.7;
   overflow-x: hidden;
+  /* FIX: flex column pushes footer to bottom, eliminates empty space */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* FIX: main grows to fill space between nav and footer */
+main {
+  flex: 1;
+  position: relative;
+  z-index: 10;
 }
 
 /* ── STARS (behind everything) ── */
@@ -41,11 +58,11 @@ body {
   animation: twinkle 4s infinite ease-in-out;
 }
 @keyframes twinkle {
-  0%,100% { opacity:0.2; }
-  50%      { opacity:1; }
+  0%,100% { opacity: 0.2; }
+  50%      { opacity: 1; }
 }
 
-/* ── FIREFLIES (above stars, below content) ── */
+/* ── FIREFLIES ── */
 .firefly {
   position: fixed;
   width: 2px; height: 2px;
@@ -58,18 +75,24 @@ body {
   animation: firefly-float var(--dur) var(--del) infinite ease-in-out;
 }
 @keyframes firefly-float {
-  0%,100% { opacity:0;    transform:translate(0,0); }
-  30%     { opacity:0.75; }
-  60%     { opacity:0.2;  transform:translate(var(--dx),var(--dy)); }
+  0%,100% { opacity: 0;    transform: translate(0,0); }
+  30%     { opacity: 0.75; }
+  60%     { opacity: 0.2;  transform: translate(var(--dx),var(--dy)); }
 }
 
-/* ── LANDSCAPE (village — sits above footer, below nav/content) ── */
+/* ── LANDSCAPE (village) — FIX: wrapper div is fixed, SVG fills it ── */
 .landscape {
   position: fixed;
   bottom: 0; left: 0;
   width: 100%;
   z-index: 2;
   pointer-events: none;
+  line-height: 0; /* prevents gap below SVG */
+}
+.landscape svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* ── NAV ── */
@@ -95,9 +118,9 @@ nav {
   text-shadow: 0 0 12px rgba(255,216,77,0.3);
   text-decoration: none;
 }
-.nav-links { display:flex; gap:1.5rem; align-items: center; }
-.nav-links a { color:var(--muted); text-decoration:none; transition:color 0.3s; }
-.nav-links a:hover { color:var(--yellow); }
+.nav-links { display: flex; gap: 1.5rem; align-items: center; }
+.nav-links a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
+.nav-links a:hover { color: var(--yellow); }
 .nav-toggle {
   display: none;
   background: none; border: none; cursor: pointer;
@@ -116,7 +139,7 @@ nav {
 }
 .nav-links a[aria-label="Search"]:hover { opacity: 1; }
 
-/* ── HERO (above landscape) ── */
+/* ── HERO ── */
 .hero {
   position: relative; z-index: 10;
   max-width: 1100px; margin: auto;
@@ -131,7 +154,7 @@ nav {
   line-height: 1.1; margin-bottom: 1rem;
   color: var(--yellow);
 }
-.hero p { color:var(--muted); font-size:1.1rem; }
+.hero p { color: var(--muted); font-size: 1.1rem; }
 .hero-card {
   position: relative; z-index: 10;
   background: rgba(26,38,51,0.85);
@@ -139,10 +162,10 @@ nav {
   border-radius: 20px; padding: 2rem;
   box-shadow: 0 10px 30px var(--shadow);
 }
-.hero-card h3 { margin-bottom:1rem; color:var(--yellow); }
-.hero-card p  { color:var(--muted); }
+.hero-card h3 { margin-bottom: 1rem; color: var(--yellow); }
+.hero-card p  { color: var(--muted); }
 .terminal {
-  background: #0b1117; border-radius:12px;
+  background: #0b1117; border-radius: 12px;
   padding: 1rem; font-family: monospace;
   color: var(--green); margin-top: 1rem;
   border: 1px solid rgba(255,255,255,0.04);
@@ -177,8 +200,8 @@ nav {
   transform: translateY(-4px);
   border-color: rgba(255,216,77,0.4);
 }
-.post-card h3 { margin-bottom:0.7rem; color:var(--yellow-soft); }
-.post-card p  { color:var(--muted); margin-bottom:1rem; }
+.post-card h3 { margin-bottom: 0.7rem; color: var(--yellow-soft); }
+.post-card p  { color: var(--muted); margin-bottom: 1rem; }
 .tag {
   display: inline-block;
   background: rgba(255,216,77,0.12);
@@ -186,8 +209,8 @@ nav {
   padding: 0.35rem 0.7rem;
   border-radius: 999px; font-size: 0.8rem; margin-bottom: 1rem;
 }
-.read-more { color:var(--green); text-decoration:none; font-weight:600; }
-.read-more:hover { color:var(--yellow); }
+.read-more { color: var(--green); text-decoration: none; font-weight: 600; }
+.read-more:hover { color: var(--yellow); }
 
 /* ── POST DATE ── */
 .post-date {
@@ -197,39 +220,41 @@ nav {
   margin-bottom: 0.5rem;
 }
 
-/* ── FOOTER — sits behind the village (z-index lower than .landscape) ── */
+/* ── FOOTER ── */
 footer {
-  isolation: isolate;
   position: relative;
-  bottom: 0;
   z-index: 10;
-  padding: 2rem 2rem 90px;
+  /* padding-bottom gives breathing room above the village */
+  padding: 2rem 2rem 130px;
   text-align: center;
   color: var(--muted);
   background: transparent;
+  margin-top: auto;
 }
-.pikachu { font-size:2rem; margin-bottom:0.5rem; }
+.pikachu { font-size: 2rem; margin-bottom: 0.5rem; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-  .hero { grid-template-columns:1fr; padding:4rem 1.5rem 3rem; }
+  .hero { grid-template-columns: 1fr; padding: 4rem 1.5rem 3rem; }
   .nav-links {
     display: none; flex-direction: column;
-    position: absolute; top:100%; left:0; right:0;
+    position: absolute; top: 100%; left: 0; right: 0;
     background: rgba(13,20,28,0.97);
     padding: 1rem 1.5rem 1.5rem;
     border-bottom: 1px solid rgba(255,255,255,0.06);
     gap: 1rem; z-index: 99;
   }
-  .nav-links.open { display:flex; }
-  .nav-toggle { display:flex; }
-  .posts { grid-template-columns:1fr; }
-  .section { padding-bottom: 90px; }
+  .nav-links.open { display: flex; }
+  .nav-toggle { display: flex; }
+  .posts { grid-template-columns: 1fr; }
+  .section { padding-bottom: 130px; }
+  footer { padding-bottom: 130px; }
 }
 @media (max-width: 480px) {
-  .hero h1 { font-size:1.8rem; }
-  .section-title { font-size:1.5rem; }
-  .section { padding-bottom: 75px; }
+  .hero h1 { font-size: 1.8rem; }
+  .section-title { font-size: 1.5rem; }
+  .section { padding-bottom: 110px; }
+  footer { padding-bottom: 110px; }
 }
 
 /* ── POST PAGE ── */
@@ -237,8 +262,9 @@ footer {
   position: relative; z-index: 10;
   max-width: 1100px;
   margin: 3rem auto 6rem;
- padding: 3rem 1.5rem;
-  background: rgba(5, 10, 16, 0.35);
+  padding: 3rem 1.5rem;
+  /* FIX: solid enough background so village doesn't bleed through */
+  background: rgba(5, 10, 16, 0.95);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   border-radius: 20px;
