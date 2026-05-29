@@ -200,7 +200,7 @@ nav {
 /* ── FOOTER — sits behind the village (z-index lower than .landscape) ── */
 footer {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   padding: 2rem 2rem 90px;
   text-align: center;
   color: var(--muted);
