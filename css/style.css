@@ -19,8 +19,11 @@ html {
   scrollbar-gutter: stable;
 }
 body {
-  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%) fixed;
-  background-color: var(--bg);
+  background: radial-gradient(circle at top, #1d2d40 0%, var(--bg) 50%);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.7;
+  overflow-x: hidden;
 }
 
 /* ── STARS (behind everything) ── */
@@ -196,7 +199,13 @@ nav {
 
 /* ── FOOTER — sits behind the village (z-index lower than .landscape) ── */
 footer {
-background: transparent;
+  position: relative;
+  z-index: 1;
+  padding: 2rem 2rem 90px;
+  text-align: center;
+  color: var(--muted);
+  background: var(--bg);
+}
 .pikachu { font-size:2rem; margin-bottom:0.5rem; }
 
 /* ── RESPONSIVE ── */
