@@ -201,7 +201,6 @@ nav {
 footer {
   isolation: isolate;
   position: fixed;
-  bottom: 0;
   z-index: 10;
   padding: 2rem 2rem 90px;
   text-align: center;
