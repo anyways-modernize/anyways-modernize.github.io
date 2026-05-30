@@ -63,13 +63,17 @@ body {
   60%     { opacity:0.2;  transform:translate(var(--dx),var(--dy)); }
 }
 
-/* ── LANDSCAPE (village — sits above footer, below nav/content) ── */
-.landscape {
-  position: fixed;
-  bottom: 0; left: 0;
+/* ── GRADIENT FADE into village ── */
+.landscape::before {
+  content: '';
+  position: absolute;
+  top: -80px;        /* how tall the fade is — adjust to taste */
+  left: 0;
   width: 100%;
-  z-index: 2;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, #0d141c);
   pointer-events: none;
+  z-index: 1;
 }
 
 /* ── NAV ── */
