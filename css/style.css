@@ -67,10 +67,10 @@ body {
 .landscape::before {
   content: '';
   position: absolute;
-  top: -80px;        /* how tall the fade is — adjust to taste */
+  top: -15vh;
   left: 0;
   width: 100%;
-  height: 80px;
+  height: 15vh;
   background: linear-gradient(to bottom, transparent, #0d141c);
   pointer-events: none;
   z-index: 1;
