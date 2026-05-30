@@ -24,6 +24,7 @@ body {
   font-family: 'Inter', sans-serif;
   line-height: 1.7;
   overflow-x: hidden;
+  min-height: 100dvh;
 }
 
 /* ── STARS (behind everything) ── */
