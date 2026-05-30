@@ -67,7 +67,7 @@ body {
 }
 
 /* ── GRADIENT FADE into village ── */
-.landscape::before {
+.landscape {
   content: '';
   position: absolute;
   top: -15vh;
