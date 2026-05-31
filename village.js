@@ -6,9 +6,9 @@
   const wait  = ms => new Promise(r => setTimeout(r, ms));
 
 
-  // ── Inject SVG into .landscape wrapper (NOT body directly) ──
+  // ── Inject SVG ──
   const wrapper = document.createElement('div');
-  wrapper.innerHTML = `<svg viewBox="0 0 1440 300" xmlns="http://www.w3.org/2000/svg">
+  wrapper.innerHTML = `<svg viewBox="0 0 1440 300" xmlns="http://www.w3.org/2000/svg" class="landscape">
   <defs
      id="defs2">
     <radialGradient
@@ -443,13 +443,7 @@
 
   const svg = wrapper.firstElementChild;
 
-  // ── FIX: append to .landscape wrapper div, NOT body ──
-  const landscape = document.querySelector('.landscape');
-  if (landscape) {
-    landscape.appendChild(svg);
-  } else {
-    document.body.appendChild(svg);
-  }
+  document.body.appendChild(svg);
 
   /* ── WINDOW FLICKER ── */
   const winData = [
