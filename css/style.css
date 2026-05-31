@@ -73,6 +73,12 @@ body {
   pointer-events: none;
 }
 
+.landscape svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 /* ── NAV ── */
 nav {
   width: 100%;
