@@ -28,7 +28,7 @@ Device soft delete is currently in public preview. According to Microsoft's offi
 ## How to View Soft-Deleted Devices
 
 While trying to get more information about the graph, I stumbled into [Our Cloud Network's blog](https://ourcloudnetwork.com/how-to-restore-devices-deleted-in-microsoft-entra/). Daniel mentions that the Entra portal already has a deleted devices blade, but it can only be accessed directly via this URL:
-https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview
+(https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)
 
 <img width="1058" height="216" alt="image" src="https://github.com/user-attachments/assets/6241e9db-548c-47c6-9f77-d7b900f68bae" />
 
@@ -50,7 +50,7 @@ Invoke-MgGraphRequest `
 
 ## How to restore
 
-You can restore device from entra via https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview
+You can restore device from entra via (https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)
 
 ```http
 POST https://graph.microsoft.com/beta/directory/deletedItems/{id}/restore
@@ -66,7 +66,7 @@ Invoke-MgGraphRequest `
 
 ## How to perma delete
 
-Again, you can restore the device from entra via https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview
+Again, you can restore the device from entra via (https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)
 
 ```http
 DELETE https://graph.microsoft.com/beta/directory/deletedItems/{id}
