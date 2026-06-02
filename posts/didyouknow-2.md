@@ -12,7 +12,7 @@ Accidentally deleted a device in Microsoft Entra ID? Microsoft Entra ID now supp
 
 ::: note
 Please note, as [Microsoft states](https://learn.microsoft.com/en-us/entra/identity/devices/concept-soft-delete-devices) : "Device soft delete is currently in preview. Some features and behaviors might change before general availability." 
-::: note
+:::
 
 Device soft delete is currently in public preview. According to Microsoft's official documentation, there is no UI yet and management must be done via Microsoft Graph or PowerShell,but that's not entirely true. A deleted devices blade is already accessible in the Entra portal, and we'll show you how to get there.
 
