@@ -258,6 +258,26 @@ footer {
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
 }
+.container .note {
+  position: relative;
+  background: rgba(255, 216, 77, 0.06);
+  border: 1px solid rgba(255, 216, 77, 0.25);
+  border-left: 3px solid var(--yellow);
+  border-radius: 10px;
+  padding: 0.9rem 1.2rem 0.9rem 3rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 1.5rem 0;
+}
+
+.container .note::before {
+  content: "⚠️";
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+}
 .container footer {
   border-top: 1px solid var(--border);
   margin-top: 3rem;
