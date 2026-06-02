@@ -26,10 +26,10 @@ ID now supports soft delete for devices. When a device is deleted, it
 moves to a soft-deleted state for up to 30 days, during which you can
 still recover it along with its BitLocker keys and LAPS passwords.</p>
 <h2 id="feature-now-in-preview">Feature now in preview</h2>
-<p>::: note Please note, as Microsoft states
-(https://learn.microsoft.com/en-us/entra/identity/devices/concept-soft-delete-devices)
-: “Device soft delete is currently in preview. Some features and
-behaviors might change before general availability.” ::: note</p>
+<p>::: note Please note, as <a
+href="https://learn.microsoft.com/en-us/entra/identity/devices/concept-soft-delete-devices">Microsoft
+states</a> : “Device soft delete is currently in preview. Some features
+and behaviors might change before general availability.” ::: note</p>
 <p>Device soft delete is currently in public preview. According to
 Microsoft’s official documentation, there is no UI yet and management
 must be done via Microsoft Graph or PowerShell,but that’s not entirely
@@ -49,7 +49,9 @@ ID</li>
 <h2 id="how-to-view-soft-deleted-devices">How to View Soft-Deleted
 Devices</h2>
 <p>While trying to get more information about the graph, I stumbled into
-Our Cloud Network’s blog. Daniel mentions that the Entra portal already
+<a
+href="https://ourcloudnetwork.com/how-to-restore-devices-deleted-in-microsoft-entra/">Our
+Cloud Network’s blog</a>. Daniel mentions that the Entra portal already
 has a deleted devices blade, but it can only be accessed directly via
 this URL:
 https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview</p>
