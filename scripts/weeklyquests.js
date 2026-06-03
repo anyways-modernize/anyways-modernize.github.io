@@ -10,8 +10,8 @@ const quests = [
   "Max tackles the Intune bugs and edge cases. If something is broken and weird, he's probably already written about it. https://azuretothemax.net/",
 ];
 
-// Change this date to the Monday you want to start from
-const EPOCH = new Date('2026-06-02T00:00:00');
+
+const EPOCH = new Date('2026-06-01T00:00:00');
 
 const now = new Date();
 const day = now.getDay();
