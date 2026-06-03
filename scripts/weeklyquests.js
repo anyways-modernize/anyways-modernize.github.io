@@ -7,7 +7,7 @@ const quests = [
   "Lewis Barry,  someone who doesn't shy away from a challenge and tackles everything head on .https://conditionalaccess.uk/",
   "Rudy Ooms, the guy who looks at Intune troubleshooting from angles you never thought of. https://call4cloud.nl/about/",
   "AJ might be the cert guy, but his blog covers everything from PKI to Intune to security hardening. https://anthonyfontanez.com/",
-  "Max tackles the Intune bugs and edge cases. If something is broken and weird, he's probably already written about it. https://azuretothemax.net/"
+  "Max tackles the Intune bugs and edge cases. If something is broken and weird, he's probably already written about it. https://azuretothemax.net/",
 ];
 
 // Change this date to the Monday you want to start from
