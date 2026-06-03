@@ -259,12 +259,11 @@ footer {
   border-bottom: 1px solid var(--border);
 }
 .container .note {
-  position: relative;
   background: rgba(255, 216, 77, 0.06);
   border: 1px solid rgba(255, 216, 77, 0.25);
   border-left: 3px solid var(--yellow);
   border-radius: 10px;
-  padding: 0.9rem 1.2rem 0.9rem 3rem;
+  padding: 0.9rem 1.2rem;
   color: var(--muted);
   font-size: 0.95rem;
   margin: 1.5rem 0;
