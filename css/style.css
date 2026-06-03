@@ -270,13 +270,6 @@ footer {
   margin: 1.5rem 0;
 }
 
-.container .note::before {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.1rem;
-}
 .container footer {
   border-top: 1px solid var(--border);
   margin-top: 3rem;
