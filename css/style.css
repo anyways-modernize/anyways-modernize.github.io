@@ -171,7 +171,7 @@ nav {
   padding: 6rem 1.5rem 4rem;
 }
 .section-title {
-  font-family: 'Pixelify Sans', sans-serif;
+  font-family:  'Cinzel', serif;
   color: var(--yellow); font-size: 2rem; margin-bottom: 2rem;
 }
 .posts {
@@ -270,7 +270,7 @@ footer {
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 .container h1 {
-  font-family: 'Pixelify Sans', sans-serif;
+  font-family: 'Cinzel', serif;
   color: var(--yellow);
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   margin-bottom: 0.5rem;
