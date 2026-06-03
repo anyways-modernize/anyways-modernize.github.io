@@ -1,6 +1,6 @@
 const quests = [
   "Martin's blog is worth a read. He goes deep on topics most people don't dare touch. https://intune.best/",
-  "Johannes somehow finds the most efficient path through everything, first admin I know to uninstall SCCM at a bar and go fully passwordless before it was cool." https://johannesblog.com/,
+  "Johannes somehow finds the most efficient path through everything, first admin I know to uninstall SCCM at a bar and go fully passwordless before it was cool. https://johannesblog.com/",
   "MSEndpointMgr is one of the go-to community sites for endpoint admins. https://msendpointmgr.com/",
   "OpenIntuneBaseline, solid community-driver baseline for Intune. https://openintunebaseline.com/",
   "James Robinson, the mind behind OpenIntuneBaseline, who puts as much back into the community as his project does. https://skiptotheendpoint.co.uk/",
