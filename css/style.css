@@ -200,18 +200,18 @@ nav {
   border-radius: 999px; font-size: 0.8rem; margin-bottom: 1rem;
 }
 .tag[data-tag="ENTRA"] {
-  background: rgba(220, 80, 80, 0.15);
-  color: #dc5050;
+  background: rgba(220, 100, 100, 0.12);
+  color: #e8907a;
 }
 
 .tag[data-tag="INTUNE"] {
-  background: rgba(131, 201, 138, 0.15);
-  color: var(--green);
+  background: rgba(131, 201, 138, 0.12);
+  color: #a8d8ae;
 }
 
 .tag[data-tag="POWERSHELL"] {
-  background: rgba(255, 165, 60, 0.15);
-  color: #ffa53c;
+  background: rgba(255, 165, 60, 0.12);
+  color: #ffc07a;
 }
 .read-more { color:var(--green); text-decoration:none; font-weight:600; }
 .read-more:hover { color:var(--yellow); }
