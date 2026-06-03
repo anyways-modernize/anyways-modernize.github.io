@@ -148,6 +148,12 @@ nav {
   color: var(--green); margin-top: 1rem;
   border: 1px solid rgba(255,255,255,0.04);
 }
+.terminal a {
+  color: var(--yellow);
+}
+.terminal a:hover {
+  color: var(--green);
+}
 
 /* ── POSTS SECTION ── */
 .section {
