@@ -145,7 +145,7 @@ nav {
 .terminal {
   background: #1e1432; border-radius:12px;
   padding: 1rem; font-family: monospace;
-  color: var(--muted); margin-top: 1rem;
+  color: var(--yellow-soft); margin-top: 1rem;
   border: 1px solid rgba(255,255,255,0.04);
 }
 .terminal a {
