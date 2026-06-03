@@ -53,8 +53,8 @@ Devices</h2>
 href="https://ourcloudnetwork.com/how-to-restore-devices-deleted-in-microsoft-entra/">Our
 Cloud Network’s blog</a>. Daniel mentions that the Entra portal already
 has a deleted devices blade, but it can only be accessed directly via
-this URL:
-(https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)</p>
+this URL: <a
+href="https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview">https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview</a></p>
 <p><img width="1058" height="216" alt="image" src="https://github.com/user-attachments/assets/6241e9db-548c-47c6-9f77-d7b900f68bae" /></p>
 <p>You can also graph for the same purpose:</p>
 <pre class="http"><code>GET https://graph.microsoft.com/beta/directory/deletedItems/microsoft.graph.device</code></pre>
@@ -66,8 +66,8 @@ class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb2-
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Method GET `</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Uri <span class="st">&quot;https://graph.microsoft.com/beta/directory/deletedItems/microsoft.graph.device&quot;</span></span></code></pre></div>
 <h2 id="how-to-restore">How to restore</h2>
-<p>You can restore device from entra via
-(https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)</p>
+<p>You can restore device from entra via <a
+href="https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview">https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview</a></p>
 <pre class="http"><code>POST https://graph.microsoft.com/beta/directory/deletedItems/{id}/restore</code></pre>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Connect<span class="op">-</span>MgGraph <span class="op">-</span>Scopes <span class="st">&quot;Directory.ReadWrite.All&quot;</span></span>
@@ -76,8 +76,8 @@ class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Method POST `</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Uri <span class="st">&quot;https://graph.microsoft.com/beta/directory/deletedItems/$id/restore&quot;</span></span></code></pre></div>
 <h2 id="how-to-perma-delete">How to perma delete</h2>
-<p>Again, you can restore the device from entra via
-(https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)</p>
+<p>Again, you can restore the device from entra via <a
+href="https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview">https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview</a></p>
 <pre class="http"><code>DELETE https://graph.microsoft.com/beta/directory/deletedItems/{id}</code></pre>
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Connect<span class="op">-</span>MgGraph <span class="op">-</span>Scopes <span class="st">&quot;Directory.ReadWrite.All&quot;</span></span>
