@@ -123,7 +123,7 @@ jobs:
             date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
             all_cards += f'''
             <div class="post-card">
-              <div class="tag">{p["tag"]}</div>
+              <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
               {date_label}
               <h3>{p["title"]}</h3>
               <p>{p["desc"]}</p>
@@ -171,7 +171,7 @@ jobs:
             date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
             index_cards += f'''
               <div class="post-card">
-                <div class="tag">{p["tag"]}</div>
+                <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
                 {date_label}
                 <h3>{p["title"]}</h3>
                 <p>{p["desc"]}</p>
