@@ -251,6 +251,16 @@ footer {
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   margin-bottom: 0.5rem;
 }
+
+.container ul {
+  padding-left: 2rem;
+  margin-bottom: 1.2rem;
+}
+.container ul li {
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
 .container .subtitle {
   color: var(--muted);
   font-size: 1.05rem;
