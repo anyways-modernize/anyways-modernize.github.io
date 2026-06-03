@@ -324,6 +324,26 @@ footer {
   margin: 1.5rem 0;
   border-radius: 8px;
 }
+#pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 0;
+  flex-wrap: wrap;
+}
+.page-btn {
+  background: rgba(26,38,51,0.9);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.3s, color 0.3s;
+}
+.page-btn:hover:not(:disabled) { border-color: rgba(255,216,77,0.4); color: var(--yellow); }
+.page-btn.active { border-color: var(--yellow); color: var(--yellow); }
+.page-btn:disabled { opacity: 0.3; cursor: default; }
 
 @media (max-width: 600px) {
   .container { padding: 2rem; margin: 1.5rem 1rem 12rem; }
