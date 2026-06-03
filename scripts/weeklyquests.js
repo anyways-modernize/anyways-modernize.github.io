@@ -25,4 +25,7 @@ const index = weeksSinceEpoch % quests.length;
 
 console.log('index:', index);
 const quest = quests[index];
-document.getElementById('quest-text').textContent = quests[index];
+document.getElementById('quest-text').innerHTML = `
+  <span style="color: var(--text)">${quest.text}</span><br><br>
+  <a href="${quest.url}" target="_blank" style="color: var(--yellow)">${quest.url}</a>
+`;
