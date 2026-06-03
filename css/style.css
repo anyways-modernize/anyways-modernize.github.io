@@ -127,7 +127,7 @@ nav {
   gap: 3rem; align-items: center;
 }
 .hero h1 {
-  font-family: 'Pixelify Sans', sans-serif;
+  font-family: 'Cinzel', serif;
   font-size: clamp(2.2rem, 6vw, 4rem);
   line-height: 1.1; margin-bottom: 1rem;
   color: var(--yellow);
@@ -313,7 +313,7 @@ footer {
   z-index: 10;
 }
 .container p  { margin-bottom: 1.2rem; }
-.container h2 { font-family: 'Pixelify Sans', sans-serif; color: var(--yellow-soft); margin: 2rem 0 0.75rem; }
+.container h2 { font-family: 'Cinzel', serif; color: var(--yellow-soft); margin: 2rem 0 0.75rem; }
 .container h3 { color: var(--blue); margin: 1.5rem 0 0.5rem; }
 .container a  { color: var(--green); text-decoration: none; }
 .container a:hover { color: var(--yellow); }
