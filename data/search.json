@@ -1,5 +1,13 @@
 [
   {
+    "title": "",
+    "tag": "",
+    "desc": "",
+    "date": "June 02, 2026",
+    "href": "/posts/a.html",
+    "body": "a"
+  },
+  {
     "title": "Did you know? - Restore Devices on Entra",
     "tag": "ENTRA",
     "desc": "How to recover deleted devices in Microsoft Entra ID using the new soft-delete feature.",
