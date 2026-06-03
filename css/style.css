@@ -147,6 +147,8 @@ nav {
   border-radius:12px;
   padding: 1rem; 
   font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
   color: var(--yellow-soft); 
   margin-top: 1rem;
   border: 1px solid rgba(255,255,255,0.04);
