@@ -22,4 +22,7 @@ monday.setHours(0, 0, 0, 0);
 
 const weeksSinceEpoch = Math.floor((monday - EPOCH) / (7 * 24 * 60 * 60 * 1000));
 const index = weeksSinceEpoch % quests.length;
+
+console.log('index:', index);
+console.log('quest:', quests[index]);
 document.getElementById('quest-text').textContent = quests[index];
