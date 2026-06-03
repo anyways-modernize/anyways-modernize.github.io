@@ -90,6 +90,7 @@ jobs:
             # strip markdown syntax to plain text
             body_plain = re.sub(r'[#*`_~\[\]()>:|]+', ' ', body_md)
             body_plain = re.sub(r'\s+', ' ', body_plain).strip()
+            body_plain = body_plain[:500]  # add this line
 
             posts.append({
               'title':        meta('title'),
