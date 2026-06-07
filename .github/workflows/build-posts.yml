@@ -34,18 +34,15 @@ jobs:
           fc-cache -f ~/.fonts
           rsvg-convert -w 1200 -h 630 og-image.svg -o og-image.png
           echo "Built og-image.png"
-
       - name: Convert MD posts to HTML
         run: |
           mkdir -p og
           for f in posts/*.md; do
             [ -f "$f" ] || continue
             name=$(basename "$f" .md)
-
             title=$(grep '^title:' "$f" | head -1 | sed 's/^title:[[:space:]]*//')
             tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
             desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
-
             body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html)
             body=$(echo "$body" | python3 -c "
           import sys, re
@@ -53,20 +50,15 @@ jobs:
           html = re.sub(r'(<div class=\"note\">)\s*<p>(.*?)</p>\s*(</div>)', r'\1\2\3', html, flags=re.DOTALL)
           print(html, end='')
           ")
-
             echo "$body" > /tmp/post_body.html
-
             python3 - "$title" "$tag" "$desc" "posts/${name}.html" "$name" << 'PYEOF'
           import sys, pathlib
           from xml.sax.saxutils import escape
-
           title, tag, desc, outpath, name = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
           body = pathlib.Path('/tmp/post_body.html').read_text()
           tmpl = pathlib.Path('_template.html').read_text()
-
           url     = f'https://anyways-modernize.github.io/{outpath}'
           ogimage = f'https://anyways-modernize.github.io/og/{name}.png'
-
           html = (tmpl
             .replace('{{TITLE}}',       title)
             .replace('{{TAG}}',         tag)
@@ -74,13 +66,10 @@ jobs:
             .replace('{{URL}}',         url)
             .replace('{{OGIMAGE}}',     ogimage)
             .replace('{{CONTENT}}',     body))
-
           pathlib.Path(outpath).write_text(html)
           print(f'Built: {outpath}')
-
           # ── Build per-post Open Graph image ──
           og_tmpl = pathlib.Path('og-post-template.svg').read_text()
-
           # word-wrap the title (max ~20 chars/line, up to 3 lines)
           words, lines, cur = title.split(), [], ''
           for w in words:
@@ -93,45 +82,36 @@ jobs:
           if len(lines) > 3:
             lines = lines[:3]
             lines[2] = lines[2].rstrip('.') + '...'
-
           start_y = 330 - (len(lines) - 1) * 38
           tspans = ''
           for i, ln in enumerate(lines):
             dy = '' if i == 0 else ' dy="76"'
             y  = f' y="{start_y}"' if i == 0 else ''
             tspans += f'<tspan x="600"{y}{dy}>{escape(ln)}</tspan>'
-
           tag_up = tag.upper()
           tag_w  = max(90, len(tag_up) * 17 + 40)
           tag_x  = 600 - tag_w / 2
-
           svg = (og_tmpl
             .replace('__TAG_X__',        f'{tag_x:.0f}')
             .replace('__TAG_W__',        f'{tag_w:.0f}')
             .replace('__TAG__',          escape(tag_up))
             .replace('__TITLE_TSPANS__', tspans))
-
           pathlib.Path('/tmp/og_post.svg').write_text(svg)
           PYEOF
-
             rsvg-convert -w 1200 -h 630 /tmp/og_post.svg -o "og/${name}.png"
             echo "Built og/${name}.png"
-
           done
-
       - name: Generate scrolls.html, search.json and update index.html
         run: |
           python3 << 'PYEOF'
           import pathlib, re, subprocess, json
           from datetime import datetime, timezone
-
           posts = []
           for f in sorted(pathlib.Path('posts').glob('*.md')):
             txt = f.read_text()
             def meta(key):
               m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
               return m.group(1).strip() if m else ''
-
             result = subprocess.run(
               ['git', 'log', '-1', '--format=%aI', '--', str(f)],
               capture_output=True, text=True
@@ -143,14 +123,12 @@ jobs:
             except ValueError:
               parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
               display_date = ''
-
             # strip frontmatter and get plain text body for search
             body_md = re.sub(r'^---.*?---\s*', '', txt, flags=re.DOTALL)
             # strip markdown syntax to plain text
             body_plain = re.sub(r'[#*`_~\[\]()>:|]+', ' ', body_md)
             body_plain = re.sub(r'\s+', ' ', body_plain).strip()
             body_plain = body_plain[:500]  # add this line
-
             posts.append({
               'title':        meta('title'),
               'tag':          meta('tag'),
@@ -160,9 +138,7 @@ jobs:
               'href':         f'/posts/{f.stem}.html',
               'body':         body_plain,
             })
-
           posts.sort(key=lambda p: p['parsed_dt'], reverse=True)
-
           # ── Generate search.json ──
           search_data = [{
             'title': p['title'],
@@ -175,11 +151,9 @@ jobs:
           pathlib.Path('data').mkdir(exist_ok=True)
           pathlib.Path('data/search.json').write_text(json.dumps(search_data, ensure_ascii=False, indent=2))
           print(f'Built search.json with {len(search_data)} posts')
-
           # ── Generate sitemap.xml ──
           BASE_URL = 'https://anyways-modernize.github.io'
           today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-
           def url_entry(loc, lastmod, changefreq, priority):
             return (
               '  <url>\n'
@@ -189,7 +163,6 @@ jobs:
               f'    <priority>{priority}</priority>\n'
               '  </url>'
             )
-
           urls = [
             url_entry(f'{BASE_URL}/',              today, 'daily',  '1.0'),
             url_entry(f'{BASE_URL}/scrolls.html',  today, 'daily',  '0.9'),
@@ -199,7 +172,6 @@ jobs:
           for p in posts:
             lastmod = p['parsed_dt'].strftime('%Y-%m-%d') if p['parsed_dt'] != datetime.min.replace(tzinfo=timezone.utc) else today
             urls.append(url_entry(f'{BASE_URL}{p["href"]}', lastmod, 'monthly', '0.8'))
-
           sitemap = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -208,7 +180,6 @@ jobs:
           )
           pathlib.Path('sitemap.xml').write_text(sitemap)
           print(f'Built sitemap.xml with {len(urls)} URLs')
-
           # ── Generate scrolls.html ──
           all_cards = ''
           for p in posts:
@@ -221,7 +192,6 @@ jobs:
               <p>{p["desc"]}</p>
               <a class="read-more" href="{p["href"]}">Read the scroll →</a>
             </div>'''
-
           scrolls_page = f'''<!DOCTYPE html>
           <html lang="en">
           <head>
@@ -252,10 +222,8 @@ jobs:
             <script src="/village.js"></script>
           </body>
           </html>'''
-
           pathlib.Path('scrolls.html').write_text(scrolls_page)
           print(f'Built scrolls.html with {len(posts)} posts')
-
           # ── Update index.html latest 3 ──
           latest = posts[:3]
           index_cards = ''
@@ -269,7 +237,6 @@ jobs:
                 <p>{p["desc"]}</p>
                 <a class="read-more" href="{p["href"]}">Read the scroll →</a>
               </div>'''
-
           index_html = pathlib.Path('index.html').read_text()
           new_posts_block = f'<!-- POSTS START -->\n      <div class="posts">{index_cards}\n      </div>\n      <!-- POSTS END -->'
           index_html = re.sub(
@@ -281,7 +248,6 @@ jobs:
           pathlib.Path('index.html').write_text(index_html)
           print(f'Updated index.html with {len(latest)} latest posts')
           PYEOF
-
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
@@ -290,7 +256,6 @@ jobs:
           git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index + search"
           git pull --rebase
           git push
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -304,15 +269,17 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: '.'
       - name: Deploy to GitHub Pages
