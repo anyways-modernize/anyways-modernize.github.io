@@ -1,9 +1,9 @@
 [
   {
-    "title": "Did you know? - Restore Devices on Entra",
+    "title": "Did You Know - Restore Devices on Entra",
     "tag": "ENTRA",
     "desc": "How to recover deleted devices in Microsoft Entra ID using the new soft-delete feature.",
-    "date": "June 02, 2026",
+    "date": "June 07, 2026",
     "href": "/posts/didyouknow-2.html",
     "body": "Introduction Accidentally deleted a device in Microsoft Entra ID? Microsoft Entra ID now supports soft delete for devices. When a device is deleted, it moves to a soft-deleted state for up to 30 days, during which you can still recover it along with its BitLocker keys and LAPS passwords. Feature now in preview note Please note, as Microsoft states https //learn.microsoft.com/en-us/entra/identity/devices/concept-soft-delete-devices \"Device soft delete is currently in preview. Some features and be"
   },
