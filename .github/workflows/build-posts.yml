@@ -5,6 +5,8 @@ on:
     paths:
       - 'posts/**.md'
       - '_template.html'
+      - 'og-image.svg'
+      - 'og-post-template.svg'
       - '.github/workflows/build-posts.yml'
 
 jobs:
@@ -21,8 +23,21 @@ jobs:
       - name: Install pandoc
         run: sudo apt-get install -y pandoc
 
+      - name: Build og-image.png from SVG
+        run: |
+          sudo apt-get install -y librsvg2-bin fontconfig
+          mkdir -p ~/.fonts
+          curl -sL -o ~/.fonts/PixelifySans.ttf \
+            "https://github.com/google/fonts/raw/main/ofl/pixelifysans/PixelifySans%5Bwght%5D.ttf"
+          curl -sL -o ~/.fonts/Inter.ttf \
+            "https://github.com/google/fonts/raw/main/ofl/inter/Inter%5Bopsz,wght%5D.ttf"
+          fc-cache -f ~/.fonts
+          rsvg-convert -w 1200 -h 630 og-image.svg -o og-image.png
+          echo "Built og-image.png"
+
       - name: Convert MD posts to HTML
         run: |
+          mkdir -p og
           for f in posts/*.md; do
             [ -f "$f" ] || continue
             name=$(basename "$f" .md)
@@ -41,22 +56,66 @@ jobs:
 
             echo "$body" > /tmp/post_body.html
 
-            python3 - "$title" "$tag" "$desc" "posts/${name}.html" << 'PYEOF'
+            python3 - "$title" "$tag" "$desc" "posts/${name}.html" "$name" << 'PYEOF'
           import sys, pathlib
+          from xml.sax.saxutils import escape
 
-          title, tag, desc, outpath = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+          title, tag, desc, outpath, name = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
           body = pathlib.Path('/tmp/post_body.html').read_text()
           tmpl = pathlib.Path('_template.html').read_text()
+
+          url     = f'https://anyways-modernize.github.io/{outpath}'
+          ogimage = f'https://anyways-modernize.github.io/og/{name}.png'
 
           html = (tmpl
             .replace('{{TITLE}}',       title)
             .replace('{{TAG}}',         tag)
             .replace('{{DESCRIPTION}}', desc)
+            .replace('{{URL}}',         url)
+            .replace('{{OGIMAGE}}',     ogimage)
             .replace('{{CONTENT}}',     body))
 
           pathlib.Path(outpath).write_text(html)
           print(f'Built: {outpath}')
+
+          # ── Build per-post Open Graph image ──
+          og_tmpl = pathlib.Path('og-post-template.svg').read_text()
+
+          # word-wrap the title (max ~20 chars/line, up to 3 lines)
+          words, lines, cur = title.split(), [], ''
+          for w in words:
+            if len(cur) + len(w) + 1 <= 20 or not cur:
+              cur = f'{cur} {w}'.strip()
+            else:
+              lines.append(cur); cur = w
+          if cur:
+            lines.append(cur)
+          if len(lines) > 3:
+            lines = lines[:3]
+            lines[2] = lines[2].rstrip('.') + '...'
+
+          start_y = 330 - (len(lines) - 1) * 38
+          tspans = ''
+          for i, ln in enumerate(lines):
+            dy = '' if i == 0 else ' dy="76"'
+            y  = f' y="{start_y}"' if i == 0 else ''
+            tspans += f'<tspan x="600"{y}{dy}>{escape(ln)}</tspan>'
+
+          tag_up = tag.upper()
+          tag_w  = max(90, len(tag_up) * 17 + 40)
+          tag_x  = 600 - tag_w / 2
+
+          svg = (og_tmpl
+            .replace('__TAG_X__',        f'{tag_x:.0f}')
+            .replace('__TAG_W__',        f'{tag_w:.0f}')
+            .replace('__TAG__',          escape(tag_up))
+            .replace('__TITLE_TSPANS__', tspans))
+
+          pathlib.Path('/tmp/og_post.svg').write_text(svg)
           PYEOF
+
+            rsvg-convert -w 1200 -h 630 /tmp/og_post.svg -o "og/${name}.png"
+            echo "Built og/${name}.png"
 
           done
 
@@ -227,7 +286,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add posts/*.html scrolls.html index.html data/search.json sitemap.xml
+          git add posts/*.html scrolls.html index.html data/search.json sitemap.xml og-image.png og/*.png
           git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index + search"
           git pull --rebase
           git push
