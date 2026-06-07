@@ -1,5 +1,5 @@
 ---
-title: Did You Know - Restore Devices on Entra
+title: Did You Know? - Restore Devices on Entra
 tag: ENTRA
 description: How to recover deleted devices in Microsoft Entra ID using the new soft-delete feature.
 ---
