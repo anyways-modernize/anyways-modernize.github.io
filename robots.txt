@@ -1,0 +1,59 @@
+# Default: allow all well-behaved crawlers (search engines included)
+User-agent: *
+Allow: /
+
+# ── Block AI training crawlers (search indexing stays allowed) ──
+
+# OpenAI - training crawler
+User-agent: GPTBot
+Disallow: /
+
+# Google - Gemini/AI training (does NOT affect Googlebot search)
+User-agent: Google-Extended
+Disallow: /
+
+# Apple - Apple Intelligence training (does NOT affect Applebot search)
+User-agent: Applebot-Extended
+Disallow: /
+
+# Anthropic - training crawler
+User-agent: ClaudeBot
+Disallow: /
+
+# Anthropic - legacy training crawler
+User-agent: anthropic-ai
+Disallow: /
+
+# Common Crawl - feeds many LLM training datasets
+User-agent: CCBot
+Disallow: /
+
+# Meta - AI training crawler
+User-agent: meta-externalagent
+Disallow: /
+
+# Meta - legacy AI training crawler
+User-agent: FacebookBot
+Disallow: /
+
+# ByteDance - AI training crawler
+User-agent: Bytespider
+Disallow: /
+
+# Amazon - AI training crawler
+User-agent: Amazonbot
+Disallow: /
+
+# Cohere - AI training crawler
+User-agent: cohere-ai
+Disallow: /
+
+# Perplexity - training/bulk crawler (their user-triggered fetch is separate)
+User-agent: PerplexityBot
+Disallow: /
+
+# Allowed AI search agents (user-triggered / search, not training):
+#   OAI-SearchBot, ChatGPT-User, Claude-User, Claude-SearchBot
+#   -> covered by the "User-agent: *" Allow rule above.
+
+Sitemap: https://anyways-modernize.github.io/sitemap.xml

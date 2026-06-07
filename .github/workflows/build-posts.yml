@@ -117,6 +117,39 @@ jobs:
           pathlib.Path('data/search.json').write_text(json.dumps(search_data, ensure_ascii=False, indent=2))
           print(f'Built search.json with {len(search_data)} posts')
 
+          # ── Generate sitemap.xml ──
+          BASE_URL = 'https://anyways-modernize.github.io'
+          today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+
+          def url_entry(loc, lastmod, changefreq, priority):
+            return (
+              '  <url>\n'
+              f'    <loc>{loc}</loc>\n'
+              f'    <lastmod>{lastmod}</lastmod>\n'
+              f'    <changefreq>{changefreq}</changefreq>\n'
+              f'    <priority>{priority}</priority>\n'
+              '  </url>'
+            )
+
+          urls = [
+            url_entry(f'{BASE_URL}/',              today, 'daily',  '1.0'),
+            url_entry(f'{BASE_URL}/scrolls.html',  today, 'daily',  '0.9'),
+            url_entry(f'{BASE_URL}/search.html',   today, 'weekly', '0.5'),
+            url_entry(f'{BASE_URL}/traveler.html', today, 'monthly','0.5'),
+          ]
+          for p in posts:
+            lastmod = p['parsed_dt'].strftime('%Y-%m-%d') if p['parsed_dt'] != datetime.min.replace(tzinfo=timezone.utc) else today
+            urls.append(url_entry(f'{BASE_URL}{p["href"]}', lastmod, 'monthly', '0.8'))
+
+          sitemap = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            + '\n'.join(urls)
+            + '\n</urlset>\n'
+          )
+          pathlib.Path('sitemap.xml').write_text(sitemap)
+          print(f'Built sitemap.xml with {len(urls)} URLs')
+
           # ── Generate scrolls.html ──
           all_cards = ''
           for p in posts:
@@ -194,7 +227,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add posts/*.html scrolls.html index.html data/search.json
+          git add posts/*.html scrolls.html index.html data/search.json sitemap.xml
           git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index + search"
           git pull --rebase
           git push
