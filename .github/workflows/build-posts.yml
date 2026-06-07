@@ -260,7 +260,7 @@ jobs:
           print(f'Updated index.html with {len(latest)} latest posts')
           PYEOF
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
