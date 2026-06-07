@@ -66,7 +66,7 @@ Invoke-MgGraphRequest `
 
 ## How to perma delete
 
-Again, you can restore the device from entra via [https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview](https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)
+Again, you can delete the device from entra via [https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview](https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview)
 
 ```http
 DELETE https://graph.microsoft.com/beta/directory/deletedItems/{id}
