@@ -18,6 +18,7 @@ Intune detection scripts rely on a combination of exit code and STDOUT content t
 This is how your detection scripts in Apps and Proactive Remediation behaves:
 
 References from: [Peter Van der Woude - https://petervanderwoude.nl/post/working-with-custom-detection-rules-for-win32-apps/](https://petervanderwoude.nl/post/working-with-custom-detection-rules-for-win32-apps/) and [Rudy Ooms - https://call4cloud.nl/win32app-exit-code-detection-rules/](https://call4cloud.nl/win32app-exit-code-detection-rules/)
+
 | Exit code | STDOUT | Detection State Result |
 | --- | --- | --- |
 | 0 | Empty | Not detected |
