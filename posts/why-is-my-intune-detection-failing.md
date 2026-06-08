@@ -12,7 +12,9 @@ Creating your first app or first Proactive remediation, it's failing and you won
 
 What is STDOUT? 
 Standard Output is the script way of "speaking out loud". In PowerShell, `Write-Output` or `Write-Host` are used to send text to the default stream STDOUT.
+
 However, not all output is equal. PowerShell organizes output into separate streams, think of them as different channels your script can talk through. `Write-Output` sends data through Stream 1, the Success Stream, which is the only channel Intune listens to. `Write-Host` bypasses this stream by speaking directly to the screen instead, meaning Intune may never hear it.
+
 Intune detection scripts rely on a combination of exit code and STDOUT content to determine detection state.
 
 This is how your detection scripts in Apps and Proactive Remediation behaves:
