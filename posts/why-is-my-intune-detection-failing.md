@@ -72,7 +72,7 @@ More details on [techuisitive - https://techuisitive.com/intune-understanding-wi
 ## Best Practices
 
 - Always use `Write-Output` over `Write-Host` for your detection output. As mentioned above, `Write-Host` speaks directly to the screen and is not guaranteed to reach STDOUT, meaning Intune may never detect your app.
-- Make sure your script is saved with UTF-8 BOM encoding to avoid unexpected behavior.
+- Make sure your script is saved with UTF-8 BOM encoding to avoid unexpected behavior. [Reference - Learn Microsoft](https://learn.microsoft.com/en-us/intune/app-management/deployment/add-win32#step-4-detection-rules)
 
 ## Final thoughts
 
