@@ -54,8 +54,11 @@ References from: [Peter Van der Woude - https://petervanderwoude.nl/post/working
 Not understanding the table? Here is what each row means:
 
 If your scripts exit with the code 0 and it does NOT have any data in STDOUT, the app is not detected.
-If your scripts exit with the code 0 and it does have data in STDOUT, example `Write-Output "Martin.exe has been detected"`, the app is detected.  
+
+If your scripts exit with the code 0 and it does have data in STDOUT, example `Write-Output "Martin.exe has been detected"`, the app is detected.
+
 If your scripts exit with the code other than 0 and it does NOT have any data in STDOUT, the app is not detected.
+
 If your scripts exit with the code other than 0 and it does have data in STDOUT, example `Write-Output "Martin.exe is not installed""`, the app is not detected.
 
 ::: note
