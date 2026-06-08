@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Did You Know? - Restore Devices on Entra — Anyways Modernize</title>
+  <meta name="description" content="How to recover deleted devices in Microsoft Entra ID using the new soft-delete feature."/>
+
+  <!-- Open Graph (Discord, Facebook, LinkedIn, etc.) -->
+  <meta property="og:type" content="article"/>
+  <meta property="og:site_name" content="Anyways Modernize"/>
+  <meta property="og:title" content="Did You Know? - Restore Devices on Entra"/>
+  <meta property="og:description" content="How to recover deleted devices in Microsoft Entra ID using the new soft-delete feature."/>
+  <meta property="og:url" content="https://anyways-modernize.github.io/posts/didyouknow-2.html"/>
+  <meta property="og:image" content="https://anyways-modernize.github.io/og/didyouknow-2.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Did You Know? - Restore Devices on Entra"/>
+  <meta name="twitter:description" content="How to recover deleted devices in Microsoft Entra ID using the new soft-delete feature."/>
+  <meta name="twitter:image" content="https://anyways-modernize.github.io/og/didyouknow-2.png"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner" id="nav-inner"></div>
+  </nav>
+
+  <div class="container">
+    <div class="tag" data-tag="ENTRA">ENTRA</div>
+    <h1>Did You Know? - Restore Devices on Entra</h1>
+    <p class="subtitle">How to recover deleted devices in Microsoft Entra ID using the new soft-delete feature.</p>
+
+    <h2 id="introduction">Introduction</h2>
+<p>Accidentally deleted a device in Microsoft Entra ID? Microsoft Entra
+ID now supports soft delete for devices. When a device is deleted, it
+moves to a soft-deleted state for up to 30 days, during which you can
+still recover it along with its BitLocker keys and LAPS passwords.</p>
+<h2 id="feature-now-in-preview">Feature now in preview</h2>
+<div class="note">Please note, as <a
+href="https://learn.microsoft.com/en-us/entra/identity/devices/concept-soft-delete-devices">Microsoft
+states</a>: “Device soft delete is currently in preview. Some features
+and behaviors might change before general availability.”</div>
+<p>Device soft delete is currently in public preview. According to
+Microsoft’s official documentation, there is no UI yet and management
+must be done via Microsoft Graph or PowerShell,but that’s not entirely
+true. A deleted devices blade is already accessible in the Entra portal,
+and we’ll show you how to get there.</p>
+<h2 id="what-happens-when-a-device-is-soft-deleted">What Happens When a
+Device is Soft Deleted?</h2>
+<ul>
+<li>It can no longer authenticate or access cloud resources</li>
+<li>It cannot be modified.</li>
+<li>Its DeviceID is reserved, no new device can register with the same
+ID</li>
+<li>It still counts toward directory object quotas</li>
+<li>Compliance properties are reset to false or null</li>
+<li>It is permanently after 30 days</li>
+</ul>
+<h2 id="how-to-view-soft-deleted-devices">How to View Soft-Deleted
+Devices</h2>
+<p>While trying to get more information about the graph, I stumbled into
+<a
+href="https://ourcloudnetwork.com/how-to-restore-devices-deleted-in-microsoft-entra/">Our
+Cloud Network’s blog</a>. Daniel mentions that the Entra portal already
+has a deleted devices blade, but it can only be accessed directly via
+this URL: <a
+href="https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview">https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview</a></p>
+<p><img width="1058" height="216" alt="image" src="https://github.com/user-attachments/assets/6241e9db-548c-47c6-9f77-d7b900f68bae" /></p>
+<p>You can also graph for the same purpose:</p>
+<pre class="http"><code>GET https://graph.microsoft.com/beta/directory/deletedItems/microsoft.graph.device</code></pre>
+<p>And via powershell</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Connect<span class="op">-</span>MgGraph <span class="op">-</span>Scopes <span class="st">&quot;Directory.Read.All&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Invoke<span class="op">-</span>MgGraphRequest `</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Method GET `</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Uri <span class="st">&quot;https://graph.microsoft.com/beta/directory/deletedItems/microsoft.graph.device&quot;</span></span></code></pre></div>
+<h2 id="how-to-restore">How to restore</h2>
+<p>You can restore device from entra via <a
+href="https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview">https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview</a></p>
+<pre class="http"><code>POST https://graph.microsoft.com/beta/directory/deletedItems/{id}/restore</code></pre>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Connect<span class="op">-</span>MgGraph <span class="op">-</span>Scopes <span class="st">&quot;Directory.ReadWrite.All&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">$id</span> <span class="op">=</span> <span class="st">&quot;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>Invoke<span class="op">-</span>MgGraphRequest `</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Method POST `</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Uri <span class="st">&quot;https://graph.microsoft.com/beta/directory/deletedItems/$id/restore&quot;</span></span></code></pre></div>
+<h2 id="how-to-perma-delete">How to perma delete</h2>
+<p>Again, you can restore the device from entra via <a
+href="https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview">https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeletedDevices.reactview</a></p>
+<pre class="http"><code>DELETE https://graph.microsoft.com/beta/directory/deletedItems/{id}</code></pre>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Connect<span class="op">-</span>MgGraph <span class="op">-</span>Scopes <span class="st">&quot;Directory.ReadWrite.All&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">$id</span> <span class="op">=</span> <span class="st">&quot;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>Invoke<span class="op">-</span>MgGraphRequest `</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Method POST `</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>Uri <span class="st">&quot;https://graph.microsoft.com/beta/directory/deletedItems/$id/&quot;</span></span></code></pre></div>
+<h2 id="final-thoughts">Final Thoughts</h2>
+<p>Finally, something I’ve been really waiting for, restoring deleted
+devices. Having BitLocker keys and LAPS passwords preserved during a
+soft delete can be a real lifesaver in accidental deletion scenarios.
+Having worked in a large enterprise, I’ve seen Level 2 support
+accidentally delete devices with no way to recover them. This feature
+changes that.</p>
+
+  </div>
+
+  <footer></footer>
+
+  <script src="/village.js"></script>
+</body>
+</html>
