@@ -2,27 +2,16 @@ name: Build Blog Posts
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run
-# in-progress and latest queued. Do NOT cancel in-progress production deploys.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    paths:
+      - 'posts/**.md'
+      - '_template.html'
+      - 'og-image.svg'
+      - 'og-post-template.svg'
+      - '.github/workflows/build-posts.yml'
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -259,6 +248,34 @@ jobs:
           pathlib.Path('index.html').write_text(index_html)
           print(f'Updated index.html with {len(latest)} latest posts')
           PYEOF
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posts/*.html scrolls.html index.html data/search.json sitemap.xml og-image.png og/*.png
+          git diff --staged --quiet || git commit -m "Auto-build: posts + scrolls + index + search"
+          git pull --rebase
+          git push
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: main
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
