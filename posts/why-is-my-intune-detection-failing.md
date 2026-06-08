@@ -62,7 +62,8 @@ Not understanding the table? Here is what each row means:
 The content of STDOUT doesn't matter. Intune only checks whether it is empty or not.
 :::
 
-To troubleshoot detection, check the Intune logs. You can find them at `C:\Programdata\Microsoft\IntuneManagementExtension\Logs` in a file called `IntuneManagementExtension.log`
+To troubleshoot detection, check the Intune logs. You can find them at `C:\Programdata\Microsoft\IntuneManagementExtension\Logs` in a file called `IntuneManagementExtension.log`.
+
 More details on [techuisitive - https://techuisitive.com/intune-understanding-win32-app-detection-rules/](https://techuisitive.com/intune-understanding-win32-app-detection-rules/) and [Rudy Ooms - https://call4cloud.nl/win32app-exit-code-detection-rules/](https://call4cloud.nl/win32app-exit-code-detection-rules/)
 
 ## Best Practices
