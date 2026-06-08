@@ -19,12 +19,37 @@ This is how your detection scripts in Apps and Proactive Remediation behaves:
 
 References from: [Peter Van der Woude - https://petervanderwoude.nl/post/working-with-custom-detection-rules-for-win32-apps/](https://petervanderwoude.nl/post/working-with-custom-detection-rules-for-win32-apps/) and [Rudy Ooms - https://call4cloud.nl/win32app-exit-code-detection-rules/](https://call4cloud.nl/win32app-exit-code-detection-rules/)
 
-| Exit code | STDOUT | Detection State Result |
-| --- | --- | --- |
-| 0 | Empty | Not detected |
-| 0 | Not Empty (`Write-Output "Martin.exe has been detected"` ) | Detected |
-| Not 0 | Empty | Not detected |
-| Not 0 | Not Empty (`Write-Output "Martin.exe is not installed"`) | Not detected |
+<table>
+  <thead>
+    <tr>
+      <th>Exit code</th>
+      <th>STDOUT</th>
+      <th>Detection State Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>Empty</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>Not Empty (<code>Write-Output "Martin.exe has been detected"</code>)</td>
+      <td>Detected</td>
+    </tr>
+    <tr>
+      <td>Not 0</td>
+      <td>Empty</td>
+      <td>Not detected</td>
+    </tr>
+    <tr>
+      <td>Not 0</td>
+      <td>Not Empty (<code>Write-Output "Martin.exe is not installed"</code>)</td>
+      <td>Not detected</td>
+    </tr>
+  </tbody>
+</table>
 
 Not understanding the table? Here is what each row means:
 
