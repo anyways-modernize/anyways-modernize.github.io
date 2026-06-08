@@ -1,6 +1,6 @@
 ---
 title: App detection failing? Proactive remediations failing?
-tag: Intune
+tag: INTUNE
 description: Wondering why your detection is failing? It may be easier than you think!
 ---
 
