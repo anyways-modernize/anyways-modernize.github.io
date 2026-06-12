@@ -69,6 +69,22 @@ To troubleshoot detection, check the Intune logs. You can find them at `C:\Progr
 
 More details on [techuisitive - https://techuisitive.com/intune-understanding-win32-app-detection-rules/](https://techuisitive.com/intune-understanding-win32-app-detection-rules/) and [Rudy Ooms - https://call4cloud.nl/win32app-exit-code-detection-rules/](https://call4cloud.nl/win32app-exit-code-detection-rules/)
 
+## Example
+
+```powershell
+$serviceName = "ITPromisedThisWorks"
+
+$service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+
+if ($service -and $service.Status -eq "Running") {
+    Write-Output "Detected: Service is alive and grinding, unlike me on a Monday."
+    exit 0
+} else {
+    Write-Output "Not Detected: Service is either missing or pretending to be asleep."
+    exit 1
+}
+```
+
 ## Best Practices
 
 - Always use `Write-Output` over `Write-Host` for your detection output. As mentioned above, `Write-Host` speaks directly to the screen and is not guaranteed to reach STDOUT, meaning Intune may never detect your app.
