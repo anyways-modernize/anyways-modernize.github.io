@@ -2,6 +2,8 @@
 title: App detection failing? Proactive remediations failing?
 tag: INTUNE
 description: Wondering why your detection is failing? It may be easier than you think!
+publishDate: 2026-06-08
+updatedDate: 2026-06-12
 ---
 
 ## Introduction 

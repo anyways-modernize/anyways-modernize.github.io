@@ -2,6 +2,7 @@
 title: Why your intune app deployement won't retry quickly?
 tag: INTUNE
 description: Testing an app deployment and it won't retry? Here's why and how to force it.
+publishDate: 2026-06-15
 ---
 
 ## Quick Answer? Retry Time! 

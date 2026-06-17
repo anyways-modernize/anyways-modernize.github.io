@@ -2,6 +2,8 @@
 title: Did You Know? - Proactive Remediations
 tag: INTUNE
 description: Did You Know? A series highlighting features that most admins overlook or aren't aware of in their tenant.
+publishDate: 2026-05-27
+updatedDate: 2026-05-28
 ---
 
 ## Introduction

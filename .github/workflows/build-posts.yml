@@ -252,6 +252,37 @@ jobs:
               except ValueError:
                 parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
                 display_date = ''
+            # Check for explicit updatedDate in frontmatter
+            updated_date_str = meta('updatedDate')
+            updated_dt = None
+            updated_display_date = ''
+            if updated_date_str:
+              try:
+                if 'T' in updated_date_str:
+                  updated_dt = datetime.fromisoformat(updated_date_str.replace('Z', '+00:00'))
+                else:
+                  updated_dt = datetime.fromisoformat(updated_date_str).replace(tzinfo=timezone.utc)
+                updated_display_date = updated_dt.strftime('%B %d, %Y')
+              except ValueError:
+                updated_dt = None
+                updated_display_date = ''
+            else:
+              # If no updatedDate, use last git commit (most recent change)
+              result = subprocess.run(
+                ['git', 'log', '-1', '--format=%aI', '--', str(f)],
+                capture_output=True, text=True
+              )
+              timestamp_str = result.stdout.strip()
+              try:
+                updated_dt = datetime.fromisoformat(timestamp_str)
+                updated_display_date = updated_dt.strftime('%B %d, %Y')
+              except ValueError:
+                updated_dt = None
+                updated_display_date = ''
+            # Only show updated date if it differs from publish date
+            display_updated_date = ''
+            if updated_dt and updated_dt.date() != parsed_dt.date():
+              display_updated_date = updated_display_date
             # strip frontmatter and get plain text body for search
             body_md = re.sub(r'^---.*?---\s*', '', txt, flags=re.DOTALL)
             # strip markdown syntax to plain text
@@ -264,6 +295,7 @@ jobs:
               'desc':         meta('description'),
               'parsed_dt':    parsed_dt,
               'display_date': display_date,
+              'display_updated_date': display_updated_date,
               'href':         f'/posts/{f.stem}.html',
               'body':         body_plain,
             })
@@ -312,7 +344,13 @@ jobs:
           # ── Generate scrolls.html ──
           all_cards = ''
           for p in posts:
-            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
+            if p["display_date"]:
+              if p["display_updated_date"]:
+                date_label = f'<span class="post-date">{p["display_date"]} (updated {p["display_updated_date"]})</span>'
+              else:
+                date_label = f'<span class="post-date">{p["display_date"]}</span>'
+            else:
+              date_label = ''
             all_cards += f'''
             <div class="post-card">
               <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
@@ -357,7 +395,13 @@ jobs:
           latest = posts[:3]
           index_cards = ''
           for p in latest:
-            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
+            if p["display_date"]:
+              if p["display_updated_date"]:
+                date_label = f'<span class="post-date">{p["display_date"]} (updated {p["display_updated_date"]})</span>'
+              else:
+                date_label = f'<span class="post-date">{p["display_date"]}</span>'
+            else:
+              date_label = ''
             index_cards += f'''
               <div class="post-card">
                 <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
