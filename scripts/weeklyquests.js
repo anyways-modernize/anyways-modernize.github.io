@@ -1,31 +1,71 @@
-const quests = [
-  { text: "Martin's blog is worth a read. He goes deep on topics most people don't dare touch.", url: "https://intune.best/" },
-  { text: "Johannes somehow finds the most efficient path through everything, first admin I know to uninstall SCCM at a bar and go fully passwordless before it was cool.", url: "https://johannesblog.com/" },
-  { text: "MSEndpointMgr is one of the go-to community sites for endpoint admins.", url: "https://msendpointmgr.com/" },
-  { text: "OpenIntuneBaseline, solid community-driven baseline for Intune.", url: "https://openintunebaseline.com/" },
-  { text: "James Robinson, the mind behind OpenIntuneBaseline, who puts as much back into the community as his project does.", url: "https://skiptotheendpoint.co.uk/" },
-  { text: "Lewis Barry, someone who doesn't shy away from a challenge and tackles everything head on.", url: "https://conditionalaccess.uk/" },
-  { text: "Rudy Ooms, the guy who looks at Intune troubleshooting from angles you never thought of.", url: "https://call4cloud.nl/about/" },
-  { text: "AJ might be the cert guy, but his blog covers everything from PKI to Intune to security hardening.", url: "https://anthonyfontanez.com/" },
-  { text: "Max tackles the Intune bugs and edge cases. If something is broken and weird, he's probably already written about it.", url: "https://azuretothemax.net/" },
-];
+const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+const ROTATION_START = new Date(Date.UTC(2026, 5, 1));
+const QUESTS_URL = '/data/weeklyquests.json';
 
+function getUtcMonday(date) {
+  const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const day = utcDate.getUTCDay();
+  const daysSinceMonday = day === 0 ? 6 : day - 1;
 
-const EPOCH = new Date('2026-06-01T00:00:00');
+  utcDate.setUTCDate(utcDate.getUTCDate() - daysSinceMonday);
+  return utcDate;
+}
 
-const now = new Date();
-const day = now.getDay();
-const daysSinceMonday = (day === 0 ? 6 : day - 1);
-const monday = new Date(now);
-monday.setDate(now.getDate() - daysSinceMonday);
-monday.setHours(0, 0, 0, 0);
+function getQuestIndex(date, questCount) {
+  const currentWeek = getUtcMonday(date);
+  const firstWeek = getUtcMonday(ROTATION_START);
+  const weeksSinceStart = Math.floor((currentWeek - firstWeek) / MS_PER_WEEK);
 
-const weeksSinceEpoch = Math.floor((monday - EPOCH) / (7 * 24 * 60 * 60 * 1000));
-const index = weeksSinceEpoch % quests.length;
+  return ((weeksSinceStart % questCount) + questCount) % questCount;
+}
 
-console.log('index:', index);
-const quest = quests[index];
-document.getElementById('quest-text').innerHTML = `
-  ${quest.text}<br><br>
-  <a href="${quest.url}" target="_blank">${quest.url}</a>
-`;
+function isValidQuest(quest) {
+  return quest && typeof quest.text === 'string' && typeof quest.url === 'string';
+}
+
+function renderQuest(questElement, quest) {
+  questElement.replaceChildren();
+  questElement.append(document.createTextNode(quest.text));
+  questElement.append(document.createElement('br'));
+  questElement.append(document.createElement('br'));
+
+  const link = document.createElement('a');
+
+  link.href = quest.url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = quest.url;
+
+  questElement.append(link);
+}
+
+async function loadQuests() {
+  const response = await fetch(QUESTS_URL, { cache: 'no-store' });
+
+  if (!response.ok) {
+    throw new Error(`Failed to load quests: ${response.status}`);
+  }
+
+  const quests = await response.json();
+
+  if (!Array.isArray(quests) || quests.length === 0 || !quests.every(isValidQuest)) {
+    throw new Error('Weekly quest data is invalid.');
+  }
+
+  return quests;
+}
+
+const questElement = document.getElementById('quest-text');
+
+if (questElement) {
+  loadQuests()
+    .then((quests) => {
+      const quest = quests[getQuestIndex(new Date(), quests.length)];
+
+      renderQuest(questElement, quest);
+    })
+    .catch((error) => {
+      console.error(error);
+      questElement.textContent = 'Weekly quest is unavailable right now.';
+    });
+}
