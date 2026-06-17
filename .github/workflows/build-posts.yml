@@ -31,6 +31,76 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Restore generated post artifacts cache
+        id: restore-generated-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            posts/*.html
+            og/*.png
+          key: generated-site-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            generated-site-${{ github.ref_name }}-
+
+      - name: Determine post build scope
+        run: |
+          set -euo pipefail
+
+          full_rebuild=false
+          changed_posts_file=/tmp/changed_posts.txt
+          changed_files_file=/tmp/changed_files.txt
+          : > "$changed_posts_file"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            full_rebuild=true
+            echo "Workflow dispatch requested: full rebuild"
+          elif [ -z "${{ steps.restore-generated-cache.outputs.cache-matched-key }}" ]; then
+            full_rebuild=true
+            echo "No generated artifacts cache found: full rebuild"
+          else
+            before_sha="${{ github.event.before }}"
+            current_sha="${{ github.sha }}"
+
+            if [ -z "$before_sha" ] || [ "$before_sha" = "0000000000000000000000000000000000000000" ]; then
+              full_rebuild=true
+              echo "No comparable previous commit: full rebuild"
+            else
+              git diff --name-only "$before_sha" "$current_sha" > "$changed_files_file"
+              echo "Changed files:"
+              cat "$changed_files_file" || true
+
+              if grep -Eq '^(_template.html|og-post-template.svg)$' "$changed_files_file"; then
+                full_rebuild=true
+                echo "Template asset changed: full rebuild"
+              else
+                grep -E '^posts/.*\.md$' "$changed_files_file" > "$changed_posts_file" || true
+              fi
+            fi
+          fi
+
+          echo "FULL_REBUILD=${full_rebuild}" >> "$GITHUB_ENV"
+
+          if [ "$full_rebuild" = "true" ]; then
+            echo "Post build scope: full"
+          else
+            count=$(wc -l < "$changed_posts_file" | tr -d ' ')
+            echo "Post build scope: incremental (${count} changed markdown file(s))"
+            sed -n '1,200p' "$changed_posts_file" || true
+          fi
+
+      - name: Remove stale generated post files
+        run: |
+          set -euo pipefail
+          mkdir -p posts og
+          for html in posts/*.html; do
+            [ -e "$html" ] || continue
+            base=$(basename "$html" .html)
+            if [ ! -f "posts/${base}.md" ]; then
+              rm -f "$html" "og/${base}.png"
+              echo "Removed stale generated files for ${base}"
+            fi
+          done
+
       - name: Install pandoc
         run: sudo apt-get install -y pandoc
 
@@ -47,8 +117,28 @@ jobs:
           echo "Built og-image.png"
       - name: Convert MD posts to HTML
         run: |
-          mkdir -p og
-          for f in posts/*.md; do
+          set -euo pipefail
+          mkdir -p og posts
+
+          files_to_build=()
+          if [ "${FULL_REBUILD}" = "true" ]; then
+            while IFS= read -r f; do
+              [ -n "$f" ] || continue
+              files_to_build+=("$f")
+            done < <(find posts -maxdepth 1 -type f -name '*.md' | sort)
+          else
+            while IFS= read -r f; do
+              [ -n "$f" ] || continue
+              files_to_build+=("$f")
+            done < /tmp/changed_posts.txt
+          fi
+
+          if [ "${#files_to_build[@]}" -eq 0 ]; then
+            echo "No post HTML/OG regeneration required"
+            exit 0
+          fi
+
+          for f in "${files_to_build[@]}"; do
             [ -f "$f" ] || continue
             name=$(basename "$f" .md)
             title=$(grep '^title:' "$f" | head -1 | sed 's/^title:[[:space:]]*//')
@@ -261,6 +351,15 @@ jobs:
           PYEOF
       - name: Setup Pages
         uses: actions/configure-pages@v6
+
+      - name: Save generated post artifacts cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            posts/*.html
+            og/*.png
+          key: generated-site-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
