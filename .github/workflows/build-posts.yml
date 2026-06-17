@@ -33,7 +33,7 @@ jobs:
 
       - name: Restore generated post artifacts cache
         id: restore-generated-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: |
             posts/*.html
@@ -213,17 +213,45 @@ jobs:
             def meta(key):
               m = re.search(rf'^{key}:[^\S\r\n]*(.*)', txt, re.MULTILINE)
               return m.group(1).strip() if m else ''
-            result = subprocess.run(
-              ['git', 'log', '-1', '--format=%aI', '--', str(f)],
-              capture_output=True, text=True
-            )
-            timestamp_str = result.stdout.strip()
-            try:
-              parsed_dt = datetime.fromisoformat(timestamp_str)
-              display_date = parsed_dt.strftime('%B %d, %Y')
-            except ValueError:
-              parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
-              display_date = ''
+            # Check for explicit publishDate in frontmatter
+            publish_date_str = meta('publishDate')
+            if publish_date_str:
+              try:
+                # Try parsing ISO format first (e.g., "2026-05-28" or "2026-05-28T10:30:00Z")
+                if 'T' in publish_date_str:
+                  parsed_dt = datetime.fromisoformat(publish_date_str.replace('Z', '+00:00'))
+                else:
+                  # Parse date-only format (e.g., "2026-05-28")
+                  parsed_dt = datetime.fromisoformat(publish_date_str).replace(tzinfo=timezone.utc)
+                display_date = parsed_dt.strftime('%B %d, %Y')
+              except ValueError:
+                # Fall back to git log if publishDate is invalid
+                result = subprocess.run(
+                  ['git', 'log', '-1', '--format=%aI', '--', str(f)],
+                  capture_output=True, text=True
+                )
+                timestamp_str = result.stdout.strip()
+                try:
+                  parsed_dt = datetime.fromisoformat(timestamp_str)
+                  display_date = parsed_dt.strftime('%B %d, %Y')
+                except ValueError:
+                  parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
+                  display_date = ''
+            else:
+              # If no publishDate, use git log (file creation/first commit time)
+              result = subprocess.run(
+                ['git', 'log', '--format=%aI', '--', str(f)],
+                capture_output=True, text=True
+              )
+              lines = result.stdout.strip().split('\n')
+              # Get the last (oldest) commit for this file
+              timestamp_str = lines[-1] if lines and lines[-1] else ''
+              try:
+                parsed_dt = datetime.fromisoformat(timestamp_str)
+                display_date = parsed_dt.strftime('%B %d, %Y')
+              except ValueError:
+                parsed_dt = datetime.min.replace(tzinfo=timezone.utc)
+                display_date = ''
             # strip frontmatter and get plain text body for search
             body_md = re.sub(r'^---.*?---\s*', '', txt, flags=re.DOTALL)
             # strip markdown syntax to plain text
@@ -414,7 +442,7 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Save generated post artifacts cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: |
             posts/*.html
