@@ -399,16 +399,16 @@ jobs:
           PYEOF
 
       - name: Publish IndexNow key file
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |
           set -euo pipefail
-          INDEXNOW_KEY=$(python3 - << 'PYEOF'
-          import secrets
-          print(secrets.token_hex(16))
-          PYEOF
-          )
-          echo "INDEXNOW_KEY=${INDEXNOW_KEY}" >> "$GITHUB_ENV"
+          if [ -z "${INDEXNOW_KEY:-}" ]; then
+            echo "INDEXNOW_KEY is not configured; skipping key file publish"
+            exit 0
+          fi
           printf '%s' "$INDEXNOW_KEY" > "${INDEXNOW_KEY}.txt"
-          echo "Published IndexNow key file ${INDEXNOW_KEY}.txt"
+          echo "Published IndexNow key file"
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
@@ -432,10 +432,16 @@ jobs:
       - name: Submit IndexNow
         continue-on-error: true
         env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
           INDEXNOW_ENDPOINT: https://api.indexnow.org/indexnow
           SITE_HOST: anyways-modernize.github.io
         run: |
           set -euo pipefail
+
+          if [ -z "${INDEXNOW_KEY:-}" ]; then
+            echo "INDEXNOW_KEY is not configured; skipping IndexNow submission"
+            exit 0
+          fi
 
           if [ ! -s /tmp/indexnow_urls.txt ]; then
             echo "No changed URLs to submit to IndexNow"
