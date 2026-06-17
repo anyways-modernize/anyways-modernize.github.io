@@ -1,0 +1,90 @@
+name: Pages Health Check
+
+on:
+  workflow_run:
+    workflows: ["Build Blog Posts"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health-check:
+    # Only run after successful upstream build when triggered by workflow_run.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check robots.txt and sitemap.xml health
+        env:
+          BASE_URL: https://anyways-modernize.github.io
+        run: |
+          set -euo pipefail
+
+          ROBOTS_URL="${BASE_URL}/robots.txt"
+          SITEMAP_URL="${BASE_URL}/sitemap.xml"
+
+          echo "Checking robots.txt: ${ROBOTS_URL}"
+          robots_status=$(curl -sS -o /tmp/robots.txt -w "%{http_code}" "${ROBOTS_URL}")
+          if [ "${robots_status}" != "200" ]; then
+            echo "robots.txt returned HTTP ${robots_status}"
+            exit 1
+          fi
+
+          if ! grep -Eiq "^Sitemap:[[:space:]]*${SITEMAP_URL}$" /tmp/robots.txt; then
+            echo "robots.txt is missing an exact sitemap reference to ${SITEMAP_URL}"
+            echo "robots.txt contents:"
+            sed -n '1,200p' /tmp/robots.txt
+            exit 1
+          fi
+
+          echo "Checking sitemap.xml: ${SITEMAP_URL}"
+          sitemap_status=$(curl -sS -o /tmp/sitemap.xml -w "%{http_code}" "${SITEMAP_URL}")
+          if [ "${sitemap_status}" != "200" ]; then
+            echo "sitemap.xml returned HTTP ${sitemap_status}"
+            exit 1
+          fi
+
+          python3 - << 'PYEOF'
+          import pathlib
+          import sys
+          import xml.etree.ElementTree as ET
+
+          p = pathlib.Path('/tmp/sitemap.xml')
+          data = p.read_bytes()
+
+          if not data:
+              print('sitemap.xml is empty')
+              sys.exit(1)
+
+          try:
+              root = ET.fromstring(data)
+          except ET.ParseError as ex:
+              print(f'sitemap.xml is not valid XML: {ex}')
+              sys.exit(1)
+
+          expected = '{http://www.sitemaps.org/schemas/sitemap/0.9}urlset'
+          if root.tag != expected:
+              print(f'Unexpected root element: {root.tag}')
+              sys.exit(1)
+
+          urls = root.findall('{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+          if not urls:
+              print('sitemap.xml contains no <url> entries')
+              sys.exit(1)
+
+          missing_loc = []
+          for i, url_node in enumerate(urls, start=1):
+              loc = url_node.find('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')
+              if loc is None or not (loc.text or '').strip():
+                  missing_loc.append(i)
+
+          if missing_loc:
+              print(f'Entries missing <loc>: {missing_loc}')
+              sys.exit(1)
+
+          print(f'sitemap.xml looks valid with {len(urls)} URLs')
+          PYEOF
+
+          echo "Health check passed"
