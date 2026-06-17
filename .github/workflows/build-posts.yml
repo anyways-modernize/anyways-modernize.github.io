@@ -69,7 +69,7 @@ jobs:
               echo "Changed files:"
               cat "$changed_files_file" || true
 
-              if grep -Eq '^(_template.html|og-post-template.svg)$' "$changed_files_file"; then
+              if grep -Eq '^(_template.html|og-post-template.svg|.github/workflows/build-posts.yml)$' "$changed_files_file"; then
                 full_rebuild=true
                 echo "Template asset changed: full rebuild"
               else
@@ -374,7 +374,7 @@ jobs:
             <div class="post-card">
               <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
               {date_label}
-              <h3>{p["title"]}</h3>
+              <h3><a class="post-title-link" href="{p["href"]}">{p["title"]}</a></h3>
               <p>{p["desc"]}</p>
               <a class="read-more" href="{p["href"]}">Read the scroll →</a>
             </div>'''
@@ -419,7 +419,7 @@ jobs:
               <div class="post-card">
                 <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
                 {date_label}
-                <h3>{p["title"]}</h3>
+                <h3><a class="post-title-link" href="{p["href"]}">{p["title"]}</a></h3>
                 <p>{p["desc"]}</p>
                 <a class="read-more" href="{p["href"]}">Read the scroll →</a>
               </div>'''

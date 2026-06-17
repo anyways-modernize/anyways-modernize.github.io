@@ -50,7 +50,7 @@ function render(query) {
       <div class="post-card">
         <div class="tag">${highlight(p.tag, query)}</div>
         ${date}
-        <h3>${highlight(p.title, query)}</h3>
+        <h3><a class="post-title-link" href="${p.href}">${highlight(p.title, query)}</a></h3>
         <p>${highlight(snippet, query)}</p>
         <a class="read-more" href="${p.href}">Read the guide →</a>
       </div>`;
