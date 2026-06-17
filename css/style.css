@@ -288,6 +288,13 @@ footer {
 .container .subtitle {
   color: var(--muted);
   font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.container .post-dates {
+  font-size: 0.78rem;
+  color: var(--muted);
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);

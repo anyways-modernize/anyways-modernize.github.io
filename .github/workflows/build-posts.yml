@@ -144,6 +144,8 @@ jobs:
             title=$(grep '^title:' "$f" | head -1 | sed 's/^title:[[:space:]]*//')
             tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
             desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
+            publish_date=$(grep '^publishDate:' "$f" | head -1 | sed 's/^publishDate:[[:space:]]*//')
+            updated_date=$(grep '^updatedDate:' "$f" | head -1 | sed 's/^updatedDate:[[:space:]]*//')
             body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html)
             body=$(echo "$body" | python3 -c "
           import sys, re
@@ -152,10 +154,32 @@ jobs:
           print(html, end='')
           ")
             echo "$body" > /tmp/post_body.html
-            python3 - "$title" "$tag" "$desc" "posts/${name}.html" "$name" << 'PYEOF'
+            python3 - "$title" "$tag" "$desc" "posts/${name}.html" "$name" "$publish_date" "$updated_date" << 'PYEOF'
           import sys, pathlib
           from xml.sax.saxutils import escape
+          from datetime import datetime, timezone
           title, tag, desc, outpath, name = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
+          publish_date_raw = sys.argv[6] if len(sys.argv) > 6 else ''
+          updated_date_raw = sys.argv[7] if len(sys.argv) > 7 else ''
+          def parse_date(s):
+            if not s:
+              return None
+            try:
+              if 'T' in s:
+                return datetime.fromisoformat(s.replace('Z', '+00:00'))
+              return datetime.fromisoformat(s).replace(tzinfo=timezone.utc)
+            except ValueError:
+              return None
+          pub_dt  = parse_date(publish_date_raw)
+          upd_dt  = parse_date(updated_date_raw)
+          if pub_dt:
+            pub_str = pub_dt.strftime('%B %d, %Y')
+            if upd_dt and upd_dt.date() != pub_dt.date():
+              dates_html = f'<p class="post-dates">{pub_str} (updated {upd_dt.strftime("%B %d, %Y")})</p>'
+            else:
+              dates_html = f'<p class="post-dates">{pub_str}</p>'
+          else:
+            dates_html = ''
           body = pathlib.Path('/tmp/post_body.html').read_text()
           tmpl = pathlib.Path('_template.html').read_text()
           url     = f'https://anyways-modernize.github.io/{outpath}'
@@ -164,6 +188,7 @@ jobs:
             .replace('{{TITLE}}',       title)
             .replace('{{TAG}}',         tag)
             .replace('{{DESCRIPTION}}', desc)
+            .replace('{{DATES}}',       dates_html)
             .replace('{{URL}}',         url)
             .replace('{{OGIMAGE}}',     ogimage)
             .replace('{{CONTENT}}',     body))
@@ -344,13 +369,7 @@ jobs:
           # ── Generate scrolls.html ──
           all_cards = ''
           for p in posts:
-            if p["display_date"]:
-              if p["display_updated_date"]:
-                date_label = f'<span class="post-date">{p["display_date"]} (updated {p["display_updated_date"]})</span>'
-              else:
-                date_label = f'<span class="post-date">{p["display_date"]}</span>'
-            else:
-              date_label = ''
+            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
             all_cards += f'''
             <div class="post-card">
               <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
@@ -395,13 +414,7 @@ jobs:
           latest = posts[:3]
           index_cards = ''
           for p in latest:
-            if p["display_date"]:
-              if p["display_updated_date"]:
-                date_label = f'<span class="post-date">{p["display_date"]} (updated {p["display_updated_date"]})</span>'
-              else:
-                date_label = f'<span class="post-date">{p["display_date"]}</span>'
-            else:
-              date_label = ''
+            date_label = f'<span class="post-date">{p["display_date"]}</span>' if p["display_date"] else ''
             index_cards += f'''
               <div class="post-card">
                 <div class="tag" data-tag="{p["tag"]}">{p["tag"]}</div>
