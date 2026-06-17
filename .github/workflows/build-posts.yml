@@ -144,8 +144,8 @@ jobs:
             title=$(grep '^title:' "$f" | head -1 | sed 's/^title:[[:space:]]*//')
             tag=$(grep '^tag:' "$f" | head -1 | sed 's/^tag:[[:space:]]*//')
             desc=$(grep '^description:' "$f" | head -1 | sed 's/^description:[[:space:]]*//')
-            publish_date=$(grep '^publishDate:' "$f" | head -1 | sed 's/^publishDate:[[:space:]]*//')
-            updated_date=$(grep '^updatedDate:' "$f" | head -1 | sed 's/^updatedDate:[[:space:]]*//')
+            publish_date=$(grep '^publishDate:' "$f" | head -1 | sed 's/^publishDate:[[:space:]]*//' || true)
+            updated_date=$(grep '^updatedDate:' "$f" | head -1 | sed 's/^updatedDate:[[:space:]]*//' || true)
             body=$(awk '/^---/{n++; if(n==2){found=1; next}} found' "$f" | pandoc --from markdown+fenced_divs --to html)
             body=$(echo "$body" | python3 -c "
           import sys, re
