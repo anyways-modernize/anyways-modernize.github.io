@@ -349,6 +349,67 @@ jobs:
           pathlib.Path('index.html').write_text(index_html)
           print(f'Updated index.html with {len(latest)} latest posts')
           PYEOF
+
+      - name: Prepare IndexNow URL list
+        env:
+          BASE_URL: https://anyways-modernize.github.io
+        run: |
+          set -euo pipefail
+          python3 << 'PYEOF'
+          import os
+          import pathlib
+          import xml.etree.ElementTree as ET
+
+          base = os.environ['BASE_URL'].rstrip('/')
+          full_rebuild = os.environ.get('FULL_REBUILD', 'false').lower() == 'true'
+          out = pathlib.Path('/tmp/indexnow_urls.txt')
+
+          urls = set()
+          if full_rebuild:
+              sitemap = pathlib.Path('sitemap.xml')
+              if sitemap.exists():
+                  root = ET.fromstring(sitemap.read_bytes())
+                  ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+                  for node in root.findall('sm:url/sm:loc', ns):
+                      value = (node.text or '').strip()
+                      if value:
+                          urls.add(value)
+          else:
+              changed = pathlib.Path('/tmp/changed_posts.txt')
+              if changed.exists():
+                  for line in changed.read_text().splitlines():
+                      line = line.strip()
+                      if not line:
+                          continue
+                      stem = pathlib.Path(line).stem
+                      urls.add(f'{base}/posts/{stem}.html')
+
+              if urls:
+                  urls.add(f'{base}/')
+                  urls.add(f'{base}/scrolls.html')
+                  urls.add(f'{base}/search.html')
+                  urls.add(f'{base}/sitemap.xml')
+
+          if urls:
+              out.write_text('\n'.join(sorted(urls)) + '\n')
+              print(f'Prepared {len(urls)} IndexNow URL(s)')
+          else:
+              out.write_text('')
+              print('Prepared 0 IndexNow URL(s)')
+          PYEOF
+
+      - name: Publish IndexNow key file
+        run: |
+          set -euo pipefail
+          INDEXNOW_KEY=$(python3 - << 'PYEOF'
+          import secrets
+          print(secrets.token_hex(16))
+          PYEOF
+          )
+          echo "INDEXNOW_KEY=${INDEXNOW_KEY}" >> "$GITHUB_ENV"
+          printf '%s' "$INDEXNOW_KEY" > "${INDEXNOW_KEY}.txt"
+          echo "Published IndexNow key file ${INDEXNOW_KEY}.txt"
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
@@ -367,3 +428,59 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Submit IndexNow
+        continue-on-error: true
+        env:
+          INDEXNOW_ENDPOINT: https://api.indexnow.org/indexnow
+          SITE_HOST: anyways-modernize.github.io
+        run: |
+          set -euo pipefail
+
+          if [ ! -s /tmp/indexnow_urls.txt ]; then
+            echo "No changed URLs to submit to IndexNow"
+            exit 0
+          fi
+
+          python3 << 'PYEOF'
+          import json
+          import os
+          import pathlib
+          import sys
+          import urllib.request
+
+          endpoint = os.environ['INDEXNOW_ENDPOINT']
+          key = os.environ['INDEXNOW_KEY']
+          host = os.environ['SITE_HOST']
+          key_location = f'https://{host}/{key}.txt'
+
+          urls = [
+              line.strip()
+              for line in pathlib.Path('/tmp/indexnow_urls.txt').read_text().splitlines()
+              if line.strip()
+          ]
+
+          payload = {
+              'host': host,
+              'key': key,
+              'keyLocation': key_location,
+              'urlList': urls,
+          }
+
+          req = urllib.request.Request(
+              endpoint,
+              data=json.dumps(payload).encode('utf-8'),
+              headers={'Content-Type': 'application/json; charset=utf-8'},
+              method='POST',
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  body = resp.read().decode('utf-8', errors='replace')
+                  print(f'IndexNow HTTP {resp.status}')
+                  if body:
+                      print(body[:2000])
+          except Exception as ex:
+              print(f'IndexNow submission failed: {ex}')
+              sys.exit(1)
+          PYEOF
