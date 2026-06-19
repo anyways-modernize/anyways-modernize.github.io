@@ -312,6 +312,17 @@ footer {
   margin: 1.5rem 0;
 }
 
+.container .note::before {
+  content: "📜 Note";
+  display: block;
+  margin-bottom: .4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+
 .container footer {
   border-top: 1px solid var(--border);
   margin-top: 3rem;
