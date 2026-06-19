@@ -422,19 +422,11 @@ footer {
   .container { padding: 2rem; margin: 1.5rem 1rem 12rem; }
 }
 /* ── Code block component ── */
-.am-code{background:#0b1117;border:1px solid #2b3d4f;border-radius:14px;overflow:hidden;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);margin:1.5rem 0;}
-.am-code__bar{display:flex;align-items:center;justify-content:space-between;
-  padding:.6rem .9rem;background:rgba(255,255,255,.03);border-bottom:1px solid #2b3d4f;}
-.am-code__lang{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;
-  text-transform:uppercase;color:#c8a8f0;background:rgba(120,80,180,.2);padding:.25rem .6rem;border-radius:6px;}
-.am-code__lang[data-lang="bash"],.am-code__lang[data-lang="shell"]{color:#83c98a;background:rgba(131,201,138,.16);}
-.am-code__lang[data-lang="json"]{color:#7dcfff;background:rgba(60,120,180,.2);}
-.am-code__copy{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:#b4c6d8;background:none;
-  border:1px solid #2b3d4f;border-radius:7px;padding:.3rem .65rem;cursor:pointer;
-  transition:border-color .2s,color .2s;display:flex;align-items:center;gap:.4rem;}
-.am-code__copy:hover{border-color:rgba(255,216,77,.45);color:#ffd84d;}
-.am-code__copy.is-done{color:#83c98a;border-color:rgba(131,201,138,.5);}
-.am-code pre{margin:0;padding:1.1rem 1.2rem;overflow-x:auto;
-  font-family:'JetBrains Mono',monospace;font-size:.875rem;line-height:1.75;}
-.am-code pre code{background:none;border:none;padding:0;color:#dce7f2;font-family:inherit;}
+.am-code .co { color:#5f7488; font-style:italic; }   /* comments */
+.am-code .kw, .am-code .cf { color:#c8a8f0; }         /* keywords */
+.am-code .st { color:#83c98a; }                       /* strings */
+.am-code .va { color:#ffefad; }                       /* variables */
+.am-code .fu, .am-code .dt { color:#7dcfff; }         /* functions / types */
+.am-code .op { color:#9fb2c6; }                       /* operators */
+.am-code .dv, .am-code .cn, .am-code .bn { color:#f0a878; } /* numbers / constants */
+.am-code pre code a[aria-hidden] { display:none; }    /* hide line-number anchors */
