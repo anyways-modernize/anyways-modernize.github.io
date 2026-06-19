@@ -150,12 +150,13 @@ jobs:
             body=$(echo "$body" | python3 -c "
           import sys, re
           html = sys.stdin.read()
-          html = re.sub(r'<pre[^>]*class=\"([^\"]*)\"[^>]*><code[^>]*>(.*?)</code></pre>', chip, html, flags=re.DOTALL)
+          html = re.sub(r'(<div class=\"note\">)\s*<p>(.*?)</p>\s*(</div>)', r'\1\2\3', html, flags=re.DOTALL)
+          # NEW: add a language chip + copy button to every code block
           LABELS = {'powershell':'PowerShell','bash':'Bash','shell':'Bash','sh':'Bash','json':'JSON','yaml':'YAML','xml':'XML','html':'HTML','css':'CSS','js':'JavaScript','python':'Python','text':'Text'}
           lang = lambda c: (c or 'text').split()[-1].lower()
           chip = lambda m: '<div class=\"am-code\"><div class=\"am-code__bar\"><span class=\"am-code__lang\" data-lang=\"'+lang(m.group(1))+'\">'+LABELS.get(lang(m.group(1)),lang(m.group(1)).capitalize())+'</span><button class=\"am-code__copy\" onclick=\"amCopy(this)\"><span class=\"am-ic\">\u29c9</span><span class=\"am-lbl\">Copy</span></button></div><pre><code>'+m.group(2)+'</code></pre></div>'
           html = re.sub(r'<pre(?:\s+class=\"([^\"]*)\")?><code>(.*?)</code></pre>', chip, html, flags=re.DOTALL)
-          
+
           print(html, end='')
           ")
             echo "$body" > /tmp/post_body.html
