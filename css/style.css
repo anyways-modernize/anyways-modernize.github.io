@@ -368,24 +368,35 @@ footer {
   margin: 1.5rem 0;
   border-radius: 8px;
 }
-.container table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 1.2rem;
+.container table { 
+  border-collapse: collapse; 
+  width: 100%; 
+  margin: 1.6rem 0; 
+  font-size: .95rem; 
+  border: 1px solid var(--border); 
+  border-radius: 12px; 
+  overflow: hidden; 
+}
+.container table th { 
+  font-family: 'Lexend', sans-serif; 
+  font-weight: 600; 
+  text-align: left; 
+  color: #1a1305; 
+  background: var(--yellow); 
+  padding: .7rem 1rem; 
+  font-size: .85rem; 
+  border: none; 
+}
+.container table td { 
+  padding: .7rem 1rem; 
+  border: none; 
+  border-top: 1px solid var(--border); 
+  color: var(--text); 
+}
+.container table tbody tr:nth-child(even) { 
+  background: rgba(255,255,255,.02); 
 }
 
-.container table th {
-  border: 1px solid var(--border);
-  padding: 0.75rem 1rem;
-  text-align: left;
-  color: var(--yellow-soft);
-}
-
-.container table td {
-  border: 1px solid var(--border);
-  padding: 0.75rem 1rem;
-  color: var(--text);
-}
 #pagination {
   display: flex;
   justify-content: center;
