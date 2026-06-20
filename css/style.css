@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Pixelify+Sans&family=Inter:wght@400;600&display=swap');
 
 :root {
   --bg: #0d141c;
@@ -177,7 +177,10 @@ nav {
   border-radius: 20px; padding: 2rem;
   box-shadow: 0 10px 30px var(--shadow);
 }
-.hero-card h3 { margin-bottom:1rem; color:var(--yellow); }
+.hero-card h3 { 
+  margin-bottom:1rem;          
+  color: var(--text);  
+}
 .hero-card p  { color:var(--muted); }
 .terminal {
   background: #0b1117; 
@@ -209,7 +212,9 @@ nav {
 }
 .section-title {
   font-family: 'Lexend', sans-serif;
-  color: var(--yellow); font-size: 2rem; margin-bottom: 2rem;
+  color: var(--text); 
+  font-size: 2rem; 
+  margin-bottom: 2rem;
 }
 .posts {
   display: grid;
@@ -227,7 +232,10 @@ nav {
   transform: translateY(-4px);
   border-color: rgba(255,216,77,0.4);
 }
-.post-card h3 { margin-bottom:0.7rem; color:var(--yellow-soft); }
+.post-card h3 { 
+  margin-bottom:0.7rem; 
+  color:var(--text); 
+}
 .post-card p  { color:var(--muted); margin-bottom:1rem; }
 .tag {
   display: inline-block;
@@ -256,8 +264,11 @@ nav {
 /* ── POST DATE ── */
 .post-date {
   display: block;
-  font-size: 0.75rem;
-  color: var(--muted);
+  font-size: 0.72rem;
+  color: var(--blue);            /* was var(--muted) */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
@@ -370,7 +381,7 @@ footer {
   z-index: 10;
 }
 .container p  { margin-bottom: 1.2rem; }
-.container h2 { font-family: 'Lexend', sans-serif; color: var(--yellow-soft); margin: 2rem 0 0.75rem; }
+.container h2 { font-family: 'Lexend', sans-serif; color: var(--text); margin: 2rem 0 0.75rem; }
 .container h3 { color: var(--blue); margin: 1.5rem 0 0.5rem; }
 .container a  { color: var(--green); text-decoration: none; }
 .container a:hover { color: var(--yellow); }
