@@ -133,7 +133,43 @@ nav {
   color: var(--yellow);
   text-shadow: 0 0 32px rgba(255, 216, 77, 0.22);
 }
-.hero p { color:var(--muted); font-size:1.1rem; }
+.hero p {
+  color:var(--muted); 
+  font-size:1.1rem; 
+}
+.hero .cta { 
+  display:flex; 
+  gap:.9rem; 
+  margin-top:1.8rem; 
+  flex-wrap:wrap; 
+}
+.btn {
+  font-family: 'Inter', sans-serif; 
+  font-weight:600; 
+  font-size:.95rem;
+  text-decoration:none; 
+  padding:.72rem 1.3rem; 
+  border-radius:12px;
+  transition: transform .2s, box-shadow .2s, border-color .2s, color .2s;
+}
+.btn-primary { 
+  background: var(--yellow); 
+  color:#1a1305; 
+  box-shadow:0 6px 20px rgba(255,216,77,.22); 
+}
+.btn-primary:hover { 
+  transform: translateY(-2px); 
+  box-shadow:0 10px 26px rgba(255,216,77,.34); 
+}
+.btn-ghost { 
+  color: var(--text); 
+  border:1px solid var(--border); 
+}
+.btn-ghost:hover { 
+  border-color: rgba(255,216,77,.45); 
+  color: var(--yellow); 
+}
+
 .hero-card {
   position: relative; z-index: 10;
   background: rgba(26,38,51,0.85);
