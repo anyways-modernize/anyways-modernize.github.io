@@ -67,10 +67,8 @@ body {
 /* ── LANDSCAPE (village — sits above footer, below nav/content) ── */
 .landscape {
   position: fixed;
-  bottom: 0; left: 50%;
-  transform: translateX(-50%);
+  bottom: 0; left: 0;
   width: 100%;
-  max-width: 1440px;   /* ← lower this to shrink the village further */
   z-index: 2;
   pointer-events: none;
 }
