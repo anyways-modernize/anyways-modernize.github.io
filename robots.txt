@@ -56,4 +56,4 @@ Disallow: /
 #   OAI-SearchBot, ChatGPT-User, Claude-User, Claude-SearchBot
 #   -> covered by the "User-agent: *" Allow rule above.
 
-Sitemap: https://anyways-modernize.github.io/sitemap.xml
+Sitemap: https://anyways-modernize.com/sitemap.xml
