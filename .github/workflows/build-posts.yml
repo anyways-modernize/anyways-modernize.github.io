@@ -33,7 +33,7 @@ jobs:
 
       - name: Restore generated post artifacts cache
         id: restore-generated-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             posts/*.html
@@ -511,7 +511,7 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Save generated post artifacts cache
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: |
             posts/*.html
