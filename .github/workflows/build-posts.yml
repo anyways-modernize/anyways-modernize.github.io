@@ -194,8 +194,8 @@ jobs:
             dates_html = ''
           body = pathlib.Path('/tmp/post_body.html').read_text()
           tmpl = pathlib.Path('_template.html').read_text()
-          url     = f'https://anyways-modernize.github.io/{outpath}'
-          ogimage = f'https://anyways-modernize.github.io/og/{name}.png'
+          url     = f'https://anyways-modernize.com/{outpath}'
+          ogimage = f'https://anyways-modernize.com/og/{name}.png'
           html = (tmpl
             .replace('{{TITLE}}',       title)
             .replace('{{TAG}}',         tag)
@@ -350,7 +350,7 @@ jobs:
           pathlib.Path('data/search.json').write_text(json.dumps(search_data, ensure_ascii=False, indent=2))
           print(f'Built search.json with {len(search_data)} posts')
           # ── Generate sitemap.xml ──
-          BASE_URL = 'https://anyways-modernize.github.io'
+          BASE_URL = 'https://anyways-modernize.com'
           today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
           def url_entry(loc, lastmod, changefreq, priority):
             return (
@@ -449,7 +449,7 @@ jobs:
 
       - name: Prepare IndexNow URL list
         env:
-          BASE_URL: https://anyways-modernize.github.io
+          BASE_URL: https://anyways-modernize.com
         run: |
           set -euo pipefail
           python3 << 'PYEOF'
@@ -531,7 +531,7 @@ jobs:
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
           INDEXNOW_ENDPOINT: https://api.indexnow.org/indexnow
-          SITE_HOST: anyways-modernize.github.io
+          SITE_HOST: anyways-modernize.com
         run: |
           set -euo pipefail
 
