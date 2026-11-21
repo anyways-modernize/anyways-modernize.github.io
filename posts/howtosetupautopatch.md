@@ -33,7 +33,7 @@ Or, for a cleaner group with only company-owned, Intune-managed devices:
 
 For testing, use a static group with a few devices.
 
-# Step 3: Create an Autopatch group
+## Step 3: Create an Autopatch group
 
 - Open **Intune**
 - Go to **Tenant administration → Windows Autopatch** and confirm that you have the right license.
@@ -46,7 +46,7 @@ For testing, use a static group with a few devices.
 
 Autopatch builds the update policies for you. You'll find them under **Devices → Windows Update** and **Devices → Configuration**, with the prefix **Windows Autopatch Update Policy**.
 
-# Step 4: Check your devices
+## Step 4: Check your devices
 
 Go to **Devices → Windows Update → Monitor → Autopatch Devices**. You'll see which ring each device is in and its update status. You can troubleshoot and fix related issues from there.
 ::: note For new tenants, it can take up to 48 hours for devices to show as Registered. After that, reports refresh about every 4 hours. :::
