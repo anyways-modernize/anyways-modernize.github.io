@@ -56,7 +56,7 @@ The Client Broker runs readiness checks on devices and collects logs automatical
 
 - Open **Intune**
 - Go to **Tenant administration → Windows Autopatch → Tenant management → Manage client broker**
-- Click **Add groups** and choose **All Autopatch devices** or specific groups. It's installed as a Win32 app.
+- Click **Add groups** and it will target all your autopilot devices. It's installed as a Win32 app.
 
 ## Tips and Recommendations
 
