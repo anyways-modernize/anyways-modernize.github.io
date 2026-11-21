@@ -17,7 +17,9 @@ Windows Autopatch keeps Windows, Microsoft 365 Apps, Edge and drivers up to date
 Remove any policies that could affect Windows Update: GPOs, SCCM, third-party tools, etc.
 
 You can also use the [IgnoreWindowsUpdateGroupPolicies](https://learn.microsoft.com/windows/client-management/mdm/policy-csp-update#ignorewindowsupdategrouppolicies) policy. It makes devices ignore Windows Update settings from Group Policy and only apply the ones from Intune.
-::: note Only works on Windows 11 24H2 and later with KB5101684 installed :::
+::: note 
+Only works on Windows 11 24H2 and later with KB5101684 installed 
+:::
 
 ## Step 2: Create your device groups
 I usually recommend using the built-in **All devices** group, but you can't use it with Autopatch. To patch all devices, create a dynamic group that targets them:
@@ -49,7 +51,9 @@ Autopatch builds the update policies for you. You'll find them under **Devices �
 ## Step 4: Check your devices
 
 Go to **Devices → Windows Update → Monitor → Autopatch Devices**. You'll see which ring each device is in and its update status. You can troubleshoot and fix related issues from there.
-::: note For new tenants, it can take up to 48 hours for devices to show as Registered. After that, reports refresh about every 4 hours. :::
+::: note 
+For new tenants, it can take up to 48 hours for devices to show as Registered. After that, reports refresh about every 4 hours. 
+:::
 
 ## Step 5: Optional - Install the Autopatch Client Broker
 The Client Broker runs readiness checks on devices and collects logs automatically when you open a support request.
